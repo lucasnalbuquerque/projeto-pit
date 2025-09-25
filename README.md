@@ -10,7 +10,9 @@ Repositório para auxiliar a realização do projeto PIT 25/26 HULW
 - power automate
 - teams
 - power apps
-
+- c#
+- javascript
+- node.js
 - power bi (dashboards interativos)
 - outlook (agendamento e envio de convites)
 - postman (teste API)
