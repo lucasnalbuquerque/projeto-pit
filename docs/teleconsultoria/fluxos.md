@@ -31,6 +31,6 @@ Abaixo, os principais fluxos usando as ferramentas do README.
 
 ## Regras e Políticas
 
-- Não registrar dados sensíveis fora dos sistemas clínicos
+- Não registrar dados sensíveis fora dos sistemas clínicos (Dados sensíveis não serão enviados ao repositório github)
 - Usar IDs pseudonimizados nas listas e relatórios
-- Restringir acesso por função (RBAC) no SharePoint e Power Platform
+- Restringir acesso por função (RBAC - Role based acess control) no SharePoint e Power Platform

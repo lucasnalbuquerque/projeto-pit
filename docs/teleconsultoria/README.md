@@ -19,15 +19,4 @@ Como usar:
 4. Siga `operacao.md` para preparar permissões e suporte.
 5. Use a coleção do Postman para validar integrações.
 
-# tleconsultoria - modelo inicial
-
-Este diretório contém um modelo prático para estruturar a teleconsultoria usando as ferramentas listadas no README do projeto.
-
-Componenetes incluidos:
-
-- arquitetura.md : visão de arquitetura com as ferramentas aprovadas
-- fluxos.md: fluxos operacionais de ponta a ponta
-- checklist-lgpd.md: lgpd checklist
-- operacao.md: playbook operaicional
-- backlog.md: backlog por fases e marcos
-- posttman: 
+Se tiver pouco tempo, siga diretamente o guia: `mvp-simplificado.md` (executável em 1–2 dias, sem desenvolvimento).
