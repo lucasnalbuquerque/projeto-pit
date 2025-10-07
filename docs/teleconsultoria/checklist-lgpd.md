@@ -4,8 +4,6 @@ Use esta lista para validar o MVP e a versão estendida.
 
 ## Governança
 
-- Nomear responsável/DPO para o projeto
-- Definir base legal para tratamento de dados e termo de consentimento
 - Classificar dados (pessoais, sensíveis) e minimizar coleta
 
 ## Acesso e Identidade

@@ -8,7 +8,7 @@
 
 ## Fase 1 – MVP Operacional
 
-- Formulário de solicitação (Forms/Power Apps)
+- Formulário de solicitação (Forms)  FEITO
 - Fluxo Power Automate para agendar Teams e notificar
 - Lista SharePoint para registro mínimo
 
