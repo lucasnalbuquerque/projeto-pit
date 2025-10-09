@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "Teleconsultoria - Exemplo",
+    "name": "Teleconsultoria",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": "Coleção de exemplo com variáveis de ambiente para testar APIs internas/externas sem dados sensíveis."
   },
@@ -24,7 +24,7 @@
     }
   ],
   "variable": [
-    { "key": "base_url", "value": "https://exemplo.api" },
+    { "key": "base_url", "value": "(api)" },
     { "key": "auth_token", "value": "" }
   ]
 }
