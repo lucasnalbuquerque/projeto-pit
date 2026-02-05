@@ -4,7 +4,6 @@
 
 - Solicitar acesso ao Microsoft Teams, SharePoint e Power Automate
 - Adicionar usuários aos grupos corretos (equipes no Teams e permissões nas bibliotecas)
-- Treinamento rápido: triagem, registro mínimo, uso do Teams
 
 ## Rotina de Operação
 
