@@ -1,0 +1,13 @@
+venv/
+env/
+.venv/
+
+*.sqlite3
+
+__pycache__/
+*.py[cod]
+
+respostas_anexos/
+media/
+
+.vscode/

@@ -1,5 +1,0 @@
-- Comunicação e vídeo: Microsoft Teams
-- Agendamento: Outlook (calendário institucional) + formulário (Microsoft Forms)
-- Repositório de documentos: SharePoint (bibliotecas com permissões por equipe)
-- Fluxos/automação: Power Automate (notificações, criação de reuniões, registro em lista)
-- Registro mínimo da consulta: Lista SharePoint (metadados: paciente pseudonimizado/ID interno, profissional, data, status, link da reunião)
