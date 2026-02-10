@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Nova Solicitação</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 900px; margin: 30px auto; padding: 20px; line-height: 1.6; background-color: #f4f7f6; }
+        .hidden { display: none; }
+        .campo-box { background: #fdfdfd; border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        textarea { width: 100%; padding: 10px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; resize: vertical; }
+        select, input[type="number"], input[type="file"] { padding: 8px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc; }
+        button { background: #007bff; color: white; padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; }
+        button:hover { background: #0056b3; }
+        h3 { color: #007bff; border-bottom: 2px solid #007bff; display: inline-block; margin-bottom: 10px; }
+        .anexo-box { border: 2px dashed #007bff; background: #f0f7ff; padding: 15px; text-align: center; margin-top: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Nova Solicitação de Teleconsultoria</h1>
+    
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="campo-box">
+            <label><strong>O que você deseja discutir?</strong></label><br>
+            <select name="tipo_caso" id="tipo_caso" onchange="alternarCampos()" required>
+                <option value="">Selecione o tipo de caso...</option>
+                <option value="GERAL">Dúvida Geral</option>
+                <option value="ESPECIFICO">Paciente Específico</option>
+            </select>
+        </div>
+
+        <div id="secao_especifica" class="hidden">
+            <h3>Dados do Paciente</h3>
+            <div class="campo-box">
+                <p>Idade aproximada do paciente: <input type="number" name="idade_pac" min="0"></p>
+                <p>Sexo do paciente: 
+                    <select name="sexo_pac">
+                        <option value="M">Masculino</option>
+                        <option value="F">Feminino</option>
+                        <option value="O">Outro</option>
+                    </select>
+                </p>
+                <p>Diagnóstico Principal: <br><textarea name="diagnostico_princ" rows="2"></textarea></p>
+                <p>Diagnóstico secundário (opcional): <br><textarea name="diagnostico_sec" rows="2"></textarea></p>
+                <p>Queixas principais: <br><textarea name="queixas_especificas" rows="3"></textarea></p>
+                <p>Histórico médico relevante: <br><textarea name="historico_med" rows="3"></textarea></p>
+                <p>Uso atual de medicamentos: <br><textarea name="medicamentos" rows="3"></textarea></p>
+                <p>Exames laboratoriais recentes: <br><textarea name="exames_recentes" rows="3"></textarea></p>
+            </div>
+        </div>
+
+        <div class="campo-box">
+            <p id="label_duvida"><strong>Descreva a dúvida que deseja discutir:</strong></p>
+            <textarea name="duvida_clinica" rows="6" required placeholder="Digite os detalhes aqui..."></textarea>
+        </div>
+
+        <div class="campo-box">
+            <p><strong>Anexar arquivos (Opcional - Selecione múltiplos):</strong></p>
+            <div class="anexo-box">
+                <input type="file" name="anexos" multiple>
+                <p style="font-size: 0.8em; color: #666; margin-top: 5px;">PDF, imagens ou laudos. Você pode selecionar vários arquivos segurando a tecla Ctrl ou Shift.</p>
+            </div>
+        </div>
+
+        <button type="submit">Enviar para Fila Médica</button>
+    </form>
+
+    <script>
+        function alternarCampos() {
+            var tipo = document.getElementById('tipo_caso').value;
+            var secao = document.getElementById('secao_especifica');
+            var label = document.getElementById('label_duvida');
+
+            if (tipo === 'ESPECIFICO') {
+                secao.classList.remove('hidden');
+                label.innerHTML = "<strong>Descreva a dúvida ou o caso clínico que deseja discutir:</strong>";
+            } else {
+                secao.classList.add('hidden');
+                label.innerHTML = "<strong>Descreva a dúvida geral que deseja discutir:</strong>";
+            }
+        }
+    </script>
+</body>
+</html>

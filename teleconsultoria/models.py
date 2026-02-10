@@ -95,9 +95,6 @@ class Resposta(models.Model):
     medica = models.ForeignKey(Medica, on_delete=models.CASCADE)
     conteudo = models.TextField()
     
-    # anexo como atributo fraco
-    anexo = models.FileField(upload_to='respostas_anexos/', null=True, blank=True)
-    
     data_res = models.DateTimeField(auto_now_add=True)
 
     # métodos de salvamento
@@ -107,4 +104,21 @@ class Resposta(models.Model):
 
     def __str__(self):
         return f"Resposta de {self.medica} para Solicitacao #{self.solicitacao.id}"
-    
+
+# --- MODELOS DE ANEXOS (Para múltiplos arquivos) ---
+
+class AnexoSolicitacao(models.Model):
+    solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE, related_name='anexos')
+    arquivo = models.FileField(upload_to='solicitacoes_anexos/')
+    data_upload = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Anexo da Solicitacao #{self.solicitacao.id}"
+
+class AnexoResposta(models.Model):
+    resposta = models.ForeignKey(Resposta, on_delete=models.CASCADE, related_name='anexos')
+    arquivo = models.FileField(upload_to='respostas_anexos/')
+    data_upload = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Anexo da Resposta #{self.resposta.id}"
