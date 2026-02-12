@@ -1,3 +1,5 @@
+import uuid
+from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -122,3 +124,20 @@ class AnexoResposta(models.Model):
 
     def __str__(self):
         return f"Anexo da Resposta #{self.resposta.id}"
+
+# --- MODELO DE LINK MÁGICO ---
+
+class LinkAcesso(models.Model):
+    solicitacao = models.OneToOneField(Solicitacao, on_delete=models.CASCADE, related_name='link_magico')
+    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    data_criacao = models.DateTimeField(auto_now_add=True)
+    expirado = models.BooleanField(default=False)
+
+    def is_valido(self):
+        # validade padrão de 7 dias
+        prazo = self.data_criacao + timezone.timedelta(days=7)
+        return timezone.now() < prazo and not self.expirado
+
+    def __str__(self):
+        return f"Token para Solicitacao #{self.solicitacao.id}"
+    

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Acompanhar Solicitação #{{ sol.id }}</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 900px; margin: 30px auto; padding: 20px; line-height: 1.6; background-color: #f0f2f5; color: #333; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px; margin-bottom: 25px; }
+        .header-status { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+        
+        /* Badges */
+        .badge { padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.9em; text-transform: uppercase; }
+        .status-PENDENTE { background: #fff3cd; color: #856404; }
+        .status-ANALISE { background: #cfe2ff; color: #084298; }
+        .status-CONCLUIDA { background: #d1e7dd; color: #0f5132; }
+        
+        .secao { margin-bottom: 25px; }
+        .secao h3 { color: #007bff; border-left: 4px solid #007bff; padding-left: 10px; margin-bottom: 15px; }
+        
+        /* Accordion UX */
+        .btn-toggle { background: #e9ecef; border: none; width: 100%; text-align: left; padding: 15px; font-size: 1em; font-weight: bold; cursor: pointer; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .conteudo-detalhes { display: none; padding: 20px; background: #fdfdfd; border: 1px solid #eee; border-top: none; border-radius: 0 0 8px 8px; }
+
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .detalhe-item { margin-bottom: 10px; }
+        .detalhe-item strong { display: block; color: #555; font-size: 0.9em; }
+
+        .resposta-box { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 25px; margin-top: 10px; position: relative; }
+        
+        .anexo-lista { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .btn-anexo { text-decoration: none; background: white; border: 1px solid #007bff; color: #007bff; padding: 8px 12px; border-radius: 6px; font-size: 0.85em; transition: 0.2s; }
+        .btn-anexo:hover { background: #007bff; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="header-status">
+            <div>
+                <h2 style="margin:0;">Solicitação #{{ sol.id }}</h2>
+                <small>Protocolo gerado em {{ sol.data_sol|date:"d/m/Y" }}</small>
+            </div>
+            <span class="badge status-{{ sol.status }}">
+                {{ sol.get_status_display }}
+            </span>
+        </div>
+
+        <div class="secao">
+            <button class="btn-toggle" onclick="toggleDetalhes()">
+                <span>🔍 Ver Informações da Solicitação</span>
+                <span id="seta">▼</span>
+            </button>
+            
+            <div id="detalhes" class="conteudo-detalhes">
+                <div class="info-grid">
+                    <div class="detalhe-item">
+                        <strong>Tipo da Teleconsultoria</strong>
+                        {% if sol.idade_pac > 0 %}Paciente Específico{% else %}Dúvida Geral{% endif %}
+                    </div>
+                    <div class="detalhe-item">
+                        <strong>Modalidade</strong>
+                        {{ sol.get_tipo_atendimento_display }}
+                    </div>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+                {% if sol.idade_pac > 0 %}
+                    <div class="info-grid">
+                        <div class="detalhe-item"><strong>Sexo</strong>{{ sol.get_sexo_pac_display }}</div>
+                        <div class="detalhe-item"><strong>Idade</strong>{{ sol.idade_pac }} anos</div>
+                    </div>
+                    <div class="detalhe-item"><strong>Diagnóstico Principal</strong><p>{{ sol.diagnostico_princ|default:"Não informado" }}</p></div>
+                    <div class="detalhe-item"><strong>Queixas</strong><p>{{ sol.queixas|linebreaks }}</p></div>
+                    <div class="detalhe-item"><strong>Histórico</strong><p>{{ sol.historico_med|linebreaks|default:"-" }}</p></div>
+                    <div class="detalhe-item"><strong>Medicamentos em uso</strong><p>{{ sol.medicamentos|linebreaks|default:"-" }}</p></div>
+                {% endif %}
+
+                <div class="detalhe-item">
+                    <strong>Dúvida Clínica (Pergunta)</strong>
+                    <p style="background: #fff; padding: 15px; border-radius: 8px; border: 1px dashed #ccc;">
+                        {{ sol.duvida_clinica|linebreaks }}
+                    </p>
+                </div>
+
+                {% if sol.anexos.all %}
+                    <div class="detalhe-item">
+                        <strong>Documentos Enviados</strong>
+                        <div class="anexo-lista">
+                            {% for anexo in sol.anexos.all %}
+                                <a href="{{ anexo.arquivo.url }}" target="_blank" class="btn-anexo">📄 Anexo {{ forloop.counter }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if sol.respostas.all %}
+            {% for resposta in sol.respostas.all %}
+            <div class="secao">
+                <h3>Resposta da Consultoria</h3>
+                <div class="resposta-box">
+                    <div style="margin-bottom: 15px; font-weight: bold; color: #007bff;">
+                        Dra. {{ resposta.medica.user.get_full_name }} - {{ resposta.medica.especialidade }}
+                    </div>
+                    
+                    <div style="font-size: 1.1em; color: #222;">
+                        {{ resposta.conteudo|linebreaks }}
+                    </div>
+                    
+                    {% if resposta.anexos.all %}
+                    <div style="margin-top: 25px; border-top: 2px solid #eee; padding-top: 15px;">
+                        <strong>Materiais de Apoio e Condutas:</strong>
+                        <div class="anexo-lista">
+                            {% for anexo in resposta.anexos.all %}
+                                <a href="{{ anexo.arquivo.url }}" target="_blank" class="btn-anexo" style="border-color: #28a745; color: #28a745;">📎 Baixar {{ anexo.arquivo.name }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <small style="color: #999;">Finalizado em {{ resposta.data_res|date:"d/m/Y" }} às {{ resposta.data_res|date:"H:i" }}</small>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="resposta-box" style="text-align: center; border: 2px dashed #cbd5e0;">
+                <p style="font-size: 1.1em; color: #4a5568;">
+                    {% if sol.status == 'PENDENTE' %}
+                        Sua solicitação está na fila de processamento.<br>
+                    {% elif sol.status == 'ANALISE' %}
+                        Sua solicitação está sendo analisada por nossa equipe médica.<br>
+                    {% endif %}
+                    <strong>Assim que houver uma resposta, ela aparecerá automaticamente neste link.</strong>
+                </p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="footer-info">
+        Este é um link seguro de acesso temporário. Não compartilhe esta URL com pessoas não autorizadas.
+    </div>
+
+    <script>
+        function toggleDetalhes() {
+            var content = document.getElementById("detalhes");
+            var seta = document.getElementById("seta");
+            if (content.style.display === "block") {
+                content.style.display = "none";
+                seta.innerHTML = "▼";
+            } else {
+                content.style.display = "block";
+                seta.innerHTML = "▲";
+            }
+        }
+    </script>
+</body>
+</html>

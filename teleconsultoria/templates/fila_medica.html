@@ -4,55 +4,164 @@
     <meta charset="UTF-8">
     <title>Fila de Atendimento - Telemedicina</title>
     <style>
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #f4f4f4; }
-        .status-pendente { color: orange; font-weight: bold; }
-        .status-analise { color: blue; font-weight: bold; }
-        .status-concluido { color: green; font-weight: bold; }
-        .btn { padding: 5px 10px; text-decoration: none; border-radius: 4px; background-color: #007bff; color: white; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 40px; background-color: #f8f9fa; }
+        h1 { color: #2c3e50; }
+        
+        .filter-bar { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; }
+        .filter-group { display: flex; flex-direction: column; gap: 5px; }
+        .filter-group label { font-size: 0.85em; font-weight: bold; color: #555; }
+        select, input { padding: 8px; border-radius: 4px; border: 1px solid #ddd; min-width: 150px; }
+
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: #05922f; color: white; font-weight: 600; text-transform: uppercase; font-size: 0.85em; }
+        
+        .inst-nome { display: block; font-weight: bold; color: #333; }
+        .sol-nome { display: block; font-size: 0.85em; color: #666; }
+
+        .status-PENDENTE { color: #f39c12; font-weight: bold; }
+        .status-ANALISE { color: #3498db; font-weight: bold; }
+        .status-CONCLUIDA { color: #27ae60; font-weight: bold; }
+        
+        .btn { padding: 8px 15px; text-decoration: none; border-radius: 4px; background-color: #007bff; color: white; transition: 0.3s; font-weight: bold; }
+        .btn:hover { background-color: #0056b3; }
+
+        .btn-limpar { padding: 8px 12px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-limpar:hover { background: #5a6268; }
     </style>
 </head>
 <body>
 
     <h1>Fila de Solicitações Médicas</h1>
-    
-    <a href="{% url 'nova_solicitacao' %}" style="background-color: #28a745; color: white; padding: 10px; text-decoration: none; border-radius: 5px;">
-        + Criar Nova Solicitação
-    </a>
 
-    <table>
+    <div class="filter-bar">
+        <div class="filter-group">
+            <label>Data da Solicitação:</label>
+            <input type="date" id="filterData" onchange="filtrarTabela()">
+        </div>
+        <div class="filter-group">
+            <label>Status:</label>
+            <select id="filterStatus" onchange="filtrarTabela()">
+                <option value="">Todos</option>
+                <option value="PENDENTE">Pendente</option>
+                <option value="ANALISE">Em Análise</option>
+                <option value="CONCLUIDA">Concluída</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Modalidade:</label>
+            <select id="filterModalidade" onchange="filtrarTabela()">
+                <option value="">Todas</option>
+                <option value="Síncrono">Síncrono</option>
+                <option value="Assíncrono">Assíncrono</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Tipo:</label>
+            <select id="filterTipo" onchange="filtrarTabela()">
+                <option value="">Todos</option>
+                <option value="Paciente Específico">Paciente Específico</option>
+                <option value="Dúvida Geral">Dúvida Geral</option>
+            </select>
+        </div>
+        <button class="btn-limpar" onclick="limparFiltros()">Limpar Filtros</button>
+    </div>
+
+    <table id="tabelaFila">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Data/Hora</th>
-                <th>Paciente (Idade)</th>
+                <th>ID / Hora</th>
+                <th>Solicitante / Instituição</th>
+                <th>Tipo</th>
+                <th>Modalidade</th>
                 <th>Status</th>
                 <th>Ação</th>
             </tr>
         </thead>
         <tbody>
             {% for sol in solicitacoes %}
-            <tr>
-                <td>#{{ sol.id }}</td>
-                <td>{{ sol.data_sol|date:"d/m/Y H:i" }}</td>
-                <td>{{ sol.idade_pac }} anos</td>
+            <tr class="linha-solicitacao" 
+                data-data="{{ sol.data_sol|date:'Y-m-d' }}"
+                data-status="{{ sol.status }}" 
+                data-modalidade="{{ sol.get_tipo_atendimento_display }}"
+                data-tipo="{% if sol.idade_pac > 0 %}Paciente Específico{% else %}Dúvida Geral{% endif %}">
+                
                 <td>
-                    <span class="{% if sol.status == 'PENDENTE' %}status-pendente{% elif sol.status == 'ANALISE' %}status-analise{% else %}status-concluido{% endif %}">
-                        {{ sol.get_status_display }}
+                    <strong>#{{ sol.id }}</strong><br>
+                    <small style="color: #888;">{{ sol.data_sol|date:"H:i" }}</small>
+                </td>
+
+                <td>
+                    <span class="inst-nome">{{ sol.instituicao|default:"Instituição Não Informada" }}</span>
+                    <span class="sol-nome">Dr(a). {{ sol.profissional.user.get_full_name|default:"Nome do Solicitante" }}</span>
+                </td>
+
+                <td>
+                    {% if sol.idade_pac > 0 %}
+                        Paciente Específico
+                    {% else %}
+                        Dúvida Geral
+                    {% endif %}
+                </td>
+
+                <td>
+                    {{ sol.get_tipo_atendimento_display }}
+                </td>
+
+                <td>
+                    <span class="status-{{ sol.status }}">
+                        ● {{ sol.get_status_display }}
                     </span>
                 </td>
+
                 <td>
-                    <a href="{% url 'detalhe_caso' sol.id %}" class="btn">Visualizar e Atender</a>
+                    <a href="{% url 'detalhe_caso' sol.id %}" class="btn">Atender</a>
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="5" style="text-align: center;">Nenhuma solicitação na fila no momento.</td>
+                <td colspan="6" style="text-align: center; padding: 40px;">Nenhuma solicitação encontrada.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    <script>
+        function filtrarTabela() {
+            const dataFiltro = document.getElementById('filterData').value;
+            const status = document.getElementById('filterStatus').value;
+            const modalidade = document.getElementById('filterModalidade').value;
+            const tipo = document.getElementById('filterTipo').value;
+            
+            const linhas = document.querySelectorAll('.linha-solicitacao');
+
+            linhas.forEach(linha => {
+                const dataLinha = linha.getAttribute('data-data');
+                const statusLinha = linha.getAttribute('data-status');
+                const modLinha = linha.getAttribute('data-modalidade');
+                const tipoLinha = (linha.getAttribute('data-tipo') || "").trim();
+
+                const matchData = dataFiltro === "" || dataLinha === dataFiltro;
+                const matchStatus = status === "" || statusLinha === status;
+                const matchMod = modalidade === "" || modLinha === modalidade;
+                const matchTipo = tipo === "" || tipoLinha === tipo;
+
+                if (matchData && matchStatus && matchMod && matchTipo) {
+                    linha.style.display = "";
+                } else {
+                    linha.style.display = "none";
+                }
+            });
+        }
+
+        function limparFiltros() {
+            document.getElementById('filterData').value = "";
+            document.getElementById('filterStatus').value = "";
+            document.getElementById('filterModalidade').value = "";
+            document.getElementById('filterTipo').value = "";
+            filtrarTabela();
+        }
+    </script>
 
 </body>
 </html>

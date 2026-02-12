@@ -6,7 +6,7 @@ python manage.py runserver
 
 http://127.0.0.1:8000/admin/
 http://127.0.0.1:8000/nova/
-
+http://127.0.0.1:8000/fila/
 
 med_teste / pro_teste
 gTk-Ur9-_N5qW2G

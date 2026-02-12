@@ -6,4 +6,5 @@ urlpatterns = [
     path('fila/', views.fila_medica, name='fila_medica'),
     path('detalhe/<int:sol_id>/', views.detalhe_caso, name='detalhe_caso'),
     path('responder/<int:sol_id>/', views.responder_solicitacao, name='responder_solicitacao'),
+    path('acompanhar/<uuid:token>/', views.acompanhar_caso, name='acompanhar_caso'),
 ]
