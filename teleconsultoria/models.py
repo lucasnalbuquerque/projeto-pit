@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 class StatusSolicitacao(models.TextChoices):
     PENDENTE = 'PENDENTE', 'Pendente'
     EM_ANALISE = 'ANALISE', 'Em Análise'
+    AGENDADO = 'AGENDADO', 'Reunião Agendada'
     CONCLUIDA = 'CONCLUIDA', 'Concluída'
     CANCELADA = 'CANCELADA', 'Cancelada'
 
@@ -18,6 +19,32 @@ class Sexo(models.TextChoices):
     M = 'M', 'Masculino'
     F = 'F', 'Feminino'
     O = 'O', 'Outro'
+
+class DiaSemana(models.IntegerChoices):
+    SEGUNDA = 0, 'Segunda-feira'
+    TERCA = 1, 'Terça-feira'
+    QUARTA = 2, 'Quarta-feira'
+    QUINTA = 3, 'Quinta-feira'
+    SEXTA = 4, 'Sexta-feira'
+    SABADO = 5, 'Sábado'
+    DOMINGO = 6, 'Domingo'
+
+# --- MODELS DE CONFIGURAÇÃO (ADMIN) ---
+
+class HorarioFixoDisponivel(models.Model):
+    dia_semana = models.IntegerField(choices=DiaSemana.choices)
+    horario = models.TimeField()
+    ativo = models.BooleanField(default=True, help_text="Define se este horário da grade semanal está ativo")
+
+    class Meta:
+        verbose_name = "Horário Fixo da Semana"
+        verbose_name_plural = "Grade de Horários Fixos"
+        ordering = ['dia_semana', 'horario']
+        unique_together = ['dia_semana', 'horario']
+
+    def __str__(self):
+        status = "Ativo" if self.ativo else "Inativo"
+        return f"{self.get_dia_semana_display()} às {self.horario.strftime('%H:%M')} - {status}"
 
 # --- MODELS DE PERFIL ---
 
@@ -56,6 +83,10 @@ class Solicitacao(models.Model):
     # Ramificação UML: sincrono vs assincrono
     data_marcada = models.DateField(null=True, blank=True)
     horario_marcado = models.TimeField(null=True, blank=True)
+    duracao_estimada = models.PositiveIntegerField(default=30, help_text="Duração em minutos")
+    link_teams = models.URLField(max_length=500, null=True, blank=True)
+    resumo_sincrono = models.TextField(null=True, blank=True)
+    
     data_limite = models.DateField(null=True, blank=True)
     horario_limite = models.TimeField(null=True, blank=True)
 
@@ -73,6 +104,15 @@ class Solicitacao(models.Model):
     # métodos de mudança de status
     def iniciar_analise(self):
         self.status = StatusSolicitacao.EM_ANALISE
+        self.save()
+
+    def agendar_reuniao(self, data, horario, link, duracao=30):
+        self.data_marcada = data
+        self.horario_marcado = horario
+        self.link_teams = link
+        self.duracao_estimada = duracao
+        self.tipo_atendimento = TipoAtendimento.SINCRONO
+        self.status = StatusSolicitacao.AGENDADO
         self.save()
 
     def finalizar(self):
@@ -123,7 +163,7 @@ class AnexoResposta(models.Model):
     data_upload = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Anexo da Resposta #{self.resposta.id}"
+        return f"Anexo da Resposta #{self.id}"
 
 # --- MODELO DE LINK MÁGICO ---
 
@@ -140,4 +180,3 @@ class LinkAcesso(models.Model):
 
     def __str__(self):
         return f"Token para Solicitacao #{self.solicitacao.id}"
-    

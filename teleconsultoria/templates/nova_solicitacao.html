@@ -4,81 +4,274 @@
     <meta charset="UTF-8">
     <title>Nova Solicitação</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 900px; margin: 30px auto; padding: 20px; line-height: 1.6; background-color: #f4f7f6; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 900px; margin: 30px auto; padding: 20px; line-height: 1.6; background-color: #f0f2f5; color: #333; }
         .hidden { display: none; }
-        .campo-box { background: #fdfdfd; border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        textarea { width: 100%; padding: 10px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; resize: vertical; }
-        select, input[type="number"], input[type="file"] { padding: 8px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc; }
-        button { background: #007bff; color: white; padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; }
+        .campo-box { background: #fff; border: 1px solid #e0e0e0; padding: 20px; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        
+        /* Descrição da duração */
+        .info-duracao { font-size: 0.9rem; color: #666; margin-bottom: 15px; display: flex; align-items: center; gap: 5px; }
+        .info-duracao::before { content: '🕒'; }
+
+        .calendario-grid {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 10px 5px;
+            margin-bottom: 20px;
+            scrollbar-width: thin;
+            scrollbar-color: #007bff #f0f2f5;
+        }
+        
+        .data-card {
+            min-width: 90px;
+            padding: 12px 8px;
+            background: #fff;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .data-card:hover { border-color: #007bff; background: #f8f9ff; }
+        
+        .data-card.active {
+            border-color: #007bff;
+            background: #007bff;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .data-card .dia-semana { font-size: 0.75rem; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px; }
+        .data-card .dia-mes { font-size: 1.1rem; font-weight: bold; display: block; }
+
+        .horarios-container { border-top: 1px solid #eee; padding-top: 20px; animation: fadeIn 0.3s ease; }
+        .horarios-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+
+        .horario-chip {
+            padding: 10px 18px;
+            background: #fff;
+            border: 1px solid #007bff;
+            color: #007bff;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .horario-chip input[type="radio"] { display: none; }
+        .horario-chip:hover { background: #e7f1ff; }
+        .horario-chip.selecionado { background: #007bff; color: white; border-color: #0056b3; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; margin-top: 5px; margin-bottom: 10px; }
+        select, input { padding: 10px; border-radius: 8px; border: 1px solid #ccc; width: 100%; margin-top: 8px; box-sizing: border-box; }
+        button { background: #007bff; color: white; padding: 15px; border: none; font-size: 18px; font-weight: bold; width: 100%; border-radius: 8px; cursor: pointer; margin-top: 10px; }
         button:hover { background: #0056b3; }
-        h3 { color: #007bff; border-bottom: 2px solid #007bff; display: inline-block; margin-bottom: 10px; }
-        .anexo-box { border: 2px dashed #007bff; background: #f0f7ff; padding: 15px; text-align: center; margin-top: 10px; border-radius: 5px; }
+        h3 { color: #007bff; margin-top: 0; font-size: 1.2rem; border-bottom: 2px solid #f0f2f5; padding-bottom: 10px; margin-bottom: 15px; }
+        h4 { margin-bottom: 5px; font-size: 0.95rem; color: #444; }
+        .erro-msg { color: #dc3545; background: #f8d7da; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; border: 1px solid #f5c6cb; }
+        
+        /* Estilos para lista de arquivos */
+        #lista-arquivos { margin-top: 10px; }
+        .arquivo-item { background: #eef6ff; padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
+        .remover-arquivo { color: #dc3545; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
     <h1>Nova Solicitação de Teleconsultoria</h1>
-    
-    <form method="POST" enctype="multipart/form-data">
+
+    {% if erro %}
+        <div class="erro-msg">{{ erro }}</div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" id="form-solicitacao">
         {% csrf_token %}
 
         <div class="campo-box">
-            <label><strong>O que você deseja discutir?</strong></label><br>
+            <label><strong>O que você deseja discutir?</strong></label>
             <select name="tipo_caso" id="tipo_caso" onchange="alternarCampos()" required>
-                <option value="">Selecione o tipo de caso...</option>
-                <option value="GERAL">Dúvida Geral</option>
+                <option value="">Selecione...</option>
+                <option value="GERAL">Dúvida Geral </option>
                 <option value="ESPECIFICO">Paciente Específico</option>
             </select>
         </div>
 
-        <div id="secao_especifica" class="hidden">
-            <h3>Dados do Paciente</h3>
+        <div class="campo-box">
+            <label><strong>Modalidade de Atendimento:</strong></label>
+            <select name="tipo_atendimento" id="tipo_atendimento" onchange="alternarSincrono()" required>
+                <option value="ASSINCRONO">Resposta Assíncrona (Texto)</option>
+                <option value="SINCRONO">Reunião por Vídeo (via Teams)</option>
+            </select>
+        </div>
+
+        <div id="secao_agendamento" class="hidden">
             <div class="campo-box">
-                <p>Idade aproximada do paciente: <input type="number" name="idade_pac" min="0"></p>
-                <p>Sexo do paciente: 
-                    <select name="sexo_pac">
-                        <option value="M">Masculino</option>
-                        <option value="F">Feminino</option>
-                        <option value="O">Outro</option>
-                    </select>
-                </p>
-                <p>Diagnóstico Principal: <br><textarea name="diagnostico_princ" rows="2"></textarea></p>
-                <p>Diagnóstico secundário (opcional): <br><textarea name="diagnostico_sec" rows="2"></textarea></p>
-                <p>Queixas principais: <br><textarea name="queixas_especificas" rows="3"></textarea></p>
-                <p>Histórico médico relevante: <br><textarea name="historico_med" rows="3"></textarea></p>
-                <p>Uso atual de medicamentos: <br><textarea name="medicamentos" rows="3"></textarea></p>
-                <p>Exames laboratoriais recentes: <br><textarea name="exames_recentes" rows="3"></textarea></p>
+                <h3>Agendamento da Reunião</h3>
+                <p class="info-duracao">A teleconsultoria síncrona tem duração limite de <strong>30 minutos</strong>.</p>
+                
+                <p><strong>1. Selecione o Dia</strong></p>
+                <div class="calendario-grid">
+                    {% regroup horarios_disponiveis by data as horarios_por_dia %}
+                    {% for dia in horarios_por_dia %}
+                        <div class="data-card" onclick="mostrarHorarios('dia_{{ forloop.counter }}', this)">
+                            <span class="dia-semana">{{ dia.grouper|date:'D' }}</span>
+                            <span class="dia-mes">{{ dia.grouper|date:'d/m' }}</span>
+                        </div>
+                    {% empty %}
+                        <p>Não há horários disponíveis para agendamento.</p>
+                    {% endfor %}
+                </div>
+
+                <div id="container_horarios_pai" class="horarios-container hidden">
+                    <p><strong>2. Selecione o Horário</strong></p>
+                    {% for dia in horarios_por_dia %}
+                        <div id="dia_{{ forloop.counter }}" class="horario-lista-wrapper hidden">
+                            <div class="horarios-grid">
+                                {% for slot in dia.list %}
+                                    <label class="horario-chip">
+                                        <input type="radio" name="agenda_id" value="{{ slot.id_formatado }}" 
+                                               onclick="marcarSelecao(this)" class="radio-agenda">
+                                        {{ slot.horario|time:"H:i" }}
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div id="secao_especifica" class="hidden">
+            <div class="campo-box">
+                <h3>Dados do Paciente</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <h4>Idade:</h4>
+                        <input type="number" name="idade_pac" placeholder="Ex: 45">
+                    </div>
+                    <div>
+                        <h4>Sexo:</h4>
+                        <select name="sexo_pac">
+                            <option value="M">Masculino</option>
+                            <option value="F">Feminino</option>
+                            <option value="O">Outro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h4>Diagnóstico Principal:</h4>
+                <textarea name="diagnostico_princ" rows="2" placeholder="Qual a suspeita ou diagnóstico atual?"></textarea>
+
+                <h4>Diagnóstico Secundário:</h4>
+                <textarea name="diagnostico_sec" rows="2" placeholder="Comorbidades ou outras condições..."></textarea>
+
+                <h4>Queixas Principais:</h4>
+                <textarea name="queixas_especificas" rows="3" placeholder="Sinais e sintomas relatados..."></textarea>
+
+                <h4>Histórico Médico:</h4>
+                <textarea name="historico_med" rows="3" placeholder="Antecedentes, cirurgias, histórico familiar..."></textarea>
+
+                <h4>Uso Atual de Medicamentos:</h4>
+                <textarea name="medicamentos" rows="2" placeholder="Liste as medicações em uso..."></textarea>
+
+                <h4>Exames Recentes:</h4>
+                <textarea name="exames_recentes" rows="3" placeholder="Resultados relevantes de exames..."></textarea>
             </div>
         </div>
 
         <div class="campo-box">
-            <p id="label_duvida"><strong>Descreva a dúvida que deseja discutir:</strong></p>
-            <textarea name="duvida_clinica" rows="6" required placeholder="Digite os detalhes aqui..."></textarea>
+            <h3>Sua Dúvida Clínica</h3>
+            <p><strong>Descreva detalhadamente sua pergunta:</strong></p>
+            <textarea name="duvida_clinica" rows="6" required placeholder="Escreva aqui sua dúvida principal..."></textarea>
+            
+            <p><strong>Anexos:</strong></p>
+            <input type="file" id="input-anexos" onchange="adicionarArquivos()">
+            <div id="lista-arquivos"></div>
         </div>
 
-        <div class="campo-box">
-            <p><strong>Anexar arquivos (Opcional - Selecione múltiplos):</strong></p>
-            <div class="anexo-box">
-                <input type="file" name="anexos" multiple>
-                <p style="font-size: 0.8em; color: #666; margin-top: 5px;">PDF, imagens ou laudos. Você pode selecionar vários arquivos segurando a tecla Ctrl ou Shift.</p>
-            </div>
-        </div>
-
-        <button type="submit">Enviar para Fila Médica</button>
+        <button type="submit">Enviar Solicitação</button>
     </form>
 
     <script>
+        let arquivosAcumulados = [];
+
+        function adicionarArquivos() {
+            const input = document.getElementById('input-anexos');
+            const lista = document.getElementById('lista-arquivos');
+            
+            for (let file of input.files) {
+                arquivosAcumulados.push(file);
+            }
+            
+            input.value = ""; // Limpa o input para permitir selecionar o mesmo arquivo novamente se desejar
+            atualizarListaExibicao();
+        }
+
+        function atualizarListaExibicao() {
+            const lista = document.getElementById('lista-arquivos');
+            lista.innerHTML = "";
+            
+            arquivosAcumulados.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'arquivo-item';
+                item.innerHTML = `
+                    <span>📎 ${file.name}</span>
+                    <span class="remover-arquivo" onclick="removerArquivo(${index})">Remover</span>
+                `;
+                lista.appendChild(item);
+            });
+        }
+
+        function removerArquivo(index) {
+            arquivosAcumulados.splice(index, 1);
+            atualizarListaExibicao();
+        }
+
+        // Intercepta o envio do formulário para injetar os arquivos acumulados
+        document.getElementById('form-solicitacao').onsubmit = function(e) {
+            const dataTransfer = new DataTransfer();
+            arquivosAcumulados.forEach(file => dataTransfer.items.add(file));
+            document.getElementById('input-anexos').files = dataTransfer.files;
+            document.getElementById('input-anexos').name = "anexos"; // Garante o nome correto para o Django
+        };
+
         function alternarCampos() {
             var tipo = document.getElementById('tipo_caso').value;
             var secao = document.getElementById('secao_especifica');
-            var label = document.getElementById('label_duvida');
-
             if (tipo === 'ESPECIFICO') {
                 secao.classList.remove('hidden');
-                label.innerHTML = "<strong>Descreva a dúvida ou o caso clínico que deseja discutir:</strong>";
             } else {
                 secao.classList.add('hidden');
-                label.innerHTML = "<strong>Descreva a dúvida geral que deseja discutir:</strong>";
             }
+        }
+
+        function alternarSincrono() {
+            var modalidade = document.getElementById('tipo_atendimento').value;
+            var secao = document.getElementById('secao_agendamento');
+            if (modalidade === 'SINCRONO') {
+                secao.classList.remove('hidden');
+            } else {
+                secao.classList.add('hidden');
+            }
+        }
+
+        function mostrarHorarios(diaId, elemento) {
+            document.querySelectorAll('.data-card').forEach(c => c.classList.remove('active'));
+            elemento.classList.add('active');
+            document.getElementById('container_horarios_pai').classList.remove('hidden');
+            document.querySelectorAll('.horario-lista-wrapper').forEach(div => div.classList.add('hidden'));
+            document.getElementById(diaId).classList.remove('hidden');
+            
+            document.querySelectorAll('.radio-agenda').forEach(r => r.checked = false);
+            document.querySelectorAll('.horario-chip').forEach(c => c.classList.remove('selecionado'));
+        }
+
+        function marcarSelecao(elemento) {
+            document.querySelectorAll('.horario-chip').forEach(chip => chip.classList.remove('selecionado'));
+            elemento.parentElement.classList.add('selecionado');
         }
     </script>
 </body>
