@@ -11,14 +11,24 @@
         h3 { color: #007bff; margin-bottom: 15px; }
         h4 { margin-bottom: 2px; color: #555; font-weight: bold; font-size: 0.95em; }
         p { margin: 2px 0 12px 0; font-size: 0.95em; }
-        .links { margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; }
-        .btn-responder { background: #28a745; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; }
-        .btn-voltar { color: #666; text-decoration: none; margin-left: 15px; }
+        .links { margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         
-        /* Ajuste para lista de anexos */
+        /* Botões */
+        .btn-responder { background: #28a745; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; border: none; cursor: pointer; }
+        .btn-ausente { background: #ffc107; color: #212529; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; }
+        .btn-cancelar { background: #dc3545; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; }
+        .btn-voltar { color: #666; text-decoration: none; margin-left: 5px; }
+        
+        /* Estilo específico para Teams */
+        .btn-teams { background: #464eb8; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-flex; align-items: center; }
+        .btn-teams:hover { background: #353a8d; }
+        .btn-secondary { background: #6c757d; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; }
+        
         .anexo-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
         .anexo-link { display: inline-block; color: #007bff; text-decoration: none; font-weight: bold; border: 1px solid #007bff; padding: 8px 12px; border-radius: 5px; transition: 0.3s; font-size: 0.85em; }
         .anexo-link:hover { background: #007bff; color: white; }
+
+        .alert-agendamento { background: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 15px; border-radius: 5px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -28,6 +38,36 @@
         <p><strong>Status Atual:</strong> <span class="status-badge">{{ sol.get_status_display }}</span></p>
         <p><strong>Solicitante:</strong> {{ sol.profissional.user.get_full_name }} ({{ sol.profissional.cargo }})</p>
         <p><strong>Data:</strong> {{ sol.data_sol|date:"d/m/Y H:i" }}</p>
+
+        {% if sol.tipo_atendimento == 'SINCRONO' and sol.data_marcada %}
+        <div class="secao" style="background: #f0f1fa; padding: 20px; border-radius: 8px; border-left: 5px solid #464eb8; margin-bottom: 20px;">
+            <h3 style="color: #464eb8; margin-top: 0;">📅 Videoconferência Síncrona</h3>
+            <p><strong>Horário Reservado:</strong> {{ sol.data_marcada|date:"d/m/Y" }} às {{ sol.horario_marcado|time:"H:i" }}</p>
+
+            {% if sol.link_teams %}
+                <div style="background: white; padding: 15px; border-radius: 5px; border: 1px solid #d1d1d1;">
+                    <p style="color: #28a745; font-weight: bold; margin-bottom: 10px;">✅ Link registrado com sucesso!</p>
+                    <a href="{{ sol.link_teams }}" target="_blank" class="btn-teams">📹 Entrar na Reunião (Teams)</a>
+                    <a href="{% url 'agendar_sincrona' sol.id %}" style="font-size: 0.8em; color: #666; margin-left: 10px;">Alterar Link</a>
+                </div>
+            {% else %}
+                <div class="alert-agendamento">
+                    <p style="margin-top: 0;"><strong>Ação Necessária:</strong> Este caso requer uma chamada de vídeo. Por favor, gere o link no Teams.</p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <a href="https://teams.microsoft.com/l/meeting/new?subject=Teleconsultoria%20{{ sol.medica.especialidade|urlencode }}%20-%20Dra.%20{{ sol.medica.user.get_full_name|urlencode }}&startTime={{ sol.data_marcada|date:'Y-m-d' }}T{{ sol.horario_marcado|time:'H:i' }}:00" 
+                           target="_blank" 
+                           class="btn-teams">
+                           1. Gerar Reunião no Teams
+                        </a>
+
+                        <a href="{% url 'agendar_sincrona' sol.id %}" class="btn-secondary">
+                           2. Registrar Link Gerado
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        {% endif %}
 
         {% if sol.idade_pac > 0 %}
             <div class="secao">
@@ -69,8 +109,32 @@
     </div>
 
     <div class="links">
-        <a href="{% url 'responder_solicitacao' sol.id %}" class="btn-responder">Escrever Resposta</a>
+        {% if sol.tipo_atendimento == 'SINCRONO' %}
+            <a href="{% url 'concluir_sincrona' sol.id %}" 
+               class="btn-responder" 
+               onclick="return confirmarConclusao();">
+               Concluir Atendimento
+            </a>
+            <a href="{% url 'registrar_ausencia' sol.id %}" 
+               class="btn-ausente"
+               onclick="return confirmarAusencia();">
+               Ausente
+            </a>
+            <a href="{% url 'cancelar_solicitacao' sol.id %}" class="btn-cancelar">Cancelar</a>
+        {% else %}
+            <a href="{% url 'responder_solicitacao' sol.id %}" class="btn-responder">Escrever Resposta</a>
+        {% endif %}
         <a href="{% url 'fila_medica' %}" class="btn-voltar">Voltar para a Fila</a>
     </div>
+
+    <script>
+        function confirmarConclusao() {
+            return confirm("Confirmação de Encerramento:\n\nTem certeza que deseja finalizar este atendimento síncrono? Esta ação alterará o status do caso para concluído e não poderá ser revertida.");
+        }
+
+        function confirmarAusencia() {
+            return confirm("Registro de Não Comparecimento:\n\nConfirmar a ausência do solicitante nesta sessão síncrona? O caso será registrado como 'Ausente' para fins de relatório e acompanhamento.");
+        }
+    </script>
 </body>
 </html>

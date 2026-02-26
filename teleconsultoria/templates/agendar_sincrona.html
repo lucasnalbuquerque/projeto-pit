@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Link - Caso #{{ sol.id }}</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
+        h2 { color: #464eb8; margin-top: 0; }
+        input[type="url"] { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn-save { background: #28a745; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Registrar Link de Vídeo</h2>
+        <p>Atendimento marcado para às <strong>{{ sol.horario_marcado }}</strong>.</p>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="url" name="link_teams" placeholder="Cole o link do Teams aqui..." required autofocus>
+            <button type="submit" class="btn-save">Salvar e Disponibilizar</button>
+        </form>
+        <p style="text-align: center;"><a href="{% url 'detalhe_caso' sol.id %}" style="color: #666; font-size: 0.9em;">Cancelar</a></p>
+    </div>
+</body>
+</html>

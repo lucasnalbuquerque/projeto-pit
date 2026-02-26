@@ -16,6 +16,11 @@
         .campo-anexo { margin: 20px 0; padding: 15px; border: 2px dashed #bbb; border-radius: 5px; background: #fff; }
         .scrollable-info { max-height: 85vh; overflow-y: auto; padding-right: 15px; }
         .anexo-btn { display: inline-block; padding: 6px 10px; background: #eef6ff; border: 1px solid #007bff; color: #007bff; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 0.85em; margin-top: 5px; margin-right: 5px; }
+        
+        /* Estilos para lista de arquivos (conforme nova_solicitacao) */
+        #lista-arquivos { margin-top: 10px; }
+        .arquivo-item { background: #eef6ff; padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; border: 1px solid #d1e7ff; }
+        .remover-arquivo { color: #dc3545; cursor: pointer; font-weight: bold; margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -65,20 +70,66 @@
         </div>
 
         <div class="card">
-            <form method="POST" enctype="multipart/form-data">
+            <form method="POST" enctype="multipart/form-data" id="form-resposta">
                 {% csrf_token %}
                 <h3>Sua Resposta</h3>
                 <textarea name="resposta" placeholder="Digite aqui sua conduta médica..." required></textarea>
 
                 <div class="campo-anexo">
-                    <label><strong>Anexar arquivos na resposta (Múltiplos):</strong></label>
-                    <input type="file" name="anexos" multiple style="margin-top: 10px;">
-                    <p style="font-size: 0.75em; color: #777; margin-top: 8px;">Você pode selecionar vários arquivos de uma vez.</p>
+                    <label><strong>Anexar arquivos na resposta:</strong></label>
+                    <input type="file" id="input-anexos" onchange="adicionarArquivos()" multiple style="margin-top: 10px; width: 100%;">
+                    <div id="lista-arquivos"></div>
+                    <p style="font-size: 0.75em; color: #777; margin-top: 8px;">Você pode selecionar vários arquivos ou adicionar um por um.</p>
                 </div>
 
                 <button type="submit" class="btn-enviar">Enviar Resposta</button>
             </form>
         </div>
     </div>
+
+    <script>
+        let arquivosAcumulados = [];
+
+        function adicionarArquivos() {
+            const input = document.getElementById('input-anexos');
+            
+            for (let file of input.files) {
+                arquivosAcumulados.push(file);
+            }
+            
+            input.value = ""; // Limpa o input para permitir selecionar o mesmo arquivo novamente
+            atualizarListaExibicao();
+        }
+
+        function atualizarListaExibicao() {
+            const lista = document.getElementById('lista-arquivos');
+            lista.innerHTML = "";
+            
+            arquivosAcumulados.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'arquivo-item';
+                item.innerHTML = `
+                    <span>📎 ${file.name}</span>
+                    <span class="remover-arquivo" onclick="removerArquivo(${index})">Remover</span>
+                `;
+                lista.appendChild(item);
+            });
+        }
+
+        function removerArquivo(index) {
+            arquivosAcumulados.splice(index, 1);
+            atualizarListaExibicao();
+        }
+
+        // Intercepta o envio do formulário para injetar os arquivos acumulados (conforme sua lógica)
+        document.getElementById('form-resposta').onsubmit = function(e) {
+            const dataTransfer = new DataTransfer();
+            arquivosAcumulados.forEach(file => dataTransfer.items.add(file));
+            
+            const input = document.getElementById('input-anexos');
+            input.files = dataTransfer.files;
+            input.name = "anexos"; // Define o nome para o Django reconhecer no request.FILES.getlist
+        };
+    </script>
 </body>
 </html>

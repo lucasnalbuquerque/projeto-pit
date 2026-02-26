@@ -12,11 +12,19 @@
         .badge { padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.9em; text-transform: uppercase; }
         .status-PENDENTE { background: #fff3cd; color: #856404; }
         .status-ANALISE { background: #cfe2ff; color: #084298; }
+        .status-AGENDADO { background: #e0e0ff; color: #464eb8; } /* Novo Status */
         .status-CONCLUIDA { background: #d1e7dd; color: #0f5132; }
+        .status-CANCELADA { background: #f8d7da; color: #842029; }
         
         .secao { margin-bottom: 25px; }
         .secao h3 { color: #007bff; border-left: 4px solid #007bff; padding-left: 10px; margin-bottom: 15px; }
         
+        /* Bloco Teams do Solicitante */
+        .teams-card { background: #f8faff; border: 2px solid #464eb8; border-radius: 12px; padding: 20px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; }
+        .btn-entrar-teams { background: #464eb8; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; transition: 0.3s; }
+        .btn-entrar-teams:hover { background: #353a8d; box-shadow: 0 4px 8px rgba(70, 78, 184, 0.3); }
+        .aguardando-link { color: #666; font-style: italic; background: #ececec; padding: 10px 15px; border-radius: 8px; font-size: 0.9em; }
+
         /* Accordion UX */
         .btn-toggle { background: #e9ecef; border: none; width: 100%; text-align: left; padding: 15px; font-size: 1em; font-weight: bold; cursor: pointer; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
         .conteudo-detalhes { display: none; padding: 20px; background: #fdfdfd; border: 1px solid #eee; border-top: none; border-radius: 0 0 8px 8px; }
@@ -30,6 +38,8 @@
         .anexo-lista { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
         .btn-anexo { text-decoration: none; background: white; border: 1px solid #007bff; color: #007bff; padding: 8px 12px; border-radius: 6px; font-size: 0.85em; transition: 0.2s; }
         .btn-anexo:hover { background: #007bff; color: white; }
+        
+        .footer-info { text-align: center; color: #777; font-size: 0.85em; margin-top: 40px; }
     </style>
 </head>
 <body>
@@ -44,6 +54,27 @@
                 {{ sol.get_status_display }}
             </span>
         </div>
+
+        {% if sol.tipo_atendimento == 'SINCRONO' and sol.status != 'CONCLUIDA' and sol.status != 'CANCELADA' %}
+        <div class="teams-card">
+            <div>
+                <h3 style="color: #464eb8; margin: 0 0 5px 0; border: none; padding: 0;">📅 Teleconsultoria Agendada</h3>
+                <p style="margin: 0; font-size: 1.1em;">
+                    Sua reunião será em: <strong>{{ sol.data_marcada|date:"d/m/Y" }} às {{ sol.horario_marcado|time:"H:i" }}</strong>
+                </p>
+            </div>
+            
+            {% if sol.link_teams %}
+                <a href="{{ sol.link_teams }}" target="_blank" class="btn-entrar-teams">
+                    📹 ENTRAR NA CHAMADA AGORA
+                </a>
+            {% else %}
+                <div class="aguardando-link">
+                    ⏳ O médico está gerando o link de acesso...
+                </div>
+            {% endif %}
+        </div>
+        {% endif %}
 
         <div class="secao">
             <button class="btn-toggle" onclick="toggleDetalhes()">
@@ -124,16 +155,25 @@
             </div>
             {% endfor %}
         {% else %}
+            {% if sol.status != 'CANCELADA' %}
             <div class="resposta-box" style="text-align: center; border: 2px dashed #cbd5e0;">
                 <p style="font-size: 1.1em; color: #4a5568;">
                     {% if sol.status == 'PENDENTE' %}
                         Sua solicitação está na fila de processamento.<br>
                     {% elif sol.status == 'ANALISE' %}
                         Sua solicitação está sendo analisada por nossa equipe médica.<br>
+                    {% elif sol.status == 'AGENDADO' %}
+                        Sua teleconsultoria está agendada. No horário marcado, o botão de acesso aparecerá acima.<br>
                     {% endif %}
-                    <strong>Assim que houver uma resposta, ela aparecerá automaticamente neste link.</strong>
+                    <strong>Mantenha este link salvo. A resposta aparecerá automaticamente aqui.</strong>
                 </p>
             </div>
+            {% else %}
+            <div class="resposta-box" style="text-align: center; border: 2px solid #f8d7da; background: #fff5f5;">
+                <p style="color: #842029;"><strong>Esta solicitação foi cancelada.</strong></p>
+                <p>Justificativa: {{ sol.justificativa_cancelamento|default:"Não informada" }}</p>
+            </div>
+            {% endif %}
         {% endif %}
     </div>
 

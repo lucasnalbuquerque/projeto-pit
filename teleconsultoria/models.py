@@ -10,6 +10,7 @@ class StatusSolicitacao(models.TextChoices):
     AGENDADO = 'AGENDADO', 'Reunião Agendada'
     CONCLUIDA = 'CONCLUIDA', 'Concluída'
     CANCELADA = 'CANCELADA', 'Cancelada'
+    AUSENTE = 'AUSENTE', 'Não Compareceu'
 
 class TipoAtendimento(models.TextChoices):
     SINCRONO = 'SINCRONO', 'Síncrono'
@@ -86,6 +87,7 @@ class Solicitacao(models.Model):
     duracao_estimada = models.PositiveIntegerField(default=30, help_text="Duração em minutos")
     link_teams = models.URLField(max_length=500, null=True, blank=True)
     resumo_sincrono = models.TextField(null=True, blank=True)
+    justificativa_cancelamento = models.TextField(null=True, blank=True)
     
     data_limite = models.DateField(null=True, blank=True)
     horario_limite = models.TimeField(null=True, blank=True)
@@ -119,8 +121,13 @@ class Solicitacao(models.Model):
         self.status = StatusSolicitacao.CONCLUIDA
         self.save()
 
-    def cancelar(self):
+    def registrar_ausencia(self):
+        self.status = StatusSolicitacao.AUSENTE
+        self.save()
+
+    def cancelar(self, justificativa=""):
         self.status = StatusSolicitacao.CANCELADA
+        self.justificativa_cancelamento = justificativa
         self.save()
 
     class Meta:
@@ -139,7 +146,6 @@ class Resposta(models.Model):
     
     data_res = models.DateTimeField(auto_now_add=True)
 
-    # métodos de salvamento
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.solicitacao.finalizar()
@@ -147,7 +153,7 @@ class Resposta(models.Model):
     def __str__(self):
         return f"Resposta de {self.medica} para Solicitacao #{self.solicitacao.id}"
 
-# --- MODELOS DE ANEXOS (Para múltiplos arquivos) ---
+# --- MODELOS DE ANEXOS ---
 
 class AnexoSolicitacao(models.Model):
     solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE, related_name='anexos')
@@ -174,7 +180,6 @@ class LinkAcesso(models.Model):
     expirado = models.BooleanField(default=False)
 
     def is_valido(self):
-        # validade padrão de 7 dias
         prazo = self.data_criacao + timezone.timedelta(days=7)
         return timezone.now() < prazo and not self.expirado
 

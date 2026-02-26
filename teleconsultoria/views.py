@@ -10,7 +10,6 @@ def nova_solicitacao(request):
         profissional_teste = Profissional.objects.first()
         tipo_caso = request.POST.get('tipo_caso')
         modalidade = request.POST.get('tipo_atendimento', 'ASSINCRONO')
-        # Prazo limite padrão para resposta
         prazo_limite = timezone.now() + timedelta(days=7)
         
         data_m = None
@@ -23,7 +22,7 @@ def nova_solicitacao(request):
                     dt_str, hr_str = agenda_string.split('|')
                     data_m = datetime.strptime(dt_str, '%Y-%m-%d').date()
                     hora_m = datetime.strptime(hr_str, '%H:%M').time()
-                    
+
                     # Validação de Segurança: impede agendamento para o mesmo dia no POST
                     if data_m <= date.today():
                         return render(request, 'nova_solicitacao.html', {
@@ -84,12 +83,10 @@ def nova_solicitacao(request):
         'horarios_disponiveis': gerar_lista_disponibilidade()
     })
 
-def gerar_lista_disponibilidade():
-    """Calcula horários livres para os próximos 14 dias, ignorando o dia de hoje"""
+def gerar_lista_disponibilidade(): # Calcula horários livres para os próximos 14 dias, ignorando o dia de hoje
     horarios_livres = []
     hoje = date.today()
     grade_fixa = HorarioFixoDisponivel.objects.filter(ativo=True)
-    
     # Inicia em 1 para garantir que o agendamento seja no mínimo para amanhã
     for i in range(1, 15):
         data_analise = hoje + timedelta(days=i)
@@ -110,7 +107,6 @@ def gerar_lista_disponibilidade():
                 })
     return horarios_livres
 
-# Outras views (fila_medica, detalhe_caso, etc) permanecem iguais...
 def fila_medica(request):
     solicitacoes = Solicitacao.objects.all().order_by('-data_sol')
     return render(request, 'fila_medica.html', {'solicitacoes': solicitacoes})
@@ -121,24 +117,49 @@ def detalhe_caso(request, sol_id):
         solicitacao.iniciar_analise()
     return render(request, 'detalhe_caso.html', {'sol': solicitacao})
 
+def agendar_sincrona(request, sol_id):
+    solicitacao = get_object_or_404(Solicitacao, id=sol_id)
+    if request.method == 'POST':
+        link = request.POST.get('link_teams')
+        # Salva o link e atualiza o status para AGENDADO automaticamente
+        solicitacao.link_teams = link
+        solicitacao.status = 'AGENDADO'
+        solicitacao.save()
+        return redirect('detalhe_caso', sol_id=solicitacao.id)
+    return render(request, 'agendar_sincrona.html', {'sol': solicitacao})
+
 def responder_solicitacao(request, sol_id):
     solicitacao = get_object_or_404(Solicitacao, id=sol_id)
     if request.method == 'POST':
         texto_resposta = request.POST.get('resposta')
         medica_teste = Medica.objects.first()
         nova_resposta = Resposta.objects.create(solicitacao=solicitacao, medica=medica_teste, conteudo=texto_resposta)
+        solicitacao.status = 'CONCLUIDA' # Garante que o status mude ao responder
+        solicitacao.save()
         for f in request.FILES.getlist('anexos'):
             AnexoResposta.objects.create(resposta=nova_resposta, arquivo=f)
         return redirect('fila_medica')
     return render(request, 'responder.html', {'sol': solicitacao})
 
-def agendar_sincrona(request, sol_id):
+def concluir_sincrona(request, sol_id):
+    solicitacao = get_object_or_404(Solicitacao, id=sol_id)
+    if solicitacao.tipo_atendimento == 'SINCRONO':
+        solicitacao.status = 'CONCLUIDA'
+        solicitacao.save()
+    return redirect('fila_medica')
+
+def registrar_ausencia(request, sol_id):
+    solicitacao = get_object_or_404(Solicitacao, id=sol_id)
+    solicitacao.registrar_ausencia()
+    return redirect('fila_medica')
+
+def cancelar_solicitacao(request, sol_id):
     solicitacao = get_object_or_404(Solicitacao, id=sol_id)
     if request.method == 'POST':
-        link = request.POST.get('link_teams')
-        solicitacao.agendar_reuniao(data=solicitacao.data_marcada, horario=solicitacao.horario_marcado, link=link)
-        return redirect('detalhe_caso', sol_id=solicitacao.id)
-    return render(request, 'agendar_sincrona.html', {'sol': solicitacao})
+        justificativa = request.POST.get('justificativa')
+        solicitacao.cancelar(justificativa)
+        return redirect('fila_medica')
+    return render(request, 'cancelar_caso.html', {'sol': solicitacao})
 
 def acompanhar_caso(request, token):
     link = get_object_or_404(LinkAcesso, token=token)
