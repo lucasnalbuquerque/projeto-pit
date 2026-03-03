@@ -10,7 +10,7 @@ class StatusSolicitacao(models.TextChoices):
     AGENDADO = 'AGENDADO', 'Reunião Agendada'
     CONCLUIDA = 'CONCLUIDA', 'Concluída'
     CANCELADA = 'CANCELADA', 'Cancelada'
-    AUSENTE = 'AUSENTE', 'Não Compareceu'
+    AUSENTE = 'AUSENTE', 'Ausente'
 
 class TipoAtendimento(models.TextChoices):
     SINCRONO = 'SINCRONO', 'Síncrono'
