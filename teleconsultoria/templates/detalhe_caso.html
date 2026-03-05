@@ -13,13 +13,11 @@
         p { margin: 2px 0 12px 0; font-size: 0.95em; }
         .links { margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         
-        /* Botões */
         .btn-responder { background: #28a745; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; border: none; cursor: pointer; }
         .btn-ausente { background: #ffc107; color: #212529; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; }
         .btn-cancelar { background: #dc3545; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; }
         .btn-voltar { color: #666; text-decoration: none; margin-left: 5px; }
         
-        /* Estilo específico para Teams */
         .btn-teams { background: #464eb8; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-flex; align-items: center; }
         .btn-teams:hover { background: #353a8d; }
         .btn-secondary { background: #6c757d; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; }
@@ -48,7 +46,15 @@
                 <div style="background: white; padding: 15px; border-radius: 5px; border: 1px solid #d1d1d1;">
                     <p style="color: #28a745; font-weight: bold; margin-bottom: 10px;">✅ Link registrado com sucesso!</p>
                     <a href="{{ sol.link_teams }}" target="_blank" class="btn-teams">📹 Entrar na Reunião (Teams)</a>
-                    <a href="{% url 'agendar_sincrona' sol.id %}" style="font-size: 0.8em; color: #666; margin-left: 10px;">Alterar Link</a>
+                    
+                    <div style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ccc;">
+                        <small style="color: #666; display: block; margin-bottom: 5px;">Link de acesso direto (Token):</small>
+                        <code style="font-size: 0.75em; word-break: break-all; background: #f8f9fa; padding: 5px; border: 1px solid #eee; display: block;">
+                            {{ request.scheme }}://{{ request.get_host }}{% url 'acompanhar_caso' sol.link_magico.token %}
+                        </code>
+                    </div>
+
+                    <a href="{% url 'agendar_sincrona' sol.id %}" style="font-size: 0.8em; color: #666; margin-top: 10px; display: inline-block;">Alterar Link</a>
                 </div>
             {% else %}
                 <div class="alert-agendamento">

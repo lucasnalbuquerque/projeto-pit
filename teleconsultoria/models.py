@@ -84,7 +84,7 @@ class Solicitacao(models.Model):
     # Ramificação UML: sincrono vs assincrono
     data_marcada = models.DateField(null=True, blank=True)
     horario_marcado = models.TimeField(null=True, blank=True)
-    duracao_estimada = models.PositiveIntegerField(default=30, help_text="Duração em minutos")
+    duracao_estimada = models.PositiveIntegerField(null=True, blank=True, help_text="Duração em minutos")
     link_teams = models.URLField(max_length=500, null=True, blank=True)
     resumo_sincrono = models.TextField(null=True, blank=True)
     justificativa_cancelamento = models.TextField(null=True, blank=True)
@@ -102,6 +102,9 @@ class Solicitacao(models.Model):
     medicamentos = models.TextField(blank=True, null=True)
     exames_recentes = models.TextField(blank=True, null=True)
     duvida_clinica = models.TextField()
+
+    # Adicionando o campo de token para o detalhe_caso funcionar
+    token_acesso = models.UUIDField(default=uuid.uuid4, editable=False)
 
     # métodos de mudança de status
     def iniciar_analise(self):

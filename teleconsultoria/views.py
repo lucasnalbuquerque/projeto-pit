@@ -50,6 +50,7 @@ def nova_solicitacao(request):
                 'tipo_atendimento': modalidade,
                 'data_marcada': data_m,
                 'horario_marcado': hora_m,
+                # Garantindo que se for assíncrono, enviamos 0 ou None
                 'duracao_estimada': 30 if modalidade == 'SINCRONO' else None,
                 'duvida_clinica': request.POST.get('duvida_clinica'),
                 'data_limite': prazo_limite.date(),
@@ -115,6 +116,24 @@ def detalhe_caso(request, sol_id):
     solicitacao = get_object_or_404(Solicitacao, id=sol_id)
     if solicitacao.status == 'PENDENTE':
         solicitacao.iniciar_analise()
+    
+    # Busca o token relacionado a esta solicitação no model LinkAcesso
+    link_obj = LinkAcesso.objects.filter(solicitacao=solicitacao).first()
+    token = link_obj.token if link_obj else "token-nao-gerado"
+
+    link_publico = f"{request.scheme}://{request.get_host()}/acompanhar/{token}/"
+    
+    print("\n" + "="*50)
+    print(f"LINK DE ACESSO PÚBLICO (Caso #{solicitacao.id}): {link_publico}")
+    print("="*50 + "\n")
+    
+    return render(request, 'detalhe_caso.html', {'sol': solicitacao})
+    
+    link_publico = f"{request.scheme}://{request.get_host()}/resposta/publica/{solicitacao.token_acesso}/"
+    print("\n" + "="*50)
+    print(f"MOCK ENVIO TOKEN (Caso #{solicitacao.id}): {link_publico}")
+    print("="*50 + "\n")
+    
     return render(request, 'detalhe_caso.html', {'sol': solicitacao})
 
 def agendar_sincrona(request, sol_id):
