@@ -3,12 +3,8 @@ Repositório para auxiliar a realização do projeto PIT 25/26 HULW
 
 # Ferramentas
 
-- power automate
-- teams
+- Microsoft Teams
 - Django
-- power bi (dashboards interativos)
-- outlook (agendamento e envio de convites)
+- Power BI (dashboards interativos)
+- Outlook (Envio de Magic Link)
 - PostgreSQL
-
-## Documentação da Teleconsultoria
-
