@@ -19,3 +19,6 @@ http://127.0.0.1:8000/fila/
 
 med_teste / pro_teste
 gTk-Ur9-_N5qW2G
+
+
+pip install python-dotenv

@@ -30,7 +30,7 @@ class DiaSemana(models.IntegerChoices):
     SABADO = 5, 'Sábado'
     DOMINGO = 6, 'Domingo'
 
-# --- MODELS DE CONFIGURAÇÃO (ADMIN) ---
+# --- MODELS DE CONFIGURAÇÃO ---
 
 class HorarioFixoDisponivel(models.Model):
     dia_semana = models.IntegerField(choices=DiaSemana.choices)
@@ -50,14 +50,18 @@ class HorarioFixoDisponivel(models.Model):
 # --- MODELS DE PERFIL ---
 
 class Profissional(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    crm = models.CharField(max_length=20)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    
+    cpf = models.CharField(max_length=11, unique=True) 
+    nome_completo = models.CharField(max_length=255)
+    email = models.EmailField()
+    
+    crm = models.CharField(max_length=20, blank=True, null=True)
     cargo = models.CharField(max_length=100)
     instituicao = models.CharField(max_length=100)
-    telefone = models.CharField(max_length=20)
 
     def __str__(self):
-        return f"{self.user.get_full_name()} ({self.cargo})"
+        return f"{self.nome_completo} - {self.cargo}"
 
 class Medica(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

@@ -38,18 +38,21 @@
             line-height: 1.5;
             margin-bottom: 25px;
         }
-        .btn-voltar {
+        .btn-renovar {
             display: inline-block;
             text-decoration: none;
-            background-color: #007bff;
+            background-color: #28a745;
             color: white;
             padding: 12px 25px;
+            border: none;
             border-radius: 6px;
             font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
             transition: background 0.2s;
         }
-        .btn-voltar:hover {
-            background-color: #0056b3;
+        .btn-renovar:hover {
+            background-color: #218838;
         }
         .footer-obs {
             margin-top: 30px;
@@ -63,9 +66,16 @@
     <div class="container">
         <div class="icon">⚠️</div>
         <h1>Link de Acesso Expirado</h1>
-        <p>Por razões de segurança, os links de acompanhamento têm uma validade limitada. Este link não é mais válido ou foi desativado.</p>
+        <p>Por razões de segurança, este link de acompanhamento expirou e não é mais válido.</p>
         
-        <p>Caso precise de informações sobre a sua solicitação, entre em contato diretamente com a central de regulação ou suporte médico.</p>
+        <p>Clique no botão abaixo para gerar um <strong>novo link de acesso</strong>. Ele será enviado imediatamente para o seu e-mail cadastrado.</p>
+
+        <form action="{% url 'renovar_acesso' link_obj.token %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn-renovar">
+                📧 Enviar novo link para meu e-mail
+            </button>
+        </form>
 
         <div class="footer-obs">
             Código de Erro: 403 - Forbidden Access

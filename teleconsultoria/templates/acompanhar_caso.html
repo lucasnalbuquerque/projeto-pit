@@ -8,11 +8,15 @@
         .card { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px; margin-bottom: 25px; }
         .header-status { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
         
+        /* Alerta de Expiração */
+        .alerta-expiracao { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-size: 0.95em; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .tempo-restante { font-weight: bold; color: #d9534f; font-family: monospace; font-size: 1.1em; }
+
         /* Badges */
         .badge { padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.9em; text-transform: uppercase; }
         .status-PENDENTE { background: #fff3cd; color: #856404; }
         .status-ANALISE { background: #cfe2ff; color: #084298; }
-        .status-AGENDADO { background: #e0e0ff; color: #464eb8; } /* Novo Status */
+        .status-AGENDADO { background: #e0e0ff; color: #464eb8; }
         .status-CONCLUIDA { background: #d1e7dd; color: #0f5132; }
         .status-CANCELADA { background: #f8d7da; color: #842029; }
         
@@ -45,6 +49,11 @@
 <body>
 
     <div class="card">
+        <div class="alerta-expiracao" id="banner-expiracao">
+            <span>⚠️ Este link de acesso seguro expira em:</span>
+            <span id="contador" class="tempo-restante">Calculando...</span>
+        </div>
+
         <div class="header-status">
             <div>
                 <h2 style="margin:0;">Solicitação #{{ sol.id }}</h2>
@@ -193,6 +202,39 @@
                 seta.innerHTML = "▲";
             }
         }
+
+        // Lógica do Contador de Expiração
+        // Converte a data do Django para um formato legível pelo JS
+        const dataExpiracao = new Date("{{ link_obj.data_expiracao|date:'Y-m-dTH:i:s' }}").getTime();
+
+        function atualizarContador() {
+            const agora = new Date().getTime();
+            const diferenca = dataExpiracao - agora;
+
+            if (diferenca <= 0) {
+                document.getElementById("banner-expiracao").innerHTML = "❌ Este link de acesso expirou.";
+                document.getElementById("banner-expiracao").style.backgroundColor = "#f8d7da";
+                document.getElementById("banner-expiracao").style.color = "#842029";
+                document.getElementById("contador").innerHTML = "";
+                return;
+            }
+
+            const dias = Math.floor(diferenca / (1000 * 60 * 60 * 24));
+            const horas = Math.floor((diferenca % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutos = Math.floor((diferenca % (1000 * 60 * 60)) / (1000 * 60));
+            const segundos = Math.floor((diferenca % (1000 * 60)) / 1000);
+
+            let display = "";
+            if (dias > 0) display += dias + "d ";
+            display += horas.toString().padStart(2, '0') + "h " + 
+                       minutos.toString().padStart(2, '0') + "m " + 
+                       segundos.toString().padStart(2, '0') + "s";
+
+            document.getElementById("contador").innerHTML = display;
+        }
+
+        setInterval(atualizarContador, 1000);
+        atualizarContador();
     </script>
 </body>
 </html>

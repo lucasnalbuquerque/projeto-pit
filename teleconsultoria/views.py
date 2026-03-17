@@ -3,10 +3,48 @@ from .models import Solicitacao, Resposta, Profissional, Medica, AnexoSolicitaca
 from datetime import datetime, timedelta, date
 from django.db import transaction
 from django.utils import timezone
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
+import uuid  # Importado para gerar novos tokens na renovação
+
+# Função de envio de e-mail integrada à Sprint de Notificações
+def enviar_email_notificacao(solicitacao, e_reiteracao=False):
+    assunto = "Nova Resposta de Teleconsultoria - HULW"
+    if e_reiteracao:
+        assunto = "[Atualização] Nova resposta enviada para sua Teleconsultoria"
+
+    # Busca o token no model LinkAcesso que você já utiliza
+    link_obj = LinkAcesso.objects.filter(solicitacao=solicitacao).first()
+    token = link_obj.token if link_obj else "token-nao-gerado"
+    
+    # Monta o link completo para o solicitante
+    link_completo = f"{settings.SITE_URL}/acompanhar/{token}/"
+
+    contexto = {
+        'solicitante': solicitacao.profissional.nome if solicitacao.profissional else "Profissional",
+        'link_completo': link_completo,
+        'e_reiteracao': e_reiteracao,
+    }
+
+    # Renderiza o template HTML e cria versão em texto puro
+    html_content = render_to_string('emails/notificacao_resposta.html', contexto)
+    text_content = strip_tags(html_content)
+
+    email = EmailMultiAlternatives(
+        assunto,
+        text_content,
+        settings.EMAIL_HOST_USER,
+        [solicitacao.profissional.email if solicitacao.profissional else settings.EMAIL_HOST_USER] 
+    )
+    email.attach_alternative(html_content, "text/html")
+    email.send()
 
 # view: nova solicitação
 def nova_solicitacao(request):
     if request.method == 'POST':
+        # Nota: O campo 'telefone' removido conforme solicitado.
         profissional_teste = Profissional.objects.first()
         tipo_caso = request.POST.get('tipo_caso')
         modalidade = request.POST.get('tipo_atendimento', 'ASSINCRONO')
@@ -16,21 +54,19 @@ def nova_solicitacao(request):
         hora_m = None
         
         if modalidade == 'SINCRONO':
-            agenda_string = request.POST.get('agenda_id') # Formato: YYYY-MM-DD|HH:MM
+            agenda_string = request.POST.get('agenda_id') 
             if agenda_string:
                 try:
                     dt_str, hr_str = agenda_string.split('|')
                     data_m = datetime.strptime(dt_str, '%Y-%m-%d').date()
                     hora_m = datetime.strptime(hr_str, '%H:%M').time()
 
-                    # Validação de Segurança: impede agendamento para o mesmo dia no POST
                     if data_m <= date.today():
                         return render(request, 'nova_solicitacao.html', {
                             'erro': 'Agendamentos só podem ser realizados a partir de amanhã.',
                             'horarios_disponiveis': gerar_lista_disponibilidade()
                         })
 
-                    # Verifica se o horário ainda está vago
                     exists = Solicitacao.objects.filter(
                         data_marcada=data_m, 
                         horario_marcado=hora_m
@@ -50,7 +86,6 @@ def nova_solicitacao(request):
                 'tipo_atendimento': modalidade,
                 'data_marcada': data_m,
                 'horario_marcado': hora_m,
-                # Garantindo que se for assíncrono, enviamos 0 ou None
                 'duracao_estimada': 30 if modalidade == 'SINCRONO' else None,
                 'duvida_clinica': request.POST.get('duvida_clinica'),
                 'data_limite': prazo_limite.date(),
@@ -84,11 +119,10 @@ def nova_solicitacao(request):
         'horarios_disponiveis': gerar_lista_disponibilidade()
     })
 
-def gerar_lista_disponibilidade(): # Calcula horários livres para os próximos 14 dias, ignorando o dia de hoje
+def gerar_lista_disponibilidade(): 
     horarios_livres = []
     hoje = date.today()
     grade_fixa = HorarioFixoDisponivel.objects.filter(ativo=True)
-    # Inicia em 1 para garantir que o agendamento seja no mínimo para amanhã
     for i in range(1, 15):
         data_analise = hoje + timedelta(days=i)
         dia_semana_idx = data_analise.weekday() 
@@ -117,21 +151,12 @@ def detalhe_caso(request, sol_id):
     if solicitacao.status == 'PENDENTE':
         solicitacao.iniciar_analise()
     
-    # Busca o token relacionado a esta solicitação no model LinkAcesso
     link_obj = LinkAcesso.objects.filter(solicitacao=solicitacao).first()
     token = link_obj.token if link_obj else "token-nao-gerado"
-
     link_publico = f"{request.scheme}://{request.get_host()}/acompanhar/{token}/"
     
     print("\n" + "="*50)
     print(f"LINK DE ACESSO PÚBLICO (Caso #{solicitacao.id}): {link_publico}")
-    print("="*50 + "\n")
-    
-    return render(request, 'detalhe_caso.html', {'sol': solicitacao})
-    
-    link_publico = f"{request.scheme}://{request.get_host()}/resposta/publica/{solicitacao.token_acesso}/"
-    print("\n" + "="*50)
-    print(f"MOCK ENVIO TOKEN (Caso #{solicitacao.id}): {link_publico}")
     print("="*50 + "\n")
     
     return render(request, 'detalhe_caso.html', {'sol': solicitacao})
@@ -140,7 +165,6 @@ def agendar_sincrona(request, sol_id):
     solicitacao = get_object_or_404(Solicitacao, id=sol_id)
     if request.method == 'POST':
         link = request.POST.get('link_teams')
-        # Salva o link e atualiza o status para AGENDADO automaticamente
         solicitacao.link_teams = link
         solicitacao.status = 'AGENDADO'
         solicitacao.save()
@@ -152,11 +176,19 @@ def responder_solicitacao(request, sol_id):
     if request.method == 'POST':
         texto_resposta = request.POST.get('resposta')
         medica_teste = Medica.objects.first()
+        ja_existe_resposta = Resposta.objects.filter(solicitacao=solicitacao).exists()
+        
         nova_resposta = Resposta.objects.create(solicitacao=solicitacao, medica=medica_teste, conteudo=texto_resposta)
-        solicitacao.status = 'CONCLUIDA' # Garante que o status mude ao responder
+        solicitacao.status = 'CONCLUIDA' 
         solicitacao.save()
         for f in request.FILES.getlist('anexos'):
             AnexoResposta.objects.create(resposta=nova_resposta, arquivo=f)
+        
+        try:
+            enviar_email_notificacao(solicitacao, e_reiteracao=ja_existe_resposta)
+        except Exception as e:
+            print(f"Erro ao enviar e-mail: {e}")
+            
         return redirect('fila_medica')
     return render(request, 'responder.html', {'sol': solicitacao})
 
@@ -183,5 +215,28 @@ def cancelar_solicitacao(request, sol_id):
 def acompanhar_caso(request, token):
     link = get_object_or_404(LinkAcesso, token=token)
     if not link.is_valido():
-        return render(request, 'link_expirado.html', status=403)
-    return render(request, 'acompanhar_caso.html', {'sol': link.solicitacao})
+        return render(request, 'link_expirado.html', {'link_obj': link}, status=403)
+    
+    return render(request, 'acompanhar_caso.html', {
+        'sol': link.solicitacao,
+        'link_obj': link  
+    })
+
+def renovar_acesso(request, token):
+    link_antigo = get_object_or_404(LinkAcesso, token=token)
+    solicitacao = link_antigo.solicitacao
+    
+    # Gera um novo token e reseta a data de criação para "desexpirar"
+    link_antigo.token = str(uuid.uuid4())
+    link_antigo.data_criacao = timezone.now()
+    link_antigo.save()
+    
+    # Reenvia o e-mail com o novo link
+    try:
+        enviar_email_notificacao(solicitacao)
+    except Exception as e:
+        print(f"Erro ao renovar: {e}")
+    
+    return render(request, 'notificacao_enviada.html', {
+        'email': solicitacao.profissional.email if solicitacao.profissional else "E-mail não cadastrado"
+    })

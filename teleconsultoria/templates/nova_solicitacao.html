@@ -8,7 +8,17 @@
         .hidden { display: none; }
         .campo-box { background: #fff; border: 1px solid #e0e0e0; padding: 20px; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         
-        /* Descrição da duração */
+        /* Banner de Aviso */
+        .aviso-email { 
+            background-color: #fff3cd; 
+            border-left: 5px solid #ffc107; 
+            padding: 15px; 
+            margin-bottom: 20px; 
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #856404;
+        }
+
         .info-duracao { font-size: 0.9rem; color: #666; margin-bottom: 15px; display: flex; align-items: center; gap: 5px; }
         .info-duracao::before { content: '🕒'; }
 
@@ -74,7 +84,6 @@
         h4 { margin-bottom: 5px; font-size: 0.95rem; color: #444; }
         .erro-msg { color: #dc3545; background: #f8d7da; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; border: 1px solid #f5c6cb; }
         
-        /* Estilos para lista de arquivos */
         #lista-arquivos { margin-top: 10px; }
         .arquivo-item { background: #eef6ff; padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
         .remover-arquivo { color: #dc3545; cursor: pointer; font-weight: bold; }
@@ -87,8 +96,44 @@
         <div class="erro-msg">{{ erro }}</div>
     {% endif %}
 
+    <div class="aviso-email">
+        <strong>⚠️ Atenção:</strong> Verifique se o seu <strong>E-mail</strong> e <strong>CPF</strong> estão corretos. O link de acesso à resposta será enviado para o endereço informado e o CPF é utilizado para sua identificação no sistema.
+    </div>
+
     <form method="POST" enctype="multipart/form-data" id="form-solicitacao">
         {% csrf_token %}
+
+        <div class="campo-box">
+            <h3>Identificação do Solicitante</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <h4>Seu Nome Completo:</h4>
+                    <input type="text" name="nome_solicitante" placeholder="Ex: Dr. João Silva" required>
+                </div>
+                <div>
+                    <h4>Seu CPF:</h4>
+                    <input type="text" name="cpf" id="cpf_input" placeholder="000.000.000-00" maxlength="14" required>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <h4>Seu E-mail (Onde receberá a resposta):</h4>
+                    <input type="email" name="email_solicitante" placeholder="seu@email.com" required>
+                </div>
+                <div>
+                    <h4>Seu Cargo / Função:</h4>
+                    <input type="text" name="cargo" placeholder="Ex: Médico da Família" required>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
+                <div>
+                    <h4>Instituição / UBS:</h4>
+                    <input type="text" name="instituicao" placeholder="Ex: UBS Bairro das Indústrias" required>
+                </div>
+            </div>
+        </div>
 
         <div class="campo-box">
             <label><strong>O que você deseja discutir?</strong></label>
@@ -196,31 +241,32 @@
     </form>
 
     <script>
+        // Máscara Simples para CPF
+        document.getElementById('cpf_input').addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 11) value = value.slice(0, 11);
+            if (value.length > 9) value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
+            else if (value.length > 6) value = value.replace(/^(\d{3})(\d{3})(\d{1,3})$/, "$1.$2.$3");
+            else if (value.length > 3) value = value.replace(/^(\d{3})(\d{1,3})$/, "$1.$2");
+            e.target.value = value;
+        });
+
         let arquivosAcumulados = [];
 
         function adicionarArquivos() {
             const input = document.getElementById('input-anexos');
-            const lista = document.getElementById('lista-arquivos');
-            
-            for (let file of input.files) {
-                arquivosAcumulados.push(file);
-            }
-            
-            input.value = ""; // Limpa o input para permitir selecionar o mesmo arquivo novamente se desejar
+            for (let file of input.files) { arquivosAcumulados.push(file); }
+            input.value = ""; 
             atualizarListaExibicao();
         }
 
         function atualizarListaExibicao() {
             const lista = document.getElementById('lista-arquivos');
             lista.innerHTML = "";
-            
             arquivosAcumulados.forEach((file, index) => {
                 const item = document.createElement('div');
                 item.className = 'arquivo-item';
-                item.innerHTML = `
-                    <span>📎 ${file.name}</span>
-                    <span class="remover-arquivo" onclick="removerArquivo(${index})">Remover</span>
-                `;
+                item.innerHTML = `<span>📎 ${file.name}</span><span class="remover-arquivo" onclick="removerArquivo(${index})">Remover</span>`;
                 lista.appendChild(item);
             });
         }
@@ -230,32 +276,23 @@
             atualizarListaExibicao();
         }
 
-        // Intercepta o envio do formulário para injetar os arquivos acumulados
         document.getElementById('form-solicitacao').onsubmit = function(e) {
             const dataTransfer = new DataTransfer();
             arquivosAcumulados.forEach(file => dataTransfer.items.add(file));
             document.getElementById('input-anexos').files = dataTransfer.files;
-            document.getElementById('input-anexos').name = "anexos"; // Garante o nome correto para o Django
+            document.getElementById('input-anexos').name = "anexos"; 
         };
 
         function alternarCampos() {
             var tipo = document.getElementById('tipo_caso').value;
             var secao = document.getElementById('secao_especifica');
-            if (tipo === 'ESPECIFICO') {
-                secao.classList.remove('hidden');
-            } else {
-                secao.classList.add('hidden');
-            }
+            tipo === 'ESPECIFICO' ? secao.classList.remove('hidden') : secao.classList.add('hidden');
         }
 
         function alternarSincrono() {
             var modalidade = document.getElementById('tipo_atendimento').value;
             var secao = document.getElementById('secao_agendamento');
-            if (modalidade === 'SINCRONO') {
-                secao.classList.remove('hidden');
-            } else {
-                secao.classList.add('hidden');
-            }
+            modalidade === 'SINCRONO' ? secao.classList.remove('hidden') : secao.classList.add('hidden');
         }
 
         function mostrarHorarios(diaId, elemento) {
@@ -264,7 +301,6 @@
             document.getElementById('container_horarios_pai').classList.remove('hidden');
             document.querySelectorAll('.horario-lista-wrapper').forEach(div => div.classList.add('hidden'));
             document.getElementById(diaId).classList.remove('hidden');
-            
             document.querySelectorAll('.radio-agenda').forEach(r => r.checked = false);
             document.querySelectorAll('.horario-chip').forEach(c => c.classList.remove('selecionado'));
         }

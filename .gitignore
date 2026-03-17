@@ -11,3 +11,6 @@ respostas_anexos/
 media/
 
 .vscode/
+
+.env
+.env.secret
