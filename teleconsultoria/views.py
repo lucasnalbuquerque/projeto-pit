@@ -3,49 +3,73 @@ from .models import Solicitacao, Resposta, Profissional, Medica, AnexoSolicitaca
 from datetime import datetime, timedelta, date
 from django.db import transaction
 from django.utils import timezone
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
+from django.core.mail import send_mail
 from django.conf import settings
-import uuid  # Importado para gerar novos tokens na renovação
+import uuid 
+import os
 
-# Função de envio de e-mail integrada à Sprint de Notificações
+# Função de envio de e-mail ajustada para GATILHO do Power Automate via SendGrid
 def enviar_email_notificacao(solicitacao, e_reiteracao=False):
-    assunto = "Nova Resposta de Teleconsultoria - HULW"
-    if e_reiteracao:
-        assunto = "[Atualização] Nova resposta enviada para sua Teleconsultoria"
-
-    # Busca o token no model LinkAcesso que você já utiliza
+    # 1. Busca o token no model LinkAcesso
     link_obj = LinkAcesso.objects.filter(solicitacao=solicitacao).first()
     token = link_obj.token if link_obj else "token-nao-gerado"
     
-    # Monta o link completo para o solicitante
+    # 2. Monta o link completo
     link_completo = f"{settings.SITE_URL}/acompanhar/{token}/"
 
-    contexto = {
-        'solicitante': solicitacao.profissional.nome if solicitacao.profissional else "Profissional",
-        'link_completo': link_completo,
-        'e_reiteracao': e_reiteracao,
-    }
+    # 3. Define o assunto que o Power Automate vai filtrar
+    prefixo = "[ATUALIZACAO]" if e_reiteracao else "[NOVA]"
+    assunto = f"NOTIFICACAO_SISTEMA: {prefixo} Caso {solicitacao.id}"
 
-    # Renderiza o template HTML e cria versão em texto puro
-    html_content = render_to_string('emails/notificacao_resposta.html', contexto)
-    text_content = strip_tags(html_content)
+    # 4. Captura nomes para o Power Automate preencher o HTML bonitão
+    nome_medico = solicitacao.profissional.nome_completo if solicitacao.profissional else "Doutor(a)"
+    nome_paciente = solicitacao.paciente.nome if hasattr(solicitacao, 'paciente') else "Paciente"
+    email_destino = solicitacao.profissional.email if solicitacao.profissional else settings.DEFAULT_FROM_EMAIL
+    
+    # 5. Monta o corpo com os separadores (Pipes) para o Power Automate
+    corpo_gatilho = f"MEDICO:{nome_medico}|PACIENTE:{nome_paciente}|DESTINATARIO:{email_destino}|LINK:{link_completo}"
 
-    email = EmailMultiAlternatives(
+    # 6. Envia para o seu e-mail institucional (definido no .env)
+    # fail_silently=False fará o erro aparecer no terminal se a config do SendGrid estiver errada
+    print(f" Tentando enviar gatilho para: {os.getenv('EMAIL_INSTITUCIONAL_GATILHO')}...")
+    
+    send_mail(
         assunto,
-        text_content,
-        settings.EMAIL_HOST_USER,
-        [solicitacao.profissional.email if solicitacao.profissional else settings.EMAIL_HOST_USER] 
+        corpo_gatilho,
+        settings.DEFAULT_FROM_EMAIL,
+        [os.getenv('EMAIL_INSTITUCIONAL_GATILHO')],
+        fail_silently=False
     )
-    email.attach_alternative(html_content, "text/html")
-    email.send()
+    
+    print(" Gatilho enviado com sucesso ao servidor de e-mail!")
 
 # view: nova solicitação
 def nova_solicitacao(request):
     if request.method == 'POST':
-        # Nota: O campo 'telefone' removido conforme solicitado.
-        profissional_teste = Profissional.objects.first()
+        cpf_solicitante = request.POST.get('cpf')
+        nome_solicitante = request.POST.get('nome_completo')
+        email_solicitante = request.POST.get('email')
+        crm_solicitante = request.POST.get('crm')
+        cargo_solicitante = request.POST.get('cargo')
+        instituicao_solicitante = request.POST.get('instituicao')
+
+        if not cpf_solicitante or not nome_solicitante:
+            return render(request, 'nova_solicitacao.html', {
+                'erro': 'CPF e Nome Completo são obrigatórios para identificar o profissional.',
+                'horarios_disponiveis': gerar_lista_disponibilidade()
+            })
+
+        profissional_solicitante, created = Profissional.objects.get_or_create(
+            cpf=cpf_solicitante,
+            defaults={
+                'nome_completo': nome_solicitante,
+                'email': email_solicitante,
+                'crm': crm_solicitante,
+                'cargo': cargo_solicitante,
+                'instituicao': instituicao_solicitante
+            }
+        )
+
         tipo_caso = request.POST.get('tipo_caso')
         modalidade = request.POST.get('tipo_atendimento', 'ASSINCRONO')
         prazo_limite = timezone.now() + timedelta(days=7)
@@ -82,7 +106,7 @@ def nova_solicitacao(request):
 
         with transaction.atomic():
             dados_base = {
-                'profissional': profissional_teste,
+                'profissional': profissional_solicitante,
                 'tipo_atendimento': modalidade,
                 'data_marcada': data_m,
                 'horario_marcado': hora_m,
@@ -187,7 +211,7 @@ def responder_solicitacao(request, sol_id):
         try:
             enviar_email_notificacao(solicitacao, e_reiteracao=ja_existe_resposta)
         except Exception as e:
-            print(f"Erro ao enviar e-mail: {e}")
+            print(f"Erro ao disparar gatilho: {e}")
             
         return redirect('fila_medica')
     return render(request, 'responder.html', {'sol': solicitacao})
@@ -226,12 +250,10 @@ def renovar_acesso(request, token):
     link_antigo = get_object_or_404(LinkAcesso, token=token)
     solicitacao = link_antigo.solicitacao
     
-    # Gera um novo token e reseta a data de criação para "desexpirar"
     link_antigo.token = str(uuid.uuid4())
     link_antigo.data_criacao = timezone.now()
     link_antigo.save()
     
-    # Reenvia o e-mail com o novo link
     try:
         enviar_email_notificacao(solicitacao)
     except Exception as e:

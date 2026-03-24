@@ -142,7 +142,7 @@ class Solicitacao(models.Model):
         verbose_name_plural = "Solicitações"
 
     def __str__(self):
-        return f"Solicitação #{self.id} - {self.profissional.user.last_name}"
+        return f"Solicitação #{self.id} - {self.profissional.user.last_name if self.profissional.user else self.profissional.nome_completo}"
 
 # --- MODELO DE RESPOSTA ---
 
