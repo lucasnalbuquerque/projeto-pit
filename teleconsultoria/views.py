@@ -17,31 +17,34 @@ def enviar_email_notificacao(solicitacao, e_reiteracao=False):
     # 2. Monta o link completo
     link_completo = f"{settings.SITE_URL}/acompanhar/{token}/"
 
-    # 3. Define o assunto que o Power Automate vai filtrar
-    prefixo = "[ATUALIZACAO]" if e_reiteracao else "[NOVA]"
+    # 3. Define o assunto que o Power Automate vai filtrar (Conforme solicitado)
+    prefixo = "REITERACAO" if e_reiteracao else "NOVA"
     assunto = f"NOTIFICACAO_SISTEMA: {prefixo} Caso {solicitacao.id}"
 
-    # 4. Captura nomes para o Power Automate preencher o HTML bonitão
-    nome_medico = solicitacao.profissional.nome_completo if solicitacao.profissional else "Doutor(a)"
-    nome_paciente = solicitacao.paciente.nome if hasattr(solicitacao, 'paciente') else "Paciente"
+    # 4. Captura dados necessários (Removido paciente conforme solicitado)
+    nome_solicitante = solicitacao.profissional.nome_completo if solicitacao.profissional else "Doutor(a)"
     email_destino = solicitacao.profissional.email if solicitacao.profissional else settings.DEFAULT_FROM_EMAIL
     
-    # 5. Monta o corpo com os separadores (Pipes) para o Power Automate
-    corpo_gatilho = f"MEDICO:{nome_medico}|PACIENTE:{nome_paciente}|DESTINATARIO:{email_destino}|LINK:{link_completo}"
+    # 5. Monta o corpo em linhas (Sem pipes para evitar SPAM)
+    corpo_gatilho = (
+        f"SOLICITANTE:{nome_solicitante}\n"
+        f"DESTINATARIO:{email_destino}\n"
+        f"LINK:{link_completo}"
+    )
 
-    # 6. Envia para o seu e-mail institucional (definido no .env)
-    # fail_silently=False fará o erro aparecer no terminal se a config do SendGrid estiver errada
-    print(f" Tentando enviar gatilho para: {os.getenv('EMAIL_INSTITUCIONAL_GATILHO')}...")
+    # 6. Envia para o e-mail definido no .env (seu e-mail pessoal que aciona o robô)
+    email_gatilho = os.getenv('EMAIL_INSTITUCIONAL_GATILHO')
+    print(f" Tentando enviar gatilho para: {email_gatilho}...")
     
     send_mail(
         assunto,
         corpo_gatilho,
         settings.DEFAULT_FROM_EMAIL,
-        [os.getenv('EMAIL_INSTITUCIONAL_GATILHO')],
+        [email_gatilho],
         fail_silently=False
     )
     
-    print(" Gatilho enviado com sucesso ao servidor de e-mail!")
+    print(" Gatilho enviado com sucesso!")
 
 # view: nova solicitação
 def nova_solicitacao(request):
