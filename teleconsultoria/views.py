@@ -8,7 +8,7 @@ from django.conf import settings
 import uuid 
 import os
 
-# Função de envio de e-mail ajustada para GATILHO do Power Automate via SendGrid
+# Função de envio de e-mail ajustada para GATILHO do Power Automate via SMTP (Gmail)
 def enviar_email_notificacao(solicitacao, e_reiteracao=False):
     # 1. Busca o token no model LinkAcesso
     link_obj = LinkAcesso.objects.filter(solicitacao=solicitacao).first()
@@ -17,34 +17,35 @@ def enviar_email_notificacao(solicitacao, e_reiteracao=False):
     # 2. Monta o link completo
     link_completo = f"{settings.SITE_URL}/acompanhar/{token}/"
 
-    # 3. Define o assunto que o Power Automate vai filtrar (Conforme solicitado)
+    # 3. Define o assunto que o Power Automate vai filtrar
     prefixo = "REITERACAO" if e_reiteracao else "NOVA"
     assunto = f"NOTIFICACAO_SISTEMA: {prefixo} Caso {solicitacao.id}"
 
-    # 4. Captura dados necessários (Removido paciente conforme solicitado)
+    # 4. Captura dados necessários para o robô extrair
     nome_solicitante = solicitacao.profissional.nome_completo if solicitacao.profissional else "Doutor(a)"
-    email_destino = solicitacao.profissional.email if solicitacao.profissional else settings.DEFAULT_FROM_EMAIL
+    email_destino = solicitacao.profissional.email if solicitacao.profissional else "email@nao-encontrado.com"
     
-    # 5. Monta o corpo em linhas (Sem pipes para evitar SPAM)
+    # 5. Monta o corpo em linhas simples (Seguro contra filtros de spam)
     corpo_gatilho = (
         f"SOLICITANTE:{nome_solicitante}\n"
         f"DESTINATARIO:{email_destino}\n"
         f"LINK:{link_completo}"
     )
 
-    # 6. Envia para o e-mail definido no .env (seu e-mail pessoal que aciona o robô)
-    email_gatilho = os.getenv('EMAIL_INSTITUCIONAL_GATILHO')
-    print(f" Tentando enviar gatilho para: {email_gatilho}...")
+    # 6. Envia para o seu e-mail institucional (definido no .env) que aciona o robô
+    email_institucional = os.getenv('EMAIL_INSTITUCIONAL_GATILHO')
+    
+    print(f"--> Enviando comando via Gmail para: {email_institucional}")
     
     send_mail(
         assunto,
         corpo_gatilho,
         settings.DEFAULT_FROM_EMAIL,
-        [email_gatilho],
+        [email_institucional],
         fail_silently=False
     )
     
-    print(" Gatilho enviado com sucesso!")
+    print("--> Gatilho enviado com sucesso!")
 
 # view: nova solicitação
 def nova_solicitacao(request):
