@@ -55,7 +55,7 @@ class Profissional(models.Model):
     cpf = models.CharField(max_length=11, unique=True) 
     nome_completo = models.CharField(max_length=255)
     email = models.EmailField()
-    
+    telefone = models.CharField(max_length=15, help_text="WhatsApp com DDD", blank=True, null=True)
     crm = models.CharField(max_length=20, blank=True, null=True)
     cargo = models.CharField(max_length=100)
     instituicao = models.CharField(max_length=100)

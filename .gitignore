@@ -14,3 +14,5 @@ media/
 
 .env
 .env.secret
+
+log_notificacoes.xlsx

@@ -3,49 +3,38 @@ from .models import Solicitacao, Resposta, Profissional, Medica, AnexoSolicitaca
 from datetime import datetime, timedelta, date
 from django.db import transaction
 from django.utils import timezone
-from django.core.mail import send_mail
 from django.conf import settings
 import uuid 
 import os
+import pandas as pd  # Adicionado para a lógica do WhatsApp
 
-# Função de envio de e-mail ajustada para GATILHO do Power Automate via SMTP (Gmail)
-def enviar_email_notificacao(solicitacao, e_reiteracao=False):
-    # 1. Busca o token no model LinkAcesso
+# --- NOVA LÓGICA DE NOTIFICAÇÃO (WHATSAPP VIA EXCEL) ---
+def exportar_para_whatsapp_excel(solicitacao):
+
+    caminho_excel = os.path.join(settings.BASE_DIR, 'log_notificacoes.xlsx')
     link_obj = LinkAcesso.objects.filter(solicitacao=solicitacao).first()
     token = link_obj.token if link_obj else "token-nao-gerado"
     
-    # 2. Monta o link completo
+    # Monta o link que o profissional usará para ver a resposta
     link_completo = f"{settings.SITE_URL}/acompanhar/{token}/"
-
-    # 3. Define o assunto que o Power Automate vai filtrar
-    prefixo = "REITERACAO" if e_reiteracao else "NOVA"
-    assunto = f"NOTIFICACAO_SISTEMA: {prefixo} Caso {solicitacao.id}"
-
-    # 4. Captura dados necessários para o robô extrair
-    nome_solicitante = solicitacao.profissional.nome_completo if solicitacao.profissional else "Doutor(a)"
-    email_destino = solicitacao.profissional.email if solicitacao.profissional else "email@nao-encontrado.com"
     
-    # 5. Monta o corpo em linhas simples (Seguro contra filtros de spam)
-    corpo_gatilho = (
-        f"SOLICITANTE:{nome_solicitante}\n"
-        f"DESTINATARIO:{email_destino}\n"
-        f"LINK:{link_completo}"
-    )
-
-    # 6. Envia para o seu e-mail institucional (definido no .env) que aciona o robô
-    email_institucional = os.getenv('EMAIL_INSTITUCIONAL_GATILHO')
+    novos_dados = {
+        'data_resposta': [timezone.now().strftime('%d/%m/%Y %H:%M')],
+        'nome_solicitante': [solicitacao.profissional.nome_completo],
+        'whatsapp': [solicitacao.profissional.telefone],
+        'link_acesso': [link_completo],
+        'status_envio': ['PENDENTE']
+    }
     
-    print(f"--> Enviando comando via Gmail para: {email_institucional}")
+    df_novo = pd.DataFrame(novos_dados)
     
-    send_mail(
-        assunto,
-        corpo_gatilho,
-        settings.DEFAULT_FROM_EMAIL,
-        [email_institucional],
-        fail_silently=False
-    )
-    
-    print("--> Gatilho enviado com sucesso!")
+    if os.path.exists(caminho_excel):
+        df_antigo = pd.read_excel(caminho_excel)
+        df_final = pd.concat([df_antigo, df_novo], ignore_index=True)
+    else:
+        df_final = df_novo
+        
+    df_final.to_excel(caminho_excel, index=False)
 
 # view: nova solicitação
 def nova_solicitacao(request):
@@ -53,6 +42,7 @@ def nova_solicitacao(request):
         cpf_solicitante = request.POST.get('cpf')
         nome_solicitante = request.POST.get('nome_completo')
         email_solicitante = request.POST.get('email')
+        telefone_solicitante = request.POST.get('telefone') # CAPTURA DO WHATSAPP
         crm_solicitante = request.POST.get('crm')
         cargo_solicitante = request.POST.get('cargo')
         instituicao_solicitante = request.POST.get('instituicao')
@@ -68,11 +58,17 @@ def nova_solicitacao(request):
             defaults={
                 'nome_completo': nome_solicitante,
                 'email': email_solicitante,
+                'telefone': telefone_solicitante, # SALVA O TELEFONE
                 'crm': crm_solicitante,
                 'cargo': cargo_solicitante,
                 'instituicao': instituicao_solicitante
             }
         )
+        
+        # Atualiza o telefone caso o profissional já exista mas tenha mudado o número
+        if not created:
+            profissional_solicitante.telefone = telefone_solicitante
+            profissional_solicitante.save()
 
         tipo_caso = request.POST.get('tipo_caso')
         modalidade = request.POST.get('tipo_atendimento', 'ASSINCRONO')
@@ -204,18 +200,19 @@ def responder_solicitacao(request, sol_id):
     if request.method == 'POST':
         texto_resposta = request.POST.get('resposta')
         medica_teste = Medica.objects.first()
-        ja_existe_resposta = Resposta.objects.filter(solicitacao=solicitacao).exists()
         
-        nova_resposta = Resposta.objects.create(solicitacao=solicitacao, medica=medica_teste, conteudo=texto_resposta)
-        solicitacao.status = 'CONCLUIDA' 
-        solicitacao.save()
-        for f in request.FILES.getlist('anexos'):
-            AnexoResposta.objects.create(resposta=nova_resposta, arquivo=f)
-        
-        try:
-            enviar_email_notificacao(solicitacao, e_reiteracao=ja_existe_resposta)
-        except Exception as e:
-            print(f"Erro ao disparar gatilho: {e}")
+        with transaction.atomic():
+            nova_resposta = Resposta.objects.create(solicitacao=solicitacao, medica=medica_teste, conteudo=texto_resposta)
+            solicitacao.status = 'CONCLUIDA' 
+            solicitacao.save()
+            for f in request.FILES.getlist('anexos'):
+                AnexoResposta.objects.create(resposta=nova_resposta, arquivo=f)
+            
+            try:
+                # DISPARO PARA O WHATSAPP (EXCEL)
+                exportar_para_whatsapp_excel(solicitacao)
+            except Exception as e:
+                print(f"Erro ao exportar log WhatsApp: {e}")
             
         return redirect('fila_medica')
     return render(request, 'responder.html', {'sol': solicitacao})
@@ -259,10 +256,11 @@ def renovar_acesso(request, token):
     link_antigo.save()
     
     try:
-        enviar_email_notificacao(solicitacao)
+        # DISPARO PARA O WHATSAPP (EXCEL) NA RENOVAÇÃO
+        exportar_para_whatsapp_excel(solicitacao)
     except Exception as e:
-        print(f"Erro ao renovar: {e}")
+        print(f"Erro ao renovar via WhatsApp: {e}")
     
     return render(request, 'notificacao_enviada.html', {
-        'email': solicitacao.profissional.email if solicitacao.profissional else "E-mail não cadastrado"
+        'email': solicitacao.profissional.telefone if solicitacao.profissional else "Telefone não cadastrado"
     })
