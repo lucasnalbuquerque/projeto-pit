@@ -2,32 +2,316 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Nova Solicitação</title>
+    <title>Nova Solicitação | Teleconsultoria HULW</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* MANTENDO SEU CSS ORIGINAL */
-        body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 900px; margin: 30px auto; padding: 20px; line-height: 1.6; background-color: #f0f2f5; color: #333; }
-        .hidden { display: none; }
-        .campo-box { background: #fff; border: 1px solid #e0e0e0; padding: 20px; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .aviso-email { background-color: #fff3cd; border-left: 5px solid #ffc107; padding: 15px; margin-bottom: 20px; border-radius: 8px; font-size: 0.95rem; color: #856404; }
-        /* Banner Whatsapp Adicionado */
-        .aviso-whatsapp { background-color: #e7f3ef; border-left: 5px solid #25d366; padding: 15px; margin-bottom: 20px; border-radius: 8px; color: #075e54; font-size: 0.95rem; }
-        .calendario-grid { display: flex; gap: 12px; overflow-x: auto; padding: 10px 5px; margin-bottom: 20px; }
-        .data-card { min-width: 90px; padding: 12px 8px; background: #fff; border: 2px solid #ddd; border-radius: 10px; text-align: center; cursor: pointer; }
-        .data-card.active { border-color: #007bff; background: #007bff; color: white; }
-        .horarios-grid { display: flex; flex-wrap: wrap; gap: 10px; }
-        .horario-chip { padding: 10px 18px; border: 1px solid #007bff; color: #007bff; border-radius: 20px; cursor: pointer; }
-        .horario-chip.selecionado { background: #007bff; color: white; }
-        textarea, select, input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; margin-top: 8px; }
-        button { background: #007bff; color: white; padding: 15px; border: none; font-size: 18px; font-weight: bold; width: 100%; border-radius: 8px; cursor: pointer; margin-top: 10px; }
-        .lgpd-box { font-size: 0.85rem; color: #666; display: flex; align-items: flex-start; gap: 10px; margin-top: 15px; background: #f9f9f9; padding: 10px; border-radius: 8px; }
-        .lgpd-box input { width: auto; margin-top: 4px; }
+        :root {
+            --hulw-green-900: #0b3d2e;
+            --hulw-green-700: #15724f;
+            --hulw-green-600: #1a8a5f;
+            --hulw-green-500: #22a06b;
+            --hulw-green-100: #e6f5ee;
+            --hulw-green-50:  #f3faf6;
+            --ink-900: #0f172a;
+            --ink-700: #334155;
+            --ink-500: #64748b;
+            --ink-300: #cbd5e1;
+            --line:    #e3ebe6;
+            --bg:      #f4f8f5;
+            --white:   #ffffff;
+            --warn-bg: #fff8e1;
+            --warn-bd: #f5b301;
+            --warn-tx: #6b4e00;
+            --shadow-sm: 0 1px 2px rgba(11,61,46,.06);
+            --shadow-md: 0 6px 18px rgba(11,61,46,.08);
+            --shadow-lg: 0 14px 40px rgba(11,61,46,.12);
+            --radius: 14px;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background:
+                radial-gradient(1200px 600px at -10% -20%, var(--hulw-green-100), transparent 60%),
+                radial-gradient(900px 500px at 110% 0%, #d9efe2, transparent 60%),
+                var(--bg);
+            color: var(--ink-900);
+            line-height: 1.55;
+            min-height: 100vh;
+            padding: 32px 16px 64px;
+        }
+
+        .container { max-width: 960px; margin: 0 auto; }
+
+        /* ===== HEADER ===== */
+        .hulw-header {
+            background: linear-gradient(135deg, var(--hulw-green-700), var(--hulw-green-500));
+            color: #fff;
+            border-radius: 18px;
+            padding: 28px 32px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hulw-header::after {
+            content: "";
+            position: absolute; inset: 0;
+            background: radial-gradient(400px 200px at 90% 120%, rgba(255,255,255,.18), transparent 60%);
+            pointer-events: none;
+        }
+        .hulw-logo {
+            width: 56px; height: 56px;
+            border-radius: 14px;
+            background: rgba(255,255,255,.15);
+            display: grid; place-items: center;
+            font-size: 28px;
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,.25);
+            flex-shrink: 0;
+        }
+        .hulw-header h1 {
+            font-size: 1.5rem; margin: 0; font-weight: 700; letter-spacing: -0.01em;
+        }
+        .hulw-header p {
+            margin: 2px 0 0; font-size: 0.9rem; opacity: .92; font-weight: 400;
+        }
+
+        /* ===== AVISOS ===== */
+        .aviso {
+            display: flex; gap: 12px; align-items: flex-start;
+            padding: 14px 16px; border-radius: 12px;
+            margin-bottom: 16px; font-size: 0.92rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .aviso-icon {
+            width: 32px; height: 32px; border-radius: 8px;
+            display: grid; place-items: center; flex-shrink: 0;
+            font-size: 16px;
+        }
+        .aviso-whatsapp {
+            background: var(--hulw-green-50);
+            border: 1px solid var(--hulw-green-100);
+            color: var(--hulw-green-900);
+        }
+        .aviso-whatsapp .aviso-icon { background: #25d366; color: #fff; }
+        .aviso-email-info {
+            background: var(--warn-bg);
+            border: 1px solid #f5e0a3;
+            color: var(--warn-tx);
+        }
+        .aviso-email-info .aviso-icon { background: var(--warn-bd); color: #fff; }
+
+        /* ===== CARDS ===== */
+        .campo-box {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 24px 26px;
+            margin-bottom: 18px;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow .2s ease, transform .2s ease;
+        }
+        .campo-box:hover { box-shadow: var(--shadow-md); }
+        .campo-box h3 {
+            margin: 0 0 18px;
+            font-size: 1.05rem;
+            color: var(--hulw-green-900);
+            font-weight: 700;
+            display: flex; align-items: center; gap: 10px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--line);
+        }
+        .campo-box h3::before {
+            content: "";
+            width: 4px; height: 18px;
+            background: linear-gradient(180deg, var(--hulw-green-500), var(--hulw-green-700));
+            border-radius: 4px;
+        }
+        .campo-box h4 {
+            margin: 0 0 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--ink-700);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .campo-box > label {
+            font-size: 1rem;
+            color: var(--hulw-green-900);
+        }
+
+        /* ===== INPUTS ===== */
+        input, select, textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 10px;
+            border: 1.5px solid var(--line);
+            background: var(--white);
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--ink-900);
+            transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+            margin-top: 6px;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--hulw-green-500);
+            box-shadow: 0 0 0 4px rgba(34,160,107,.15);
+            background: var(--hulw-green-50);
+        }
+        input::placeholder, textarea::placeholder { color: var(--ink-500); }
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2315724f' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+        textarea { resize: vertical; min-height: 90px; }
+
+        /* ===== LGPD ===== */
+        .lgpd-box {
+            font-size: 0.85rem; color: var(--ink-700);
+            display: flex; align-items: flex-start; gap: 10px;
+            margin-top: 18px;
+            background: var(--hulw-green-50);
+            border: 1px dashed var(--hulw-green-100);
+            padding: 12px 14px; border-radius: 10px;
+        }
+        .lgpd-box input {
+            width: 18px; height: 18px;
+            margin: 2px 0 0; flex-shrink: 0;
+            accent-color: var(--hulw-green-600);
+        }
+
+        /* ===== AGENDA ===== */
+        .calendario-grid {
+            display: flex; gap: 10px; overflow-x: auto;
+            padding: 6px 2px 14px; margin-bottom: 14px;
+            scrollbar-width: thin;
+        }
+        .calendario-grid::-webkit-scrollbar { height: 6px; }
+        .calendario-grid::-webkit-scrollbar-thumb { background: var(--hulw-green-100); border-radius: 6px; }
+
+        .data-card {
+            min-width: 92px; padding: 14px 10px;
+            background: var(--white);
+            border: 2px solid var(--line);
+            border-radius: 12px;
+            text-align: center; cursor: pointer;
+            display: flex; flex-direction: column; gap: 4px;
+            transition: all .15s ease;
+            user-select: none;
+        }
+        .data-card:hover { border-color: var(--hulw-green-500); transform: translateY(-2px); }
+        .data-card .dia-semana {
+            font-size: 0.72rem; font-weight: 600;
+            text-transform: uppercase; color: var(--ink-500); letter-spacing: 0.05em;
+        }
+        .data-card .dia-mes {
+            font-size: 1.1rem; font-weight: 700; color: var(--ink-900);
+        }
+        .data-card.active {
+            border-color: var(--hulw-green-600);
+            background: linear-gradient(135deg, var(--hulw-green-600), var(--hulw-green-500));
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(26,138,95,.35);
+        }
+        .data-card.active .dia-semana,
+        .data-card.active .dia-mes { color: #fff; }
+
+        .horarios-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+        .horario-chip {
+            padding: 9px 18px;
+            border: 1.5px solid var(--hulw-green-500);
+            color: var(--hulw-green-700);
+            background: var(--white);
+            border-radius: 999px; cursor: pointer;
+            font-size: 0.9rem; font-weight: 600;
+            transition: all .15s ease;
+        }
+        .horario-chip:hover { background: var(--hulw-green-50); }
+        .horario-chip.selecionado {
+            background: var(--hulw-green-600);
+            color: #fff;
+            border-color: var(--hulw-green-600);
+            box-shadow: 0 4px 10px rgba(26,138,95,.3);
+        }
+
+        /* ===== BOTÃO ===== */
+        button[type="submit"] {
+            background: linear-gradient(135deg, var(--hulw-green-700), var(--hulw-green-500));
+            color: #fff;
+            padding: 16px;
+            border: none;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            width: 100%;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 8px 24px rgba(21,114,79,.28);
+            transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+        }
+        button[type="submit"]:hover { transform: translateY(-2px); filter: brightness(1.05); box-shadow: 0 12px 28px rgba(21,114,79,.36); }
+        button[type="submit"]:active { transform: translateY(0); }
+
+        /* ===== ARQUIVOS ===== */
+        input[type="file"] {
+            padding: 10px;
+            background: var(--hulw-green-50);
+            border: 1.5px dashed var(--hulw-green-500);
+            cursor: pointer;
+        }
+        #lista-arquivos { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+        #lista-arquivos > div {
+            background: var(--hulw-green-50);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid var(--hulw-green-100);
+        }
+        #lista-arquivos span {
+            color: #c0392b;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .hidden { display: none !important; }
+
+        @media (max-width: 640px) {
+            body { padding: 16px 10px 48px; }
+            .hulw-header { padding: 22px; flex-direction: column; align-items: flex-start; text-align: left; }
+            .campo-box { padding: 20px; }
+            .campo-box [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+        }
     </style>
 </head>
 <body>
-    <h1>Nova Solicitação de Teleconsultoria</h1>
+<div class="container">
 
-    <div class="aviso-whatsapp">
-        <strong>📱 Notificações via WhatsApp:</strong> Ao informar seu número, você receberá o link de resposta diretamente no seu celular, facilitando o acompanhamento do caso.
+    <header class="hulw-header">
+        <div class="hulw-logo">⚕️</div>
+        <div>
+            <h1>Nova Solicitação de Teleconsultoria</h1>
+            <p>Hospital Universitário Lauro Wanderley · HULW/UFPB</p>
+        </div>
+    </header>
+
+    <div class="aviso aviso-whatsapp">
+        <div class="aviso-icon">💬</div>
+        <div><strong>Notificações via WhatsApp:</strong> ao informar seu número, você receberá o link de resposta diretamente no seu celular, facilitando o acompanhamento do caso.</div>
     </div>
 
     <form method="POST" enctype="multipart/form-data" id="form-solicitacao">
@@ -37,31 +321,31 @@
             <h3>Identificação do Solicitante</h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                 <div>
-                    <h4>Seu Nome Completo:</h4>
+                    <h4>Seu Nome Completo</h4>
                     <input type="text" name="nome_completo" required>
                 </div>
                 <div>
-                    <h4>Seu CPF:</h4>
+                    <h4>Seu CPF</h4>
                     <input type="text" name="cpf" id="cpf_input" maxlength="14" required>
                 </div>
             </div>
-            
+
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                 <div>
-                    <h4>Seu WhatsApp (DDD + Número):</h4>
+                    <h4>Seu WhatsApp (DDD + Número)</h4>
                     <input type="text" name="telefone" id="tel_input" placeholder="(83) 99999-0000" required>
                 </div>
                 <div>
-                    <h4>Seu E-mail:</h4>
+                    <h4>Seu E-mail</h4>
                     <input type="email" name="email" required>
                 </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div><h4>Cargo / Função:</h4><input type="text" name="cargo" required></div>
-                <div><h4>Instituição / UBS:</h4><input type="text" name="instituicao" required></div>
+                <div><h4>Cargo / Função</h4><input type="text" name="cargo" required></div>
+                <div><h4>Instituição / UBS</h4><input type="text" name="instituicao" required></div>
             </div>
-            <div style="margin-top: 15px;"><h4>Seu CRM (Opcional):</h4><input type="text" name="crm"></div>
+            <div style="margin-top: 15px;"><h4>Seu CRM (Opcional)</h4><input type="text" name="crm"></div>
 
             <div class="lgpd-box">
                 <input type="checkbox" required>
@@ -118,92 +402,95 @@
         <div id="secao_especifica" class="hidden">
             <div class="campo-box">
                 <h3>Dados do Paciente</h3>
-                <input type="number" name="idade_pac" placeholder="Idade">
-                <select name="sexo_pac">
-                    <option value="M">Masculino</option>
-                    <option value="F">Feminino</option>
-                    <option value="O">Outro</option>
-                </select>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:12px;">
+                    <input type="number" name="idade_pac" placeholder="Idade">
+                    <select name="sexo_pac">
+                        <option value="M">Masculino</option>
+                        <option value="F">Feminino</option>
+                        <option value="O">Outro</option>
+                    </select>
+                </div>
                 <textarea name="diagnostico_princ" placeholder="Diagnóstico Principal"></textarea>
-                <textarea name="queixas_especificas" placeholder="Queixas"></textarea>
+                <textarea name="queixas_especificas" placeholder="Queixas" style="margin-top:10px;"></textarea>
             </div>
         </div>
 
         <div class="campo-box">
             <h3>Sua Dúvida Clínica</h3>
-            <textarea name="duvida_clinica" rows="6" required></textarea>
+            <textarea name="duvida_clinica" rows="6" required placeholder="Descreva a dúvida com o máximo de detalhes possível..."></textarea>
+            <h4 style="margin-top:16px;">Anexos (opcional)</h4>
             <input type="file" id="input-anexos" onchange="adicionarArquivos()">
             <div id="lista-arquivos"></div>
         </div>
 
         <button type="submit">Enviar Solicitação</button>
     </form>
+</div>
 
-    <script>
-        /* MANTENDO TODA SUA LÓGICA DE JAVASCRIPT */
-        document.getElementById('cpf_input').addEventListener('input', function (e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 11) value = value.slice(0, 11);
-            if (value.length > 9) value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
-            else if (value.length > 6) value = value.replace(/^(\d{3})(\d{3})(\d{1,3})$/, "$1.$2.$3");
-            else if (value.length > 3) value = value.replace(/^(\d{3})(\d{1,3})$/, "$1.$2");
-            e.target.value = value;
+<script>
+    /* MANTENDO TODA SUA LÓGICA DE JAVASCRIPT */
+    document.getElementById('cpf_input').addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 11) value = value.slice(0, 11);
+        if (value.length > 9) value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
+        else if (value.length > 6) value = value.replace(/^(\d{3})(\d{3})(\d{1,3})$/, "$1.$2.$3");
+        else if (value.length > 3) value = value.replace(/^(\d{3})(\d{1,3})$/, "$1.$2");
+        e.target.value = value;
+    });
+
+    document.getElementById('tel_input').addEventListener('input', function (e) {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length > 11) v = v.slice(0, 11);
+        if (v.length > 10) e.target.value = v.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+        else if (v.length > 5) e.target.value = v.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3");
+        else if (v.length > 2) e.target.value = v.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
+        else e.target.value = v;
+    });
+
+    let arquivosAcumulados = [];
+    function adicionarArquivos() {
+        const input = document.getElementById('input-anexos');
+        for (let file of input.files) { arquivosAcumulados.push(file); }
+        atualizarListaExibicao();
+    }
+    function atualizarListaExibicao() {
+        const lista = document.getElementById('lista-arquivos');
+        lista.innerHTML = "";
+        arquivosAcumulados.forEach((file, index) => {
+            const item = document.createElement('div');
+            item.innerHTML = `<span>📎 ${file.name}</span> <span onclick="removerArquivo(${index})">Remover</span>`;
+            lista.appendChild(item);
         });
+    }
+    function removerArquivo(index) { arquivosAcumulados.splice(index, 1); atualizarListaExibicao(); }
 
-        // Máscara de Telefone Adicionada
-        document.getElementById('tel_input').addEventListener('input', function (e) {
-            let v = e.target.value.replace(/\D/g, '');
-            if (v.length > 11) v = v.slice(0, 11);
-            if (v.length > 10) e.target.value = v.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
-            else if (v.length > 5) e.target.value = v.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3");
-            else if (v.length > 2) e.target.value = v.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
-            else e.target.value = v;
-        });
+    document.getElementById('form-solicitacao').onsubmit = function(e) {
+        document.getElementById('cpf_input').value = document.getElementById('cpf_input').value.replace(/\D/g, '');
+        const dataTransfer = new DataTransfer();
+        arquivosAcumulados.forEach(file => dataTransfer.items.add(file));
+        document.getElementById('input-anexos').files = dataTransfer.files;
+        document.getElementById('input-anexos').name = "anexos";
+    };
 
-        let arquivosAcumulados = [];
-        function adicionarArquivos() {
-            const input = document.getElementById('input-anexos');
-            for (let file of input.files) { arquivosAcumulados.push(file); }
-            atualizarListaExibicao();
-        }
-        function atualizarListaExibicao() {
-            const lista = document.getElementById('lista-arquivos');
-            lista.innerHTML = "";
-            arquivosAcumulados.forEach((file, index) => {
-                const item = document.createElement('div');
-                item.innerHTML = `📎 ${file.name} <span onclick="removerArquivo(${index})" style="color:red;cursor:pointer">Remover</span>`;
-                lista.appendChild(item);
-            });
-        }
-        function removerArquivo(index) { arquivosAcumulados.splice(index, 1); atualizarListaExibicao(); }
-
-        document.getElementById('form-solicitacao').onsubmit = function(e) {
-            document.getElementById('cpf_input').value = document.getElementById('cpf_input').value.replace(/\D/g, '');
-            const dataTransfer = new DataTransfer();
-            arquivosAcumulados.forEach(file => dataTransfer.items.add(file));
-            document.getElementById('input-anexos').files = dataTransfer.files;
-            document.getElementById('input-anexos').name = "anexos"; 
-        };
-
-        function alternarCampos() {
-            var tipo = document.getElementById('tipo_caso').value;
-            document.getElementById('secao_especifica').className = (tipo === 'ESPECIFICO' ? '' : 'hidden');
-        }
-        function alternarSincrono() {
-            var mod = document.getElementById('tipo_atendimento').value;
-            document.getElementById('secao_agendamento').className = (mod === 'SINCRONO' ? '' : 'hidden');
-        }
-        function mostrarHorarios(diaId, el) {
-            document.querySelectorAll('.data-card').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
-            document.getElementById('container_horarios_pai').classList.remove('hidden');
-            document.querySelectorAll('.horario-lista-wrapper').forEach(d => d.classList.add('hidden'));
-            document.getElementById(diaId).classList.remove('hidden');
-        }
-        function marcarSelecao(el) {
-            document.querySelectorAll('.horario-chip').forEach(c => c.classList.remove('selecionado'));
-            el.parentElement.classList.add('selecionado');
-        }
-    </script>
+    function alternarCampos() {
+        var tipo = document.getElementById('tipo_caso').value;
+        document.getElementById('secao_especifica').className = (tipo === 'ESPECIFICO' ? '' : 'hidden');
+    }
+    function alternarSincrono() {
+        var mod = document.getElementById('tipo_atendimento').value;
+        document.getElementById('secao_agendamento').className = (mod === 'SINCRONO' ? '' : 'hidden');
+    }
+    function mostrarHorarios(diaId, el) {
+        document.querySelectorAll('.data-card').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('container_horarios_pai').classList.remove('hidden');
+        document.querySelectorAll('.horario-lista-wrapper').forEach(d => d.classList.add('hidden'));
+        document.getElementById(diaId).classList.remove('hidden');
+    }
+    function marcarSelecao(el) {
+        document.querySelectorAll('.horario-chip').forEach(c => c.classList.remove('selecionado'));
+        el.parentElement.classList.add('selecionado');
+    }
+</script>
 </body>
 </html>
