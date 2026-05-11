@@ -30,25 +30,54 @@
             --radius: 14px;
         }
 
+        /* CLASSE PARA MODO ESCURO */
+        body.dark-mode {
+            --hulw-green-900: #d1f7e8;
+            --hulw-green-700: #4ade80;
+            --hulw-green-600: #22c55e;
+            --hulw-green-500: #16a34a;
+            --hulw-green-100: #064e3b;
+            --hulw-green-50:  #022c22;
+            --ink-900: #f8fafc;
+            --ink-700: #e2e8f0;
+            --ink-500: #94a3b8;
+            --ink-300: #334155;
+            --line:    #1e293b;
+            --bg:      #020617;
+            --white:   #0f172a;
+            --warn-bg: #422006;
+            --warn-bd: #d97706;
+            --warn-tx: #fef3c7;
+        }
+
+        /* CORREÇÃO DO BUG VISUAL NO MODO ESCURO */
+        body.dark-mode select {
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234ade80' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+
         * { box-sizing: border-box; }
         html, body { margin: 0; padding: 0; }
         body {
             font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
             background:
                 radial-gradient(1200px 600px at -10% -20%, var(--hulw-green-100), transparent 60%),
-                radial-gradient(900px 500px at 110% 0%, #d9efe2, transparent 60%),
+                radial-gradient(900px 500px at 110% 0%, rgba(26,138,95,0.05), transparent 60%),
                 var(--bg);
             color: var(--ink-900);
             line-height: 1.55;
             min-height: 100vh;
             padding: 32px 16px 64px;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         .container { max-width: 960px; margin: 0 auto; }
 
         /* ===== HEADER ===== */
         .hulw-header {
-            background: linear-gradient(135deg, var(--hulw-green-700), var(--hulw-green-500));
+            background: linear-gradient(135deg, #15724f, #22a06b);
             color: #fff;
             border-radius: 18px;
             padding: 28px 32px;
@@ -66,16 +95,44 @@
             background: radial-gradient(400px 200px at 90% 120%, rgba(255,255,255,.18), transparent 60%);
             pointer-events: none;
         }
+
+        /* BOTÃO TEMA */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+            transition: all 0.2s;
+        }
+        .theme-toggle:hover { background: rgba(255, 255, 255, 0.3); }
+
         .hulw-logo {
             width: 56px; height: 56px;
             border-radius: 14px;
             background: rgba(255,255,255,.15);
-            display: grid; place-items: center;
-            font-size: 28px;
+            display: flex; 
+            align-items: center;
+            justify-content: center;
             backdrop-filter: blur(6px);
             border: 1px solid rgba(255,255,255,.25);
             flex-shrink: 0;
+            overflow: hidden;
         }
+        .hulw-logo img {
+            max-width: 80%;
+            max-height: 80%;
+            object-fit: contain;
+        }
+
         .hulw-header h1 {
             font-size: 1.5rem; margin: 0; font-weight: 700; letter-spacing: -0.01em;
         }
@@ -103,7 +160,7 @@
         .aviso-whatsapp .aviso-icon { background: #25d366; color: #fff; }
         .aviso-email-info {
             background: var(--warn-bg);
-            border: 1px solid #f5e0a3;
+            border: 1px solid var(--warn-bd);
             color: var(--warn-tx);
         }
         .aviso-email-info .aviso-icon { background: var(--warn-bd); color: #fff; }
@@ -116,7 +173,7 @@
             padding: 24px 26px;
             margin-bottom: 18px;
             box-shadow: var(--shadow-sm);
-            transition: box-shadow .2s ease, transform .2s ease;
+            transition: box-shadow .2s ease, transform .2s ease, background 0.3s ease;
         }
         .campo-box:hover { box-shadow: var(--shadow-md); }
         .campo-box h3 {
@@ -157,7 +214,7 @@
             font-family: inherit;
             font-size: 0.95rem;
             color: var(--ink-900);
-            transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+            transition: all .15s ease;
             margin-top: 6px;
         }
         input:focus, select:focus, textarea:focus {
@@ -183,7 +240,7 @@
             display: flex; align-items: flex-start; gap: 10px;
             margin-top: 18px;
             background: var(--hulw-green-50);
-            border: 1px dashed var(--hulw-green-100);
+            border: 1px dashed var(--hulw-green-600);
             padding: 12px 14px; border-radius: 10px;
         }
         .lgpd-box input {
@@ -302,7 +359,10 @@
 <div class="container">
 
     <header class="hulw-header">
-        <div class="hulw-logo">⚕️</div>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Modo Escuro</button>
+        <div class="hulw-logo">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQryXQkqFL8UMlNXtInfmWSQhSp1ZcKgreHmw&s" alt="Logo HULW">
+        </div>
         <div>
             <h1>Nova Solicitação de Teleconsultoria</h1>
             <p>Hospital Universitário Lauro Wanderley · HULW/UFPB</p>
@@ -321,22 +381,22 @@
             <h3>Identificação do Solicitante</h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                 <div>
-                    <h4>Seu Nome Completo</h4>
+                    <h4>Nome Completo</h4>
                     <input type="text" name="nome_completo" required>
                 </div>
                 <div>
-                    <h4>Seu CPF</h4>
+                    <h4>CPF</h4>
                     <input type="text" name="cpf" id="cpf_input" maxlength="14" required>
                 </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                 <div>
-                    <h4>Seu WhatsApp (DDD + Número)</h4>
+                    <h4>WhatsApp (DDD + Número)</h4>
                     <input type="text" name="telefone" id="tel_input" placeholder="(83) 99999-0000" required>
                 </div>
                 <div>
-                    <h4>Seu E-mail</h4>
+                    <h4>E-mail</h4>
                     <input type="email" name="email" required>
                 </div>
             </div>
@@ -345,7 +405,7 @@
                 <div><h4>Cargo / Função</h4><input type="text" name="cargo" required></div>
                 <div><h4>Instituição / UBS</h4><input type="text" name="instituicao" required></div>
             </div>
-            <div style="margin-top: 15px;"><h4>Seu CRM (Opcional)</h4><input type="text" name="crm"></div>
+            <div style="margin-top: 15px;"><h4>CRM (Opcional)</h4><input type="text" name="crm"></div>
 
             <div class="lgpd-box">
                 <input type="checkbox" required>
@@ -403,19 +463,43 @@
             <div class="campo-box">
                 <h3>Dados do Paciente</h3>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:12px;">
-                    <input type="number" name="idade_pac" placeholder="Idade">
-                    <select name="sexo_pac">
+                    <div>
+                        <h4>Idade</h4>
+                        <input type="number" name="idade_pac" placeholder="Idade aproximada">
+                    </div>
+                    <div>
+                        <h4>Identidade de Gênero</h4>
+                        <select name="genero_pac" id="genero_pac" onchange="verificarSexoBiologico()">
+                            <option value="M">Masculino</option>
+                            <option value="F">Feminino</option>
+                            <option value="NB">Não-binário</option>
+                            <option value="O">Outro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="campo_sexo_bio" class="hidden" style="margin-bottom:15px; background: var(--hulw-green-50); padding: 12px; border-radius: 10px; border: 1px solid var(--hulw-green-100);">
+                    <h4 style="color: var(--hulw-green-900);">Sexo atribuído no nascimento</h4>
+                    <p style="font-size: 0.75rem; margin-top: -4px; color: var(--ink-500);">Informação necessária para fins estritamente clínicos (exames e dosagens).</p>
+                    <select name="sexo_biologico_pac">
+                        <option value="">Selecione o sexo biológico...</option>
                         <option value="M">Masculino</option>
                         <option value="F">Feminino</option>
-                        <option value="O">Outro</option>
                     </select>
                 </div>
-                <textarea name="queixas_especificas" placeholder="Queixas do paciente" style="margin-top:10px;"></textarea>
-                <textarea name="diagnostico_princ" placeholder="Diagnóstico Principal"></textarea>
-                <textarea name="diagnostico_sec" placeholder="Diagnóstico Secundário"></textarea>
-                <textarea name="medicamentos" placeholder="Medicamentos" style="margin-top:10px;"></textarea>
-                <textarea name="exames_recentes" placeholder="Exames recentes" style="margin-top:10px;"></textarea>
-                <textarea name="historico_med" placeholder="Histórico Médico" style="margin-top:10px;"></textarea>
+
+                <h4>Queixas do paciente</h4>
+                <textarea name="queixas_especificas" placeholder="Descreva os sintomas principais, tempo de evolução e intensidade das queixas atuais..." style="margin-top:10px;"></textarea>
+                <h4>Diagnóstico Principal</h4>
+                <textarea name="diagnostico_princ" placeholder="Informe a patologia base ou a hipótese diagnóstica principal..."></textarea>
+                <h4>Diagóstico secundário</h4>
+                <textarea name="diagnostico_sec" placeholder="Liste comorbidades associadas ou condições secundárias relevantes para o caso, caso haja..."></textarea>
+                <h4>Medicamentos</h4>
+                <textarea name="medicamentos" placeholder="Liste fármacos em uso, dosagens e frequência..." style="margin-top:10px;"></textarea>
+                <h4>Exames recentes</h4>
+                <textarea name="exames_recentes" placeholder="Resuma os resultados de exames laboratoriais ou de imagem realizados nos últimos meses..." style="margin-top:10px;"></textarea>
+                <h4>Histórico médico</h4>
+                <textarea name="historico_med" placeholder="Antecedentes familiares, cirurgias prévias, internações anteriores e alergias conhecidas..." style="margin-top:10px;"></textarea>
             </div>
         </div>
 
@@ -432,7 +516,19 @@
 </div>
 
 <script>
-    /* MANTENDO TODA SUA LÓGICA DE JAVASCRIPT */
+    // LÓGICA DE TEMA
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.getElementById('themeBtn');
+        body.classList.toggle('dark-mode');
+        
+        if (body.classList.contains('dark-mode')) {
+            btn.innerHTML = "☀️ Modo Claro";
+        } else {
+            btn.innerHTML = "🌙 Modo Escuro";
+        }
+    }
+
     document.getElementById('cpf_input').addEventListener('input', function (e) {
         let value = e.target.value.replace(/\D/g, '');
         if (value.length > 11) value = value.slice(0, 11);
@@ -480,6 +576,17 @@
         var tipo = document.getElementById('tipo_caso').value;
         document.getElementById('secao_especifica').className = (tipo === 'ESPECIFICO' ? '' : 'hidden');
     }
+
+    function verificarSexoBiologico() {
+        var genero = document.getElementById('genero_pac').value;
+        var campoBio = document.getElementById('campo_sexo_bio');
+        if (genero === 'O' || genero === 'NB') {
+            campoBio.classList.remove('hidden');
+        } else {
+            campoBio.classList.add('hidden');
+        }
+    }
+
     function alternarSincrono() {
         var mod = document.getElementById('tipo_atendimento').value;
         document.getElementById('secao_agendamento').className = (mod === 'SINCRONO' ? '' : 'hidden');
