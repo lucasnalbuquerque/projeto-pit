@@ -2,141 +2,391 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Fila de Atendimento - Teleconsultoria</title>
+    <title>Fila de Atendimento - Teleconsultoria HULW</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 40px; background-color: #f8f9fa; }
-        h1 { color: #2c3e50; }
-        
-        .filter-bar { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; }
-        .filter-group { display: flex; flex-direction: column; gap: 5px; }
-        .filter-group label { font-size: 0.85em; font-weight: bold; color: #555; }
-        select, input { padding: 8px; border-radius: 4px; border: 1px solid #ddd; min-width: 150px; }
+        :root {
+            --green-900: #064e2b;
+            --green-800: #066b34;
+            --green-700: #05922f;
+            --green-600: #0ba84a;
+            --green-500: #22c55e;
+            --green-100: #dcfce7;
+            --green-50:  #f0fdf4;
+            --gray-900: #0f1f17;
+            --gray-700: #334155;
+            --gray-500: #64748b;
+            --gray-300: #cbd5e1;
+            --gray-200: #e2e8f0;
+            --gray-100: #f1f5f9;
+            --white: #ffffff;
+            --bg: #f4faf6;
+            --shadow-sm: 0 1px 2px rgba(6, 78, 43, 0.06);
+            --shadow-md: 0 4px 12px rgba(6, 78, 43, 0.08);
+            --shadow-lg: 0 12px 28px rgba(6, 78, 43, 0.12);
+            --radius: 12px;
+        }
 
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background-color: #05922f; color: white; font-weight: 600; text-transform: uppercase; font-size: 0.85em; }
-        
-        .inst-nome { display: block; font-weight: bold; color: #333; }
-        .sol-nome { display: block; font-size: 0.85em; color: #666; }
+        * { box-sizing: border-box; }
 
-        .status-PENDENTE { color: #f39c12; font-weight: bold; }
-        .status-ANALISE { color: #3498db; font-weight: bold; }
-        .status-CONCLUIDA { color: #27ae60; font-weight: bold; }
-        
-        .btn { padding: 8px 15px; text-decoration: none; border-radius: 4px; background-color: #007bff; color: white; transition: 0.3s; font-weight: bold; }
-        .btn:hover { background-color: #0056b3; }
-        .btn-concluido { background-color: #6c757d; }
-        .btn-concluido:hover { background-color: #5a6268; }
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            margin: 0;
+            background: linear-gradient(180deg, var(--bg) 0%, #ffffff 100%);
+            color: var(--gray-900);
+            min-height: 100vh;
+        }
 
-        .btn-limpar { padding: 8px 12px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .btn-limpar:hover { background: #5a6268; }
+        .header {
+            background: linear-gradient(135deg, var(--green-800) 0%, var(--green-600) 100%);
+            color: white;
+            padding: 28px 48px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .header .logo {
+            width: 52px; height: 52px;
+            background: white;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px;
+            color: var(--green-700);
+            box-shadow: var(--shadow-sm);
+            font-weight: 800;
+        }
+        .header h1 { margin: 0; font-size: 1.4rem; font-weight: 700; letter-spacing: -0.01em; }
+        .header .subtitle { font-size: 0.85rem; opacity: 0.88; margin-top: 2px; font-weight: 400; }
 
-        /* Estilo para info de agendamento síncrono */
-        .info-agenda { display: block; font-size: 0.75rem; color: #007bff; margin-top: 4px; font-weight: bold; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 32px 48px 64px; }
+
+        .page-title {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .page-title h2 {
+            margin: 0;
+            color: var(--green-900);
+            font-size: 1.65rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        .page-title .badge {
+            background: var(--green-100);
+            color: var(--green-800);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .filter-bar {
+            background: var(--white);
+            padding: 22px 24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+            margin-bottom: 24px;
+            display: flex;
+            gap: 16px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        .filter-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 170px; }
+        .filter-group label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        select, input[type="date"] {
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1.5px solid var(--gray-200);
+            background: var(--white);
+            font-size: 0.92rem;
+            font-family: inherit;
+            color: var(--gray-900);
+            transition: all 0.2s ease;
+            min-width: 150px;
+        }
+        select:hover, input[type="date"]:hover { border-color: var(--green-500); }
+        select:focus, input[type="date"]:focus {
+            outline: none;
+            border-color: var(--green-600);
+            box-shadow: 0 0 0 3px var(--green-100);
+        }
+
+        .table-wrapper {
+            background: var(--white);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: linear-gradient(135deg, var(--green-800) 0%, var(--green-700) 100%); }
+        th {
+            padding: 16px 20px;
+            text-align: left;
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.06em;
+        }
+        td { padding: 16px 20px; border-bottom: 1px solid var(--gray-100); font-size: 0.94rem; }
+        tbody tr { transition: background 0.15s ease; }
+        tbody tr:hover { background: var(--green-50); }
+        tbody tr:last-child td { border-bottom: none; }
+
+        .id-cell strong {
+            color: var(--green-800);
+            font-weight: 700;
+            font-size: 0.98rem;
+        }
+        .id-cell small { color: var(--gray-500); font-size: 0.8rem; }
+
+        .inst-nome { display: block; font-weight: 600; color: var(--gray-900); }
+        .sol-nome { display: block; font-size: 0.84rem; color: var(--gray-500); margin-top: 2px; }
+
+        .tipo-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: var(--gray-100);
+            color: var(--gray-700);
+            font-size: 0.82rem;
+            font-weight: 500;
+        }
+
+        .modalidade { font-weight: 500; color: var(--gray-700); }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 11px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-pill::before {
+            content: '';
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status-PENDENTE { background: #fef3c7; color: #92400e; }
+        .status-PENDENTE::before { background: #f59e0b; box-shadow: 0 0 0 3px #fde68a; }
+        .status-ANALISE { background: #dbeafe; color: #1e40af; }
+        .status-ANALISE::before { background: #3b82f6; box-shadow: 0 0 0 3px #bfdbfe; }
+        .status-CONCLUIDA { background: var(--green-100); color: var(--green-800); }
+        .status-CONCLUIDA::before { background: var(--green-600); box-shadow: 0 0 0 3px #bbf7d0; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 16px;
+            text-decoration: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--green-700) 0%, var(--green-600) 100%);
+            color: white;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            font-size: 0.88rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+            background: linear-gradient(135deg, var(--green-800) 0%, var(--green-700) 100%);
+        }
+        .btn-concluido {
+            background: var(--white);
+            color: var(--green-800);
+            border: 1.5px solid var(--green-600);
+            box-shadow: none;
+        }
+        .btn-concluido:hover {
+            background: var(--green-50);
+            color: var(--green-900);
+        }
+
+        .btn-limpar {
+            padding: 10px 16px;
+            background: var(--white);
+            color: var(--green-800);
+            border: 1.5px solid var(--green-600);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.88rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+        .btn-limpar:hover { background: var(--green-50); }
+
+        .info-agenda {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 6px;
+            padding: 3px 8px;
+            background: var(--green-50);
+            color: var(--green-800);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid var(--green-100);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray-500);
+        }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
+
+        @media (max-width: 768px) {
+            .header { padding: 20px 24px; }
+            .container { padding: 24px 16px; }
+            th, td { padding: 12px; font-size: 0.85rem; }
+            .filter-group { min-width: 100%; }
+        }
     </style>
 </head>
 <body>
 
-    <h1>Fila de Solicitações Médicas</h1>
-
-    <div class="filter-bar">
-        <div class="filter-group">
-            <label>Data da Solicitação:</label>
-            <input type="date" id="filterData" onchange="filtrarTabela()">
+    <header class="header">
+        <div class="logo">+</div>
+        <div>
+            <h1>HULW · Teleconsultoria</h1>
+            <div class="subtitle">Hospital Universitário Lauro Wanderley</div>
         </div>
-        <div class="filter-group">
-            <label>Status:</label>
-            <select id="filterStatus" onchange="filtrarTabela()">
-                <option value="">Todos</option>
-                <option value="PENDENTE">Pendente</option>
-                <option value="ANALISE">Em Análise</option>
-                <option value="CONCLUIDA">Concluída</option>
-            </select>
+    </header>
+
+    <main class="container">
+
+        <div class="page-title">
+            <h2>Fila de Solicitações Médicas</h2>
+            <span class="badge">{{ solicitacoes|length }} solicitação(ões)</span>
         </div>
-        <div class="filter-group">
-            <label>Modalidade:</label>
-            <select id="filterModalidade" onchange="filtrarTabela()">
-                <option value="">Todas</option>
-                <option value="Síncrono">Síncrono</option>
-                <option value="Assíncrono">Assíncrono</option>
-            </select>
+
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label>Data da Solicitação</label>
+                <input type="date" id="filterData" onchange="filtrarTabela()">
+            </div>
+            <div class="filter-group">
+                <label>Status</label>
+                <select id="filterStatus" onchange="filtrarTabela()">
+                    <option value="">Todos</option>
+                    <option value="PENDENTE">Pendente</option>
+                    <option value="ANALISE">Em Análise</option>
+                    <option value="CONCLUIDA">Concluída</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Modalidade</label>
+                <select id="filterModalidade" onchange="filtrarTabela()">
+                    <option value="">Todas</option>
+                    <option value="Síncrono">Síncrono</option>
+                    <option value="Assíncrono">Assíncrono</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Tipo</label>
+                <select id="filterTipo" onchange="filtrarTabela()">
+                    <option value="">Todos</option>
+                    <option value="Paciente Específico">Paciente Específico</option>
+                    <option value="Dúvida Geral">Dúvida Geral</option>
+                </select>
+            </div>
+            <button class="btn-limpar" onclick="limparFiltros()">Limpar Filtros</button>
         </div>
-        <div class="filter-group">
-            <label>Tipo:</label>
-            <select id="filterTipo" onchange="filtrarTabela()">
-                <option value="">Todos</option>
-                <option value="Paciente Específico">Paciente Específico</option>
-                <option value="Dúvida Geral">Dúvida Geral</option>
-            </select>
+
+        <div class="table-wrapper">
+            <table id="tabelaFila">
+                <thead>
+                    <tr>
+                        <th>ID / Hora</th>
+                        <th>Solicitante / Instituição</th>
+                        <th>Tipo</th>
+                        <th>Modalidade</th>
+                        <th>Status</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sol in solicitacoes %}
+                    <tr class="linha-solicitacao"
+                        data-data="{{ sol.data_sol|date:'Y-m-d' }}"
+                        data-status="{{ sol.status }}"
+                        data-modalidade="{{ sol.get_tipo_atendimento_display }}"
+                        data-tipo="{% if sol.idade_pac > 0 %}Paciente Específico{% else %}Dúvida Geral{% endif %}">
+
+                        <td class="id-cell">
+                            <strong>#{{ sol.id }}</strong><br>
+                            <small>{{ sol.data_sol|date:"H:i" }}</small>
+                        </td>
+
+                        <td>
+                            <span class="inst-nome">{{ sol.instituicao|default:"Instituição Não Informada" }}</span>
+                            <span class="sol-nome">Dr(a). {{ sol.profissional.user.get_full_name|default:"Nome do Solicitante" }}</span>
+                        </td>
+
+                        <td>
+                            <span class="tipo-tag">
+                                {% if sol.idade_pac > 0 %}Paciente Específico{% else %}Dúvida Geral{% endif %}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="modalidade">{{ sol.get_tipo_atendimento_display }}</span>
+                            {% if sol.tipo_atendimento == 'SINCRONO' and sol.agenda %}
+                                <br>
+                                <span class="info-agenda">
+                                    📅 {{ sol.agenda.data|date:"d/m" }} às {{ sol.agenda.horario|time:"H:i" }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <span class="status-pill status-{{ sol.status }}">
+                                {{ sol.get_status_display }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <a href="{% url 'detalhe_caso' sol.id %}" class="btn {% if sol.status == 'CONCLUIDA' %}btn-concluido{% endif %}">
+                                {% if sol.status == 'CONCLUIDA' %}Atender novamente{% else %}Atender{% endif %}
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <div class="icon">📭</div>
+                            <div>Nenhuma solicitação encontrada.</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-        <button class="btn-limpar" onclick="limparFiltros()">Limpar Filtros</button>
-    </div>
 
-    <table id="tabelaFila">
-        <thead>
-            <tr>
-                <th>ID / Hora</th>
-                <th>Solicitante / Instituição</th>
-                <th>Tipo</th>
-                <th>Modalidade</th>
-                <th>Status</th>
-                <th>Ação</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for sol in solicitacoes %}
-            <tr class="linha-solicitacao" 
-                data-data="{{ sol.data_sol|date:'Y-m-d' }}"
-                data-status="{{ sol.status }}" 
-                data-modalidade="{{ sol.get_tipo_atendimento_display }}"
-                data-tipo="{% if sol.idade_pac > 0 %}Paciente Específico{% else %}Dúvida Geral{% endif %}">
-                
-                <td>
-                    <strong>#{{ sol.id }}</strong><br>
-                    <small style="color: #888;">{{ sol.data_sol|date:"H:i" }}</small>
-                </td>
-
-                <td>
-                    <span class="inst-nome">{{ sol.instituicao|default:"Instituição Não Informada" }}</span>
-                    <span class="sol-nome">Dr(a). {{ sol.profissional.user.get_full_name|default:"Nome do Solicitante" }}</span>
-                </td>
-
-                <td>
-                    {% if sol.idade_pac > 0 %}
-                        Paciente Específico
-                    {% else %}
-                        Dúvida Geral
-                    {% endif %}
-                </td>
-
-                <td>
-                    {{ sol.get_tipo_atendimento_display }}
-                    {% if sol.tipo_atendimento == 'SINCRONO' and sol.agenda %}
-                        <span class="info-agenda">
-                            📅 {{ sol.agenda.data|date:"d/m" }} às {{ sol.agenda.horario|time:"H:i" }}
-                        </span>
-                    {% endif %}
-                </td>
-
-                <td>
-                    <span class="status-{{ sol.status }}">
-                        ● {{ sol.get_status_display }}
-                    </span>
-                </td>
-
-                <td>
-                    <a href="{% url 'detalhe_caso' sol.id %}" class="btn {% if sol.status == 'CONCLUIDA' %}btn-concluido{% endif %}">
-                        {% if sol.status == 'CONCLUIDA' %}Atender novamente{% else %}Atender{% endif %}
-                    </a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6" style="text-align: center; padding: 40px;">Nenhuma solicitação encontrada.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    </main>
 
     <script>
         function filtrarTabela() {
@@ -144,7 +394,6 @@
             const status = document.getElementById('filterStatus').value;
             const modalidade = document.getElementById('filterModalidade').value;
             const tipo = document.getElementById('filterTipo').value;
-            
             const linhas = document.querySelectorAll('.linha-solicitacao');
 
             linhas.forEach(linha => {
@@ -158,11 +407,7 @@
                 const matchMod = modalidade === "" || modLinha === modalidade;
                 const matchTipo = tipo === "" || tipoLinha === tipo;
 
-                if (matchData && matchStatus && matchMod && matchTipo) {
-                    linha.style.display = "";
-                } else {
-                    linha.style.display = "none";
-                }
+                linha.style.display = (matchData && matchStatus && matchMod && matchTipo) ? "" : "none";
             });
         }
 
