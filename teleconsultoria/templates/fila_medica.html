@@ -26,38 +26,73 @@
             --shadow-sm: 0 1px 2px rgba(6, 78, 43, 0.06);
             --shadow-md: 0 4px 12px rgba(6, 78, 43, 0.08);
             --radius: 12px;
+            --transition: all 0.3s ease;
         }
 
-        * { box-sizing: border-box; }
+        /* Variáveis do Modo Escuro */
+        body.dark-mode {
+            --bg: #0f172a;
+            --white: #1e293b;
+            --gray-100: #334155;
+            --gray-200: #475569;
+            --gray-500: #94a3b8;
+            --gray-700: #cbd5e1;
+            --gray-900: #f1f5f9;
+            --green-50: #064e2b33;
+            --green-100: #065f46;
+            --green-800: #10b981;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        * { box-sizing: border-box; transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
 
         body {
             font-family: 'Inter', 'Segoe UI', sans-serif;
             margin: 0;
-            background: linear-gradient(180deg, var(--bg) 0%, #ffffff 100%);
+            background: var(--bg);
             color: var(--gray-900);
             min-height: 100vh;
         }
 
         .header {
-            background: linear-gradient(135deg, var(--green-800) 0%, var(--green-600) 100%);
+            background: linear-gradient(135deg, #064e2b 0%, #0ba84a 100%);
             color: white;
-            padding: 28px 48px;
+            padding: 20px 48px;
             display: flex;
             align-items: center;
-            gap: 18px;
+            justify-content: space-between;
             box-shadow: var(--shadow-md);
         }
-        .header .logo {
+
+        .header-left { display: flex; align-items: center; gap: 18px; }
+
+        .header .logo-container {
             width: 52px; height: 52px;
             background: white;
             border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 28px;
-            color: var(--green-700);
-            font-weight: 800;
+            overflow: hidden;
         }
+        .header .logo-container img { width: 80%; height: 80%; object-fit: contain; }
         .header h1 { margin: 0; font-size: 1.4rem; font-weight: 700; }
         .header .subtitle { font-size: 0.85rem; opacity: 0.88; }
+
+        /* Botão Dark Mode */
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .theme-toggle:hover { background: rgba(255, 255, 255, 0.2); }
 
         .container { max-width: 1280px; margin: 0 auto; padding: 32px 48px 64px; }
 
@@ -67,10 +102,11 @@
             justify-content: space-between;
             margin-bottom: 24px;
         }
-        .page-title h2 { margin: 0; color: var(--green-900); font-size: 1.65rem; font-weight: 700; }
+        .page-title h2 { margin: 0; color: var(--green-800); font-size: 1.65rem; font-weight: 700; }
+        
         .badge {
             background: var(--green-100);
-            color: var(--green-800);
+            color: var(--white);
             padding: 6px 14px;
             border-radius: 999px;
             font-size: 0.8rem;
@@ -89,12 +125,14 @@
             flex-wrap: wrap;
         }
         .filter-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 170px; }
-        .filter-group label { font-size: 0.78rem; font-weight: 600; color: var(--gray-700); text-transform: uppercase; }
+        .filter-group label { font-size: 0.78rem; font-weight: 600; color: var(--gray-500); text-transform: uppercase; }
         
         select, input[type="date"] {
             padding: 10px 12px;
             border-radius: 8px;
             border: 1.5px solid var(--gray-200);
+            background: var(--white);
+            color: var(--gray-900);
             font-size: 0.92rem;
             width: 100%;
         }
@@ -108,15 +146,15 @@
         }
 
         table { width: 100%; border-collapse: collapse; }
-        thead { background: linear-gradient(135deg, var(--green-800) 0%, var(--green-700) 100%); }
-        th { padding: 16px 20px; text-align: left; color: white; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+        thead { background: var(--gray-100); }
+        th { padding: 16px 20px; text-align: left; color: var(--gray-700); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
         td { padding: 16px 20px; border-bottom: 1px solid var(--gray-100); }
         tbody tr:hover { background: var(--green-50); }
 
         .date-cell strong { display: block; color: var(--gray-900); font-weight: 700; }
         .date-cell small { color: var(--gray-500); }
 
-        .sol-nome { display: block; font-weight: 700; color: var(--green-900); }
+        .sol-nome { display: block; font-weight: 700; color: var(--green-800); }
         .inst-info { display: block; font-size: 0.82rem; color: var(--gray-500); }
 
         .status-pill {
@@ -134,42 +172,48 @@
         .status-PENDENTE::before { background: #f59e0b; }
         .status-ANALISE { background: #dbeafe; color: #1e40af; }
         .status-ANALISE::before { background: #3b82f6; }
-        .status-CONCLUIDA { background: var(--green-100); color: var(--green-800); }
-        .status-CONCLUIDA::before { background: var(--green-600); }
-        .status-CANCELADA { background: #fee2e2; color: #991b1b; }
-        .status-CANCELADA::before { background: #ef4444; }
+        .status-CONCLUIDA { background: #dcfce7; color: #166534; }
+        .status-CONCLUIDA::before { background: #22c55e; }
 
         .btn {
             padding: 9px 16px;
             text-decoration: none;
             border-radius: 8px;
-            background: var(--green-700);
+            background: #05922f;
             color: white;
             font-weight: 600;
             font-size: 0.88rem;
             display: inline-block;
-            text-align: center;
         }
-        .btn-concluido { background: white; color: var(--green-800); border: 1.5px solid var(--green-600); }
+        .btn-concluido { background: transparent; color: #05922f; border: 1.5px solid #05922f; }
 
         .btn-limpar {
             padding: 10px 16px;
-            background: white;
-            border: 1.5px solid var(--green-600);
+            background: transparent;
+            color: var(--gray-700);
+            border: 1.5px solid var(--gray-200);
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
         }
+        .btn-limpar:hover { background: var(--gray-100); }
     </style>
 </head>
 <body>
-
+    {% load static %}
     <header class="header">
-        <div class="logo">+</div>
-        <div>
-            <h1>HULW · Teleconsultoria</h1>
-            <div class="subtitle">Hospital Universitário Lauro Wanderley</div>
+        <div class="header-left">
+            <div class="logo-container">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQryXQkqFL8UMlNXtInfmWSQhSp1ZcKgreHmw&s" alt="Logo HULW">
+            </div>
+            <div>
+                <h1>HULW · Teleconsultoria</h1>
+                <div class="subtitle">Hospital Universitário Lauro Wanderley</div>
+            </div>
         </div>
+        <button class="theme-toggle" id="themeToggle">
+            <span id="themeIcon">🌙</span> <span id="themeText">Modo Escuro</span>
+        </button>
     </header>
 
     <main class="container">
@@ -197,8 +241,8 @@
                 <label>Modalidade</label>
                 <select id="filterModalidade" onchange="filtrarTabela()">
                     <option value="">Todas</option>
-                    <option value="Síncrono">Síncrono</option>
-                    <option value="Assíncrono">Assíncrono</option>
+                    <option value="SINCRONO">Síncrono</option>
+                    <option value="ASSINCRONO">Assíncrono</option>
                 </select>
             </div>
             <div class="filter-group">
@@ -229,7 +273,7 @@
                     <tr class="linha-solicitacao"
                         data-data="{{ sol.data_sol|date:'Y-m-d' }}"
                         data-status="{{ sol.status }}"
-                        data-modalidade="{{ sol.get_tipo_atendimento_display }}"
+                        data-modalidade="{{ sol.tipo_atendimento }}"
                         data-tipo="{% if sol.idade_pac > 0 %}Paciente Específico{% else %}Dúvida Geral{% endif %}">
 
                         <td class="date-cell">
@@ -239,16 +283,15 @@
 
                         <td>
                             <span class="sol-nome">
-                                {# Tenta pegar o nome da solicitação, se falhar tenta o profissional, se falhar mostra padrão #}
-                                Dr(a). {{ sol.nome|default:sol.profissional.nome|default:"Solicitante" }}
+                                Dr(a). {{ sol.profissional.nome_completo|default:"Não informado" }}
                             </span>
                             <span class="inst-info">
-                                {{ sol.cargo|default:sol.profissional.cargo|default:"Médico(a)" }} • {{ sol.instituicao|default:"Instituição não informada" }}
+                                {{ sol.profissional.cargo|default:"Médico(a)" }} • {{ sol.profissional.instituicao|default:"Instituição não informada" }}
                             </span>
                         </td>
 
                         <td>
-                            <span style="font-size: 0.82rem; background: #f1f5f9; padding: 4px 8px; border-radius: 6px;">
+                            <span style="font-size: 0.82rem; background: var(--gray-100); padding: 4px 8px; border-radius: 6px;">
                                 {% if sol.idade_pac > 0 %}Paciente Específico{% else %}Dúvida Geral{% endif %}
                             </span>
                         </td>
@@ -278,6 +321,31 @@
     </main>
 
     <script>
+        // Lógica de Modo Escuro
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.getElementById('themeText');
+        const body = document.body;
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeUI(isDark);
+        });
+
+        function updateThemeUI(isDark) {
+            themeIcon.innerText = isDark ? '☀️' : '🌙';
+            themeText.innerText = isDark ? 'Modo Claro' : 'Modo Escuro';
+        }
+
+        // Verifica preferência salva
+        if (localStorage.getItem('theme') === 'dark') {
+            body.classList.add('dark-mode');
+            updateThemeUI(true);
+        }
+
+        // Filtros e Badge
         function atualizarBadgePendentes() {
             const pendentes = document.querySelectorAll('.linha-solicitacao[data-status="PENDENTE"]').length;
             document.getElementById('count-badge').innerText = pendentes + " nova(s) solicitação(ões)";
@@ -293,7 +361,7 @@
             linhas.forEach(linha => {
                 const matchData = !dataFiltro || linha.getAttribute('data-data') === dataFiltro;
                 const matchStatus = !status || linha.getAttribute('data-status') === status;
-                const matchMod = !modalidade || (linha.getAttribute('data-modalidade') || "").trim() === modalidade;
+                const matchMod = !modalidade || linha.getAttribute('data-modalidade') === modalidade;
                 const matchTipo = !tipo || (linha.getAttribute('data-tipo') || "").trim() === tipo;
                 linha.style.display = (matchData && matchStatus && matchMod && matchTipo) ? "" : "none";
             });

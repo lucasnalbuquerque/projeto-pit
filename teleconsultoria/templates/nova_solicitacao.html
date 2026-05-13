@@ -204,6 +204,13 @@
             color: var(--hulw-green-900);
         }
 
+        /* Marcador de campo obrigatório */
+        .required-mark {
+            color: #e74c3c;
+            margin-left: 2px;
+            font-weight: bold;
+        }
+
         /* ===== INPUTS ===== */
         input, select, textarea {
             width: 100%;
@@ -381,40 +388,40 @@
             <h3>Identificação do Solicitante</h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                 <div>
-                    <h4>Nome Completo</h4>
+                    <h4>Nome Completo <span class="required-mark">*</span></h4>
                     <input type="text" name="nome_completo" required>
                 </div>
                 <div>
-                    <h4>CPF</h4>
+                    <h4>CPF <span class="required-mark">*</span></h4>
                     <input type="text" name="cpf" id="cpf_input" maxlength="14" required>
                 </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                 <div>
-                    <h4>WhatsApp (DDD + Número)</h4>
+                    <h4>WhatsApp (DDD + Número) <span class="required-mark">*</span></h4>
                     <input type="text" name="telefone" id="tel_input" placeholder="(83) 99999-0000" required>
                 </div>
                 <div>
-                    <h4>E-mail</h4>
+                    <h4>E-mail <span class="required-mark">*</span></h4>
                     <input type="email" name="email" required>
                 </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div><h4>Cargo / Função</h4><input type="text" name="cargo" required></div>
-                <div><h4>Instituição / UBS</h4><input type="text" name="instituicao" required></div>
+                <div><h4>Cargo / Função <span class="required-mark">*</span></h4><input type="text" name="cargo" required></div>
+                <div><h4>Instituição / UBS <span class="required-mark">*</span></h4><input type="text" name="instituicao" required></div>
             </div>
             <div style="margin-top: 15px;"><h4>CRM (Opcional)</h4><input type="text" name="crm"></div>
 
             <div class="lgpd-box">
                 <input type="checkbox" required>
-                <span>Autorizo o uso dos meus dados para fins de teleconsultoria e o envio de notificações com links de acesso para o meu WhatsApp e e-mail, conforme a LGPD.</span>
+                <span>Autorizo o uso dos meus dados para fins de teleconsultoria e o envio de notificações com links de acesso para o meu WhatsApp e e-mail, conforme a LGPD. <span class="required-mark">*</span></span>
             </div>
         </div>
 
         <div class="campo-box">
-            <label><strong>O que você deseja discutir?</strong></label>
+            <label><strong>O que você deseja discutir? <span class="required-mark">*</span></strong></label>
             <select name="tipo_caso" id="tipo_caso" onchange="alternarCampos()" required>
                 <option value="">Selecione...</option>
                 <option value="GERAL">Dúvida Geral</option>
@@ -423,7 +430,7 @@
         </div>
 
         <div class="campo-box">
-            <label><strong>Modalidade de Atendimento:</strong></label>
+            <label><strong>Modalidade de Atendimento: <span class="required-mark">*</span></strong></label>
             <select name="tipo_atendimento" id="tipo_atendimento" onchange="alternarSincrono()" required>
                 <option value="ASSINCRONO">Resposta Assíncrona (Texto)</option>
                 <option value="SINCRONO">Reunião por Vídeo (via Teams)</option>
@@ -464,11 +471,11 @@
                 <h3>Dados do Paciente</h3>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:12px;">
                     <div>
-                        <h4>Idade</h4>
-                        <input type="number" name="idade_pac" placeholder="Idade aproximada">
+                        <h4>Idade <span class="required-mark">*</span></h4>
+                        <input type="number" name="idade_pac" id="idade_pac" placeholder="Idade aproximada">
                     </div>
                     <div>
-                        <h4>Identidade de Gênero</h4>
+                        <h4>Identidade de Gênero <span class="required-mark">*</span></h4>
                         <select name="genero_pac" id="genero_pac" onchange="verificarSexoBiologico()">
                             <option value="M">Masculino</option>
                             <option value="F">Feminino</option>
@@ -478,33 +485,38 @@
                     </div>
                 </div>
 
-                <div id="campo_sexo_bio" class="hidden" style="margin-bottom:15px; background: var(--hulw-green-50); padding: 12px; border-radius: 10px; border: 1px solid var(--hulw-green-100);">
-                    <h4 style="color: var(--hulw-green-900);">Sexo atribuído no nascimento</h4>
+                <div id="campo_sexo_bio" style="margin-bottom:15px; background: var(--hulw-green-50); padding: 12px; border-radius: 10px; border: 1px solid var(--hulw-green-100);">
+                    <h4 style="color: var(--hulw-green-900);">Sexo atribuído no nascimento <span class="required-mark">*</span></h4>
                     <p style="font-size: 0.75rem; margin-top: -4px; color: var(--ink-500);">Informação necessária para fins estritamente clínicos (exames e dosagens).</p>
-                    <select name="sexo_biologico_pac">
+                    <select name="sexo_biologico_pac" id="sexo_biologico_pac">
                         <option value="">Selecione o sexo biológico...</option>
                         <option value="M">Masculino</option>
                         <option value="F">Feminino</option>
                     </select>
                 </div>
 
-                <h4>Queixas do paciente</h4>
-                <textarea name="queixas_especificas" placeholder="Descreva os sintomas principais, tempo de evolução e intensidade das queixas atuais..." style="margin-top:10px;"></textarea>
+                <h4>Queixas do paciente <span class="required-mark">*</span></h4>
+                <textarea name="queixas_especificas" id="queixas_especificas" placeholder="Descreva os sintomas principais, tempo de evolução e intensidade das queixas atuais..." style="margin-top:10px;"></textarea>
+                
                 <h4>Diagnóstico Principal</h4>
                 <textarea name="diagnostico_princ" placeholder="Informe a patologia base ou a hipótese diagnóstica principal..."></textarea>
+                
                 <h4>Diagóstico secundário</h4>
                 <textarea name="diagnostico_sec" placeholder="Liste comorbidades associadas ou condições secundárias relevantes para o caso, caso haja..."></textarea>
+                
                 <h4>Medicamentos</h4>
                 <textarea name="medicamentos" placeholder="Liste fármacos em uso, dosagens e frequência..." style="margin-top:10px;"></textarea>
+                
                 <h4>Exames recentes</h4>
                 <textarea name="exames_recentes" placeholder="Resuma os resultados de exames laboratoriais ou de imagem realizados nos últimos meses..." style="margin-top:10px;"></textarea>
+                
                 <h4>Histórico médico</h4>
                 <textarea name="historico_med" placeholder="Antecedentes familiares, cirurgias prévias, internações anteriores e alergias conhecidas..." style="margin-top:10px;"></textarea>
             </div>
         </div>
 
         <div class="campo-box">
-            <h3>Sua Dúvida Clínica</h3>
+            <h3>Sua Dúvida Clínica <span class="required-mark">*</span></h3>
             <textarea name="duvida_clinica" rows="6" required placeholder="Descreva a dúvida com o máximo de detalhes possível..."></textarea>
             <h4 style="margin-top:16px;">Anexos (opcional)</h4>
             <input type="file" id="input-anexos" onchange="adicionarArquivos()">
@@ -538,13 +550,23 @@
         e.target.value = value;
     });
 
+    // CORREÇÃO WHATSAPP: PERMITIR APAGAR ALÉM DO "-"
     document.getElementById('tel_input').addEventListener('input', function (e) {
         let v = e.target.value.replace(/\D/g, '');
         if (v.length > 11) v = v.slice(0, 11);
-        if (v.length > 10) e.target.value = v.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
-        else if (v.length > 5) e.target.value = v.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3");
-        else if (v.length > 2) e.target.value = v.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
-        else e.target.value = v;
+        
+        // Só aplica a máscara se o usuário não estiver apagando
+        if (e.inputType !== 'deleteContentBackward') {
+            if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+            else if (v.length > 6) v = v.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3");
+            else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
+            else if (v.length > 0) v = "(" + v;
+        } else {
+            // Se estiver apagando, apenas mantém os dígitos brutos ou a máscara parcial simples
+            if (v.length > 2) v = "(" + v.substring(0,2) + ") " + v.substring(2);
+            else if (v.length > 0) v = "(" + v;
+        }
+        e.target.value = v;
     });
 
     let arquivosAcumulados = [];
@@ -565,6 +587,20 @@
     function removerArquivo(index) { arquivosAcumulados.splice(index, 1); atualizarListaExibicao(); }
 
     document.getElementById('form-solicitacao').onsubmit = function(e) {
+        // Validação de campos obrigatórios lógicos
+        const tipoCaso = document.getElementById('tipo_caso').value;
+        if (tipoCaso === 'ESPECIFICO') {
+            const idade = document.getElementById('idade_pac').value;
+            const queixas = document.getElementById('queixas_especificas').value;
+            const sexoBio = document.getElementById('sexo_biologico_pac').value;
+            
+            if (!idade || !queixas || !sexoBio) {
+                alert("Por favor, preencha todos os campos obrigatórios do paciente (Idade, Sexo Biológico e Queixas).");
+                e.preventDefault();
+                return false;
+            }
+        }
+
         document.getElementById('cpf_input').value = document.getElementById('cpf_input').value.replace(/\D/g, '');
         const dataTransfer = new DataTransfer();
         arquivosAcumulados.forEach(file => dataTransfer.items.add(file));
@@ -580,11 +616,7 @@
     function verificarSexoBiologico() {
         var genero = document.getElementById('genero_pac').value;
         var campoBio = document.getElementById('campo_sexo_bio');
-        if (genero === 'O' || genero === 'NB') {
-            campoBio.classList.remove('hidden');
-        } else {
-            campoBio.classList.add('hidden');
-        }
+        campoBio.classList.remove('hidden');
     }
 
     function alternarSincrono() {

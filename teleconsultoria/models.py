@@ -74,18 +74,13 @@ class Medica(models.Model):
 # --- MODELO CENTRAL ---
 
 class Solicitacao(models.Model):
-    # Relacionamentos
     profissional = models.ForeignKey(Profissional, on_delete=models.CASCADE, related_name='solicitacoes')
     medica_designada = models.ForeignKey(Medica, on_delete=models.SET_NULL, null=True, blank=True, related_name='atendimentos')
     
-    # Controle e status
     status = models.CharField(max_length=20, choices=StatusSolicitacao.choices, default=StatusSolicitacao.PENDENTE)
     tipo_atendimento = models.CharField(max_length=20, choices=TipoAtendimento.choices)
-    
-    # timestamps importantes
     data_sol = models.DateTimeField(auto_now_add=True)
 
-    # Ramificação UML: sincrono vs assincrono
     data_marcada = models.DateField(null=True, blank=True)
     horario_marcado = models.TimeField(null=True, blank=True)
     duracao_estimada = models.PositiveIntegerField(null=True, blank=True, help_text="Duração em minutos")
@@ -96,10 +91,11 @@ class Solicitacao(models.Model):
     data_limite = models.DateField(null=True, blank=True)
     horario_limite = models.TimeField(null=True, blank=True)
 
-    # Ramificação UML: geral vs especifico
-    idade_pac = models.IntegerField()
-    sexo_pac = models.CharField(max_length=1, choices=Sexo.choices)
-    queixas = models.TextField()
+    # Campos do Paciente (Obrigatoriedade tratada no Form/JS)
+    idade_pac = models.IntegerField(null=True, blank=True)
+    sexo_pac = models.CharField(max_length=2, choices=Sexo.choices, null=True, blank=True)
+    sexo_biologico_pac = models.CharField(max_length=1, choices=[('M', 'Masculino'), ('F', 'Feminino')], null=True, blank=True)
+    queixas = models.TextField(null=True, blank=True)
     historico_med = models.TextField(blank=True, null=True)
     diagnostico_princ = models.TextField(blank=True, null=True)
     diagnostico_sec = models.TextField(blank=True, null=True)
