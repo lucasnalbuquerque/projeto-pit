@@ -53,22 +53,18 @@ def nova_solicitacao(request):
                 'horarios_disponiveis': gerar_lista_disponibilidade()
             })
 
-        profissional_solicitante, created = Profissional.objects.get_or_create(
+        # BUSCA PELO CPF E ATUALIZA TODOS OS DADOS COM OS NOVOS VALORES DO FORMULÁRIO
+        profissional_solicitante, created = Profissional.objects.update_or_create(
             cpf=cpf_solicitante,
             defaults={
                 'nome_completo': nome_solicitante,
                 'email': email_solicitante,
-                'telefone': telefone_solicitante, # SALVA O TELEFONE
+                'telefone': telefone_solicitante,
                 'crm': crm_solicitante,
                 'cargo': cargo_solicitante,
                 'instituicao': instituicao_solicitante
             }
         )
-        
-        # Atualiza o telefone caso o profissional já exista mas tenha mudado o número
-        if not created:
-            profissional_solicitante.telefone = telefone_solicitante
-            profissional_solicitante.save()
 
         tipo_caso = request.POST.get('tipo_caso')
         modalidade = request.POST.get('tipo_atendimento', 'ASSINCRONO')

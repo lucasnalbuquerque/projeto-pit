@@ -98,20 +98,72 @@
 
         .page-title {
             display: flex;
-            align-items: baseline;
+            align-items: center;
             justify-content: space-between;
             margin-bottom: 24px;
         }
         .page-title h2 { margin: 0; color: var(--green-800); font-size: 1.65rem; font-weight: 700; }
         
+        /* Badge Discreta e Ajustada */
         .badge {
             background: var(--green-100);
-            color: var(--white);
-            padding: 6px 14px;
-            border-radius: 999px;
-            font-size: 0.8rem;
+            color: var(--green-800);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.78rem;
             font-weight: 600;
+            text-transform: lowercase;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
+
+        .badge::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            background-color: var(--green-500);
+            border-radius: 50%;
+        }
+
+        /* Dropdown de Ordenação */
+        .sort-dropdown { position: relative; display: inline-block; }
+        .sort-btn {
+            background: var(--white);
+            border: 1.5px solid var(--gray-200);
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.88rem;
+            display: flex; align-items: center; gap: 8px;
+            color: var(--gray-700);
+        }
+        .sort-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: var(--white);
+            min-width: 180px;
+            box-shadow: var(--shadow-md);
+            border-radius: 8px;
+            z-index: 10;
+            border: 1px solid var(--gray-200);
+            margin-top: 5px;
+        }
+        .sort-content button {
+            width: 100%;
+            padding: 12px 16px;
+            text-align: left;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--gray-700);
+        }
+        .sort-content button:hover { background-color: var(--gray-100); }
+        .show { display: block; }
 
         .filter-bar {
             background: var(--white);
@@ -124,7 +176,7 @@
             align-items: flex-end;
             flex-wrap: wrap;
         }
-        .filter-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 170px; }
+        .filter-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 150px; }
         .filter-group label { font-size: 0.78rem; font-weight: 600; color: var(--gray-500); text-transform: uppercase; }
         
         select, input[type="date"] {
@@ -168,12 +220,21 @@
         }
         .status-pill::before { content: ''; width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
         
-        .status-PENDENTE { background: #fef3c7; color: #92400e; }
-        .status-PENDENTE::before { background: #f59e0b; }
-        .status-ANALISE { background: #dbeafe; color: #1e40af; }
+        /* CORES DE STATUS ATUALIZADAS */
+        .status-PENDENTE { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; } /* Cinza */
+        .status-PENDENTE::before { background: #64748b; }
+
+        .status-ANALISE { background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; }
         .status-ANALISE::before { background: #3b82f6; }
-        .status-CONCLUIDA { background: #dcfce7; color: #166534; }
+
+        .status-CONCLUIDA { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
         .status-CONCLUIDA::before { background: #22c55e; }
+
+        .status-CANCELADA { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; } /* Vermelho */
+        .status-CANCELADA::before { background: #ef4444; }
+
+        .status-AUSENTE { background: #fefce8; color: #854d0e; border: 1px solid #fef08a; } /* Amarelo */
+        .status-AUSENTE::before { background: #eab308; }
 
         .btn {
             padding: 9px 16px;
@@ -218,14 +279,31 @@
 
     <main class="container">
         <div class="page-title">
-            <h2>Fila de Solicitações Médicas</h2>
-            <span class="badge" id="count-badge">0 nova(s) solicitação(ões)</span>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <h2>Fila de Solicitações Médicas</h2>
+                <span class="badge" id="count-badge">0 novas solicitações</span>
+            </div>
+
+            <div class="sort-dropdown">
+                <button class="sort-btn" onclick="toggleSort()">
+                    <span>⇅</span> Ordenar por
+                </button>
+                <div id="sortOptions" class="sort-content">
+                    <button onclick="ordenarTabela('data')">Data e Hora</button>
+                    <button onclick="ordenarTabela('status')">Status</button>
+                    <button onclick="ordenarTabela('modalidade')">Modalidade</button>
+                </div>
+            </div>
         </div>
 
         <div class="filter-bar">
             <div class="filter-group">
-                <label>Data</label>
-                <input type="date" id="filterData" onchange="filtrarTabela()">
+                <label>De (Data)</label>
+                <input type="date" id="filterDataInicio" onchange="filtrarTabela()">
+            </div>
+            <div class="filter-group">
+                <label>Até (Data)</label>
+                <input type="date" id="filterDataFim" onchange="filtrarTabela()">
             </div>
             <div class="filter-group">
                 <label>Status</label>
@@ -235,6 +313,7 @@
                     <option value="ANALISE">Em Análise</option>
                     <option value="CONCLUIDA">Concluída</option>
                     <option value="CANCELADA">Cancelada</option>
+                    <option value="AUSENTE">Ausente</option>
                 </select>
             </div>
             <div class="filter-group">
@@ -268,10 +347,10 @@
                         <th>Ação</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tableBody">
                     {% for sol in solicitacoes %}
                     <tr class="linha-solicitacao"
-                        data-data="{{ sol.data_sol|date:'Y-m-d' }}"
+                        data-data="{{ sol.data_sol|date:'Y-m-d H:i' }}"
                         data-status="{{ sol.status }}"
                         data-modalidade="{{ sol.tipo_atendimento }}"
                         data-tipo="{% if sol.idade_pac > 0 %}Paciente Específico{% else %}Dúvida Geral{% endif %}">
@@ -339,36 +418,82 @@
             themeText.innerText = isDark ? 'Modo Claro' : 'Modo Escuro';
         }
 
-        // Verifica preferência salva
         if (localStorage.getItem('theme') === 'dark') {
             body.classList.add('dark-mode');
             updateThemeUI(true);
         }
 
+        // Lógica de Ordenação
+        function toggleSort() {
+            document.getElementById("sortOptions").classList.toggle("show");
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.sort-btn') && !event.target.parentElement.matches('.sort-btn')) {
+                var dropdowns = document.getElementsByClassName("sort-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    dropdowns[i].classList.remove('show');
+                }
+            }
+        }
+
+        function ordenarTabela(criterio) {
+            const tableBody = document.getElementById('tableBody');
+            const linhas = Array.from(tableBody.querySelectorAll('.linha-solicitacao'));
+
+            linhas.sort((a, b) => {
+                let valA = a.getAttribute('data-' + criterio);
+                let valB = b.getAttribute('data-' + criterio);
+                
+                if(criterio === 'data') return valB.localeCompare(valA); // Mais recente primeiro
+                return valA.localeCompare(valB);
+            });
+
+            linhas.forEach(linha => tableBody.appendChild(linha));
+            toggleSort();
+        }
+
         // Filtros e Badge
         function atualizarBadgePendentes() {
             const pendentes = document.querySelectorAll('.linha-solicitacao[data-status="PENDENTE"]').length;
-            document.getElementById('count-badge').innerText = pendentes + " nova(s) solicitação(ões)";
+            const badge = document.getElementById('count-badge');
+            
+            if (pendentes === 0) {
+                badge.style.display = 'none';
+            } else {
+                badge.style.display = 'flex';
+                badge.innerText = pendentes === 1 ? "1 nova solicitação" : pendentes + " novas solicitações";
+            }
         }
 
         function filtrarTabela() {
-            const dataFiltro = document.getElementById('filterData').value;
+            const dataInicio = document.getElementById('filterDataInicio').value;
+            const dataFim = document.getElementById('filterDataFim').value;
             const status = document.getElementById('filterStatus').value;
             const modalidade = document.getElementById('filterModalidade').value;
             const tipo = document.getElementById('filterTipo').value;
             const linhas = document.querySelectorAll('.linha-solicitacao');
 
             linhas.forEach(linha => {
-                const matchData = !dataFiltro || linha.getAttribute('data-data') === dataFiltro;
+                const dataCompleta = linha.getAttribute('data-data');
+                const dataLinha = dataCompleta.split(' ')[0];
+                
+                let matchData = true;
+                if (dataInicio && dataLinha < dataInicio) matchData = false;
+                if (dataFim && dataLinha > dataFim) matchData = false;
+
                 const matchStatus = !status || linha.getAttribute('data-status') === status;
                 const matchMod = !modalidade || linha.getAttribute('data-modalidade') === modalidade;
                 const matchTipo = !tipo || (linha.getAttribute('data-tipo') || "").trim() === tipo;
+                
                 linha.style.display = (matchData && matchStatus && matchMod && matchTipo) ? "" : "none";
             });
+            atualizarBadgePendentes();
         }
 
         function limparFiltros() {
-            document.getElementById('filterData').value = "";
+            document.getElementById('filterDataInicio').value = "";
+            document.getElementById('filterDataFim').value = "";
             document.getElementById('filterStatus').value = "";
             document.getElementById('filterModalidade').value = "";
             document.getElementById('filterTipo').value = "";
