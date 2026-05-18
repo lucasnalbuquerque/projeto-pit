@@ -240,9 +240,20 @@ def acompanhar_caso(request, token):
     if not link.is_valido():
         return render(request, 'link_expirado.html', {'link_obj': link}, status=403)
     
+    agora = timezone.now()
+    segundos_restantes = 0
+    
+    if link.data_criacao:
+        horas_validade = 240
+        data_limite_estimada = link.data_criacao + timedelta(hours=horas_validade)
+        
+        if data_limite_estimada > agora:
+            segundos_restantes = int((data_limite_estimada - agora).total_seconds())
+    
     return render(request, 'acompanhar_caso.html', {
         'sol': link.solicitacao,
-        'link_obj': link  
+        'link_obj': link,
+        'segundos_restantes': segundos_restantes  
     })
 
 def renovar_acesso(request, token):
@@ -254,7 +265,6 @@ def renovar_acesso(request, token):
     link_antigo.save()
     
     try:
-        # DISPARO PARA O WHATSAPP (EXCEL) NA RENOVAÇÃO
         exportar_para_whatsapp_excel(solicitacao)
     except Exception as e:
         print(f"Erro ao renovar via WhatsApp: {e}")

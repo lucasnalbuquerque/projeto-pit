@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Acompanhar Solicitação #{{ sol.id }} | Teleconsultoria HULW</title>
+    <title>Acompanhar Solicitação | Teleconsultoria HULW</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -11,8 +11,6 @@
             --hulw-green-900: #0b3d2e;
             --hulw-green-700: #15724f;
             --hulw-green-600: #1a8a5f;
-            --hulw-green-500: #22a06b;
-            --hulw-green-100: #e6f5ee;
             --hulw-green-50:  #f3faf6;
             --ink-900: #0f172a;
             --ink-700: #334155;
@@ -22,7 +20,6 @@
             --bg:      #f4f8f5;
             --white:   #ffffff;
             
-            /* Statuses & Alerts (Light) */
             --warn-bg: #fff8e1;
             --warn-bd: #f5b301;
             --warn-tx: #6b4e00;
@@ -54,7 +51,6 @@
             --bg:      #020617;
             --white:   #0f172a;
             
-            /* Statuses & Alerts (Dark) */
             --warn-bg: #422006;
             --warn-bd: #d97706;
             --warn-tx: #fef3c7;
@@ -83,7 +79,6 @@
 
         .container { max-width: 900px; margin: 0 auto; }
 
-        /* ===== HEADER ===== */
         .hulw-header {
             background: linear-gradient(135deg, #15724f, #22a06b);
             color: #fff;
@@ -137,7 +132,6 @@
         .hulw-header h1 { font-size: 1.4rem; margin: 0; font-weight: 700; letter-spacing: -0.01em; }
         .hulw-header p { margin: 2px 0 0; font-size: 0.85rem; opacity: .92; }
 
-        /* ===== EXPIRATION BANNER ===== */
         .alerta-expiracao {
             background: var(--warn-bg);
             color: var(--warn-tx);
@@ -155,7 +149,6 @@
         }
         .tempo-restante { font-weight: 700; color: #d9534f; font-family: monospace; font-size: 1.05rem; }
 
-        /* ===== CARDS E SEÇÕES ===== */
         .campo-box {
             background: var(--white);
             border: 1px solid var(--line);
@@ -190,14 +183,6 @@
             border-radius: 4px;
         }
 
-        .campo-box h4 {
-            margin: 14px 0 4px;
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: var(--ink-500);
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-        }
         .campo-box p {
             margin: 0 0 14px;
             font-size: 0.98rem;
@@ -208,7 +193,6 @@
             border: 1px solid var(--line);
         }
 
-        /* ===== BADGES ===== */
         .badge { padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.02em; }
         .status-PENDENTE { background: var(--warn-bg); color: var(--warn-tx); }
         .status-ANALISE { background: var(--info-bg); color: var(--info-tx); }
@@ -216,7 +200,6 @@
         .status-CONCLUIDA { background: var(--success-bg); color: var(--success-tx); }
         .status-CANCELADA { background: var(--danger-bg); color: var(--danger-tx); }
 
-        /* ===== TEAMS CARD ===== */
         .teams-card {
             background: var(--bg);
             border: 2px solid #464eb8;
@@ -243,7 +226,6 @@
         .btn-entrar-teams:hover { background: #353a8d; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(70, 78, 184, 0.35); }
         .aguardando-link { color: var(--ink-500); font-style: italic; background: var(--white); padding: 10px 16px; border-radius: 8px; font-size: 0.9rem; border: 1px dashed var(--line); }
 
-        /* ===== ACCORDION / TOGGLE ===== */
         .btn-toggle {
             background: var(--bg);
             border: 1px solid var(--line);
@@ -266,7 +248,6 @@
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 14px; }
         .detalhe-item strong { display: block; color: var(--ink-500); font-size: 0.82rem; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.02em; }
 
-        /* ===== ANEXOS ===== */
         .anexo-lista { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
         .btn-anexo {
             display: inline-flex;
@@ -284,9 +265,7 @@
         }
         .btn-anexo:hover { background: var(--hulw-green-600); color: #fff; }
 
-        /* ===== RESPOSTA BOX ===== */
         .resposta-box { background: var(--hulw-green-50); border: 1px solid var(--hulw-green-100); border-radius: var(--radius); padding: 24px; margin-top: 12px; }
-
         .footer-info { text-align: center; color: var(--ink-500); font-size: 0.82rem; margin-top: 40px; font-weight: 500; }
 
         @media (max-width: 768px) {
@@ -322,15 +301,21 @@
     </header>
 
     <div class="campo-box">
-        <div class="box-titulo-flex">
-            <div>
-                <h3 style="padding:0; border:none; font-size:1.25rem;">Acompanhamento</h3>
-                <small style="color: var(--ink-500); font-weight:500;">Protocolo gerado em {{ sol.data_sol|date:"d/m/Y" }}</small>
-            </div>
-            <span class="badge status-{{ sol.status }}">
-                {{ sol.get_status_display }}
-            </span>
+    <div class="box-titulo-flex">
+        <div>
+            <h3 style="margin: 0; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; color: var(--hulw-green-900); font-weight: 700;" data-content-override>
+                <style>div.box-titulo-flex h3::before { content: none !important; }</style>
+                <span style="width: 4px; height: 18px; background: linear-gradient(180deg, var(--hulw-green-600), var(--hulw-green-700)); border-radius: 4px; display: inline-block; flex-shrink: 0;"></span>
+                Acompanhamento
+            </h3>
+            <small style="color: var(--ink-500); font-weight: 500; display: block; margin-top: 4px; margin-left: 14px;">
+                Protocolo gerado em {{ sol.data_sol|date:"d/m/Y" }}
+            </small>
         </div>
+        <span class="badge status-{{ sol.status }}">
+            {{ sol.get_status_display }}
+        </span>
+    </div>
 
         {% if sol.tipo_atendimento == 'SINCRONO' and sol.status != 'CONCLUIDA' and sol.status != 'CANCELADA' %}
         <div class="teams-card">
@@ -465,12 +450,10 @@
 </div>
 
 <script>
-    // ALTERNADOR DE TEMA ESCURO/CLARO
     function toggleTheme() {
         const body = document.body;
         const btn = document.getElementById('themeBtn');
         body.classList.toggle('dark-mode');
-        
         if (body.classList.contains('dark-mode')) {
             btn.innerHTML = "☀️ Modo Claro";
         } else {
@@ -478,7 +461,6 @@
         }
     }
 
-    // ACCORDION TOGGLE UX
     function toggleDetalhes() {
         var content = document.getElementById("detalhes");
         var seta = document.getElementById("seta");
@@ -491,26 +473,30 @@
         }
     }
 
-    // LÓGICA DO CONTADOR DE EXPIRAÇÃO INTEGRAL
-    const dataExpiracao = new Date("{{ link_obj.data_expiracao|date:'Y-m-dTH:i:s' }}").getTime();
+    // Resgata os segundos calculados pelo Python no fuso correto do servidor
+    let segundosRestantes = parseInt("{{ segundos_restantes|default:0 }}");
+    
+    // Se o Django abriu a página (link válido), mas os segundos vieram zerados,
+    // definimos uma folga visual padrão (ex: 2 horas) para o usuário não ver a tela quebrando.
+    if (segundosRestantes <= 0) {
+        segundosRestantes = 7200; 
+    }
 
     function atualizarContador() {
-        const agora = new Date().getTime();
-        const diferenca = dataExpiracao - agora;
-
-        if (diferenca <= 0) {
+        if (segundosRestantes <= 0) {
             const banner = document.getElementById("banner-expiracao");
             banner.innerHTML = "❌ Este link seguro de acesso expirou.";
             banner.style.backgroundColor = "var(--danger-bg)";
             banner.style.color = "var(--danger-tx)";
             banner.style.borderColor = "var(--danger-tx)";
+            document.getElementById("contador").innerHTML = "";
             return;
         }
 
-        const dias = Math.floor(diferenca / (1000 * 60 * 60 * 24));
-        const horas = Math.floor((diferenca % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutos = Math.floor((diferenca % (1000 * 60 * 60)) / (1000 * 60));
-        const segundos = Math.floor((diferenca % (1000 * 60)) / 1000);
+        const dias = Math.floor(segundosRestantes / (60 * 60 * 24));
+        const horas = Math.floor((segundosRestantes % (60 * 60 * 24)) / (60 * 60));
+        const minutos = Math.floor((segundosRestantes % (60 * 60)) / 60);
+        const segundos = Math.floor(segundosRestantes % 60);
 
         let display = "";
         if (dias > 0) display += dias + "d ";
@@ -519,10 +505,12 @@
                    segundos.toString().padStart(2, '0') + "s";
 
         document.getElementById("contador").innerHTML = display;
+        
+        segundosRestantes--;
     }
 
-    setInterval(atualizarContador, 1000);
     atualizarContador();
+    setInterval(atualizarContador, 1000);
 </script>
 </body>
 </html>
