@@ -296,7 +296,7 @@
             .painel-grid { grid-template-columns: 1fr; }
             .scrollable-info { max-height: none; }
             .hulw-header { flex-direction: column; align-items: flex-start; padding: 22px; }
-            .header-right { width: 100%; justify-content: space-between; }
+            .header-right { width: 100%; justify-content: space-between; flex-wrap: wrap; }
         }
     </style>
 </head>
@@ -315,6 +315,7 @@
         </div>
         <div class="header-right">
             <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Modo Escuro</button>
+            <a href="{% url 'detalhe_caso' sol.id %}" class="btn-voltar">← Ver Detalhes do Caso</a>
             <a href="{% url 'fila_medica' %}" class="btn-voltar">← Voltar à Fila</a>
         </div>
     </header>
