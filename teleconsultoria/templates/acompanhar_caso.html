@@ -2,62 +2,330 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Acompanhar Solicitação #{{ sol.id }}</title>
+    <title>Acompanhar Solicitação #{{ sol.id }} | Teleconsultoria HULW</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 900px; margin: 30px auto; padding: 20px; line-height: 1.6; background-color: #f0f2f5; color: #333; }
-        .card { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px; margin-bottom: 25px; }
-        .header-status { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
-        
-        /* Alerta de Expiração */
-        .alerta-expiracao { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-size: 0.95em; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .tempo-restante { font-weight: bold; color: #d9534f; font-family: monospace; font-size: 1.1em; }
+        :root {
+            --hulw-green-900: #0b3d2e;
+            --hulw-green-700: #15724f;
+            --hulw-green-600: #1a8a5f;
+            --hulw-green-500: #22a06b;
+            --hulw-green-100: #e6f5ee;
+            --hulw-green-50:  #f3faf6;
+            --ink-900: #0f172a;
+            --ink-700: #334155;
+            --ink-500: #64748b;
+            --ink-300: #cbd5e1;
+            --line:    #e3ebe6;
+            --bg:      #f4f8f5;
+            --white:   #ffffff;
+            
+            /* Statuses & Alerts (Light) */
+            --warn-bg: #fff8e1;
+            --warn-bd: #f5b301;
+            --warn-tx: #6b4e00;
+            --info-bg: #e6f0fa;
+            --info-tx: #0b4b8f;
+            --success-bg: #e6f6ee;
+            --success-tx: #0f5132;
+            --danger-bg: #fdf2f2;
+            --danger-tx: #9b1c1c;
 
-        /* Badges */
-        .badge { padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.9em; text-transform: uppercase; }
-        .status-PENDENTE { background: #fff3cd; color: #856404; }
-        .status-ANALISE { background: #cfe2ff; color: #084298; }
+            --shadow-sm: 0 1px 2px rgba(11,61,46,.06);
+            --shadow-md: 0 6px 18px rgba(11,61,46,.08);
+            --shadow-lg: 0 14px 40px rgba(11,61,46,.12);
+            --radius: 14px;
+        }
+
+        body.dark-mode {
+            --hulw-green-900: #d1f7e8;
+            --hulw-green-700: #4ade80;
+            --hulw-green-600: #22c55e;
+            --hulw-green-500: #16a34a;
+            --hulw-green-100: #064e3b;
+            --hulw-green-50:  #022c22;
+            --ink-900: #f8fafc;
+            --ink-700: #e2e8f0;
+            --ink-500: #94a3b8;
+            --ink-300: #334155;
+            --line:    #1e293b;
+            --bg:      #020617;
+            --white:   #0f172a;
+            
+            /* Statuses & Alerts (Dark) */
+            --warn-bg: #422006;
+            --warn-bd: #d97706;
+            --warn-tx: #fef3c7;
+            --info-bg: #032845;
+            --info-tx: #93c5fd;
+            --success-bg: #052e16;
+            --success-tx: #86efac;
+            --danger-bg: #450a0a;
+            --danger-tx: #fca5a5;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background:
+                radial-gradient(1200px 600px at -10% -20%, var(--hulw-green-100), transparent 60%),
+                radial-gradient(900px 500px at 110% 0%, rgba(26,138,95,0.05), transparent 60%),
+                var(--bg);
+            color: var(--ink-900);
+            line-height: 1.55;
+            min-height: 100vh;
+            padding: 32px 16px 64px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .container { max-width: 900px; margin: 0 auto; }
+
+        /* ===== HEADER ===== */
+        .hulw-header {
+            background: linear-gradient(135deg, #15724f, #22a06b);
+            color: #fff;
+            border-radius: 18px;
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hulw-header::after {
+            content: "";
+            position: absolute; inset: 0;
+            background: radial-gradient(400px 200px at 90% 120%, rgba(255,255,255,.18), transparent 60%);
+            pointer-events: none;
+        }
+        .header-left { display: flex; align-items: center; gap: 20px; z-index: 2; }
+        .header-right { display: flex; align-items: center; gap: 12px; z-index: 2; }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+            transition: all 0.2s;
+        }
+        .theme-toggle:hover { background: rgba(255, 255, 255, 0.3); }
+
+        .hulw-logo {
+            width: 50px; height: 50px;
+            border-radius: 12px;
+            background: rgba(255,255,255,.15);
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,.25);
+            flex-shrink: 0;
+        }
+        .hulw-logo img { max-width: 80%; max-height: 80%; object-fit: contain; }
+
+        .hulw-header h1 { font-size: 1.4rem; margin: 0; font-weight: 700; letter-spacing: -0.01em; }
+        .hulw-header p { margin: 2px 0 0; font-size: 0.85rem; opacity: .92; }
+
+        /* ===== EXPIRATION BANNER ===== */
+        .alerta-expiracao {
+            background: var(--warn-bg);
+            color: var(--warn-tx);
+            border: 1px solid var(--warn-bd);
+            padding: 14px 20px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
+        }
+        .tempo-restante { font-weight: 700; color: #d9534f; font-family: monospace; font-size: 1.05rem; }
+
+        /* ===== CARDS E SEÇÕES ===== */
+        .campo-box {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 24px 26px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow .2s ease, background 0.3s ease;
+        }
+        .campo-box:hover { box-shadow: var(--shadow-md); }
+
+        .box-titulo-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--line);
+            margin-bottom: 18px;
+        }
+
+        .campo-box h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--hulw-green-900);
+            font-weight: 700;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .campo-box h3::before {
+            content: "";
+            width: 4px; height: 18px;
+            background: linear-gradient(180deg, var(--hulw-green-500), var(--hulw-green-700));
+            border-radius: 4px;
+        }
+
+        .campo-box h4 {
+            margin: 14px 0 4px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--ink-500);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .campo-box p {
+            margin: 0 0 14px;
+            font-size: 0.98rem;
+            color: var(--ink-900);
+            background: var(--bg);
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+        }
+
+        /* ===== BADGES ===== */
+        .badge { padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.02em; }
+        .status-PENDENTE { background: var(--warn-bg); color: var(--warn-tx); }
+        .status-ANALISE { background: var(--info-bg); color: var(--info-tx); }
         .status-AGENDADO { background: #e0e0ff; color: #464eb8; }
-        .status-CONCLUIDA { background: #d1e7dd; color: #0f5132; }
-        .status-CANCELADA { background: #f8d7da; color: #842029; }
-        
-        .secao { margin-bottom: 25px; }
-        .secao h3 { color: #007bff; border-left: 4px solid #007bff; padding-left: 10px; margin-bottom: 15px; }
-        
-        /* Bloco Teams do Solicitante */
-        .teams-card { background: #f8faff; border: 2px solid #464eb8; border-radius: 12px; padding: 20px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; }
-        .btn-entrar-teams { background: #464eb8; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; transition: 0.3s; }
-        .btn-entrar-teams:hover { background: #353a8d; box-shadow: 0 4px 8px rgba(70, 78, 184, 0.3); }
-        .aguardando-link { color: #666; font-style: italic; background: #ececec; padding: 10px 15px; border-radius: 8px; font-size: 0.9em; }
+        .status-CONCLUIDA { background: var(--success-bg); color: var(--success-tx); }
+        .status-CANCELADA { background: var(--danger-bg); color: var(--danger-tx); }
 
-        /* Accordion UX */
-        .btn-toggle { background: #e9ecef; border: none; width: 100%; text-align: left; padding: 15px; font-size: 1em; font-weight: bold; cursor: pointer; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .conteudo-detalhes { display: none; padding: 20px; background: #fdfdfd; border: 1px solid #eee; border-top: none; border-radius: 0 0 8px 8px; }
+        /* ===== TEAMS CARD ===== */
+        .teams-card {
+            background: var(--bg);
+            border: 2px solid #464eb8;
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .btn-entrar-teams {
+            background: #464eb8;
+            color: white;
+            padding: 12px 22px;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(70, 78, 184, 0.25);
+        }
+        .btn-entrar-teams:hover { background: #353a8d; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(70, 78, 184, 0.35); }
+        .aguardando-link { color: var(--ink-500); font-style: italic; background: var(--white); padding: 10px 16px; border-radius: 8px; font-size: 0.9rem; border: 1px dashed var(--line); }
 
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-        .detalhe-item { margin-bottom: 10px; }
-        .detalhe-item strong { display: block; color: #555; font-size: 0.9em; }
+        /* ===== ACCORDION / TOGGLE ===== */
+        .btn-toggle {
+            background: var(--bg);
+            border: 1px solid var(--line);
+            color: var(--ink-900);
+            width: 100%;
+            text-align: left;
+            padding: 16px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: var(--radius);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .btn-toggle:hover { background: var(--hulw-green-50); border-color: var(--hulw-green-500); }
+        .conteudo-detalhes { display: none; padding: 24px; background: var(--white); border: 1px solid var(--line); border-top: none; border-radius: 0 0 var(--radius) var(--radius); margin-top: -10px; margin-bottom: 20px; }
 
-        .resposta-box { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 25px; margin-top: 10px; position: relative; }
-        
-        .anexo-lista { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-        .btn-anexo { text-decoration: none; background: white; border: 1px solid #007bff; color: #007bff; padding: 8px 12px; border-radius: 6px; font-size: 0.85em; transition: 0.2s; }
-        .btn-anexo:hover { background: #007bff; color: white; }
-        
-        .footer-info { text-align: center; color: #777; font-size: 0.85em; margin-top: 40px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 14px; }
+        .detalhe-item strong { display: block; color: var(--ink-500); font-size: 0.82rem; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.02em; }
+
+        /* ===== ANEXOS ===== */
+        .anexo-lista { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .btn-anexo {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: var(--hulw-green-50);
+            border: 1px solid var(--hulw-green-500);
+            color: var(--hulw-green-700);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            transition: all 0.15s;
+        }
+        .btn-anexo:hover { background: var(--hulw-green-600); color: #fff; }
+
+        /* ===== RESPOSTA BOX ===== */
+        .resposta-box { background: var(--hulw-green-50); border: 1px solid var(--hulw-green-100); border-radius: var(--radius); padding: 24px; margin-top: 12px; }
+
+        .footer-info { text-align: center; color: var(--ink-500); font-size: 0.82rem; margin-top: 40px; font-weight: 500; }
+
+        @media (max-width: 768px) {
+            .hulw-header { flex-direction: column; align-items: flex-start; padding: 22px; }
+            .header-right { width: 100%; justify-content: flex-end; }
+            .info-grid { grid-template-columns: 1fr; }
+            .teams-card { flex-direction: column; align-items: flex-start; }
+            .btn-entrar-teams { width: 100%; text-align: center; }
+        }
     </style>
 </head>
 <body>
+<div class="container">
 
-    <div class="card">
-        <div class="alerta-expiracao" id="banner-expiracao">
-            <span>⚠️ Este link de acesso seguro expira em:</span>
-            <span id="contador" class="tempo-restante">Calculando...</span>
-        </div>
+    <div class="alerta-expiracao" id="banner-expiracao">
+        <span>⚠️ Este link de acesso seguro expira em:</span>
+        <span id="contador" class="tempo-restante">Calculando...</span>
+    </div>
 
-        <div class="header-status">
+    <header class="hulw-header">
+        <div class="header-left">
+            <div class="hulw-logo">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQryXQkqFL8UMlNXtInfmWSQhSp1ZcKgreHmw&s" alt="Logo HULW">
+            </div>
             <div>
-                <h2 style="margin:0;">Solicitação #{{ sol.id }}</h2>
-                <small>Protocolo gerado em {{ sol.data_sol|date:"d/m/Y" }}</small>
+                <h1>Acompanhar Solicitação</h1>
+                <p>Painel do Solicitante · Teleconsultoria HULW</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Modo Escuro</button>
+        </div>
+    </header>
+
+    <div class="campo-box">
+        <div class="box-titulo-flex">
+            <div>
+                <h3 style="padding:0; border:none; font-size:1.25rem;">Acompanhamento</h3>
+                <small style="color: var(--ink-500); font-weight:500;">Protocolo gerado em {{ sol.data_sol|date:"d/m/Y" }}</small>
             </div>
             <span class="badge status-{{ sol.status }}">
                 {{ sol.get_status_display }}
@@ -67,8 +335,8 @@
         {% if sol.tipo_atendimento == 'SINCRONO' and sol.status != 'CONCLUIDA' and sol.status != 'CANCELADA' %}
         <div class="teams-card">
             <div>
-                <h3 style="color: #464eb8; margin: 0 0 5px 0; border: none; padding: 0;">📅 Teleconsultoria Agendada</h3>
-                <p style="margin: 0; font-size: 1.1em;">
+                <h3 style="color: #464eb8; margin: 0 0 6px 0; border: none; padding: 0;">📅 Teleconsultoria Agendada</h3>
+                <p style="margin: 0; font-size: 1rem; color: var(--ink-900);">
                     Sua reunião será em: <strong>{{ sol.data_marcada|date:"d/m/Y" }} às {{ sol.horario_marcado|time:"H:i" }}</strong>
                 </p>
             </div>
@@ -85,9 +353,9 @@
         </div>
         {% endif %}
 
-        <div class="secao">
+        <div style="margin-bottom: 20px;">
             <button class="btn-toggle" onclick="toggleDetalhes()">
-                <span>🔍 Ver Informações da Solicitação</span>
+                <span>🔍 Ver Informações da Solicitação Enviada</span>
                 <span id="seta">▼</span>
             </button>
             
@@ -103,7 +371,7 @@
                     </div>
                 </div>
 
-                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                <hr style="border: 0; border-top: 1px solid var(--line); margin: 18px 0;">
 
                 {% if sol.idade_pac > 0 %}
                     <div class="info-grid">
@@ -111,20 +379,20 @@
                         <div class="detalhe-item"><strong>Idade</strong>{{ sol.idade_pac }} anos</div>
                     </div>
                     <div class="detalhe-item"><strong>Diagnóstico Principal</strong><p>{{ sol.diagnostico_princ|default:"Não informado" }}</p></div>
-                    <div class="detalhe-item"><strong>Queixas</strong><p>{{ sol.queixas|linebreaks }}</p></div>
-                    <div class="detalhe-item"><strong>Histórico</strong><p>{{ sol.historico_med|linebreaks|default:"-" }}</p></div>
-                    <div class="detalhe-item"><strong>Medicamentos em uso</strong><p>{{ sol.medicamentos|linebreaks|default:"-" }}</p></div>
+                    <div class="detalhe-item"><strong>Queixas</strong><p>{{ sol.queixas|linebreaksbr }}</p></div>
+                    <div class="detalhe-item"><strong>Histórico</strong><p>{{ sol.historico_med|linebreaksbr|default:"-" }}</p></div>
+                    <div class="detalhe-item"><strong>Medicamentos em uso</strong><p>{{ sol.medicamentos|linebreaksbr|default:"-" }}</p></div>
                 {% endif %}
 
                 <div class="detalhe-item">
                     <strong>Dúvida Clínica (Pergunta)</strong>
-                    <p style="background: #fff; padding: 15px; border-radius: 8px; border: 1px dashed #ccc;">
-                        {{ sol.duvida_clinica|linebreaks }}
+                    <p style="background: var(--bg); font-weight: 500;">
+                        {{ sol.duvida_clinica|linebreaksbr }}
                     </p>
                 </div>
 
                 {% if sol.anexos.all %}
-                    <div class="detalhe-item">
+                    <div class="detalhe-item" style="margin-top: 15px;">
                         <strong>Documentos Enviados</strong>
                         <div class="anexo-lista">
                             {% for anexo in sol.anexos.all %}
@@ -138,103 +406,123 @@
 
         {% if sol.respostas.all %}
             {% for resposta in sol.respostas.all %}
-            <div class="secao">
-                <h3>Resposta da Consultoria</h3>
+            <div style="margin-top: 30px;">
+                <h3 style="color: var(--hulw-green-900); font-weight: 700; display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                    <span style="width: 4px; height: 18px; background: var(--hulw-green-500); border-radius: 4px;"></span>
+                    Resposta da Consultoria
+                </h3>
                 <div class="resposta-box">
-                    <div style="margin-bottom: 15px; font-weight: bold; color: #007bff;">
-                        Dra. {{ resposta.medica.user.get_full_name }} - {{ resposta.medica.especialidade }}
+                    <div style="margin-bottom: 14px; font-weight: 700; color: var(--hulw-green-700); font-size: 1.05rem;">
+                        Dra. {{ resposta.medica.user.get_full_name }} — <span style="font-weight: 500; font-size: 0.95rem; color: var(--ink-700);">{{ resposta.medica.especialidade }}</span>
                     </div>
                     
-                    <div style="font-size: 1.1em; color: #222;">
-                        {{ resposta.conteudo|linebreaks }}
+                    <div style="font-size: 1rem; color: var(--ink-900); background: var(--white); padding: 16px; border-radius: 10px; border: 1px solid var(--line); line-height: 1.6;">
+                        {{ resposta.conteudo|linebreaksbr }}
                     </div>
                     
                     {% if resposta.anexos.all %}
-                    <div style="margin-top: 25px; border-top: 2px solid #eee; padding-top: 15px;">
-                        <strong>Materiais de Apoio e Condutas:</strong>
+                    <div style="margin-top: 20px; border-top: 1px solid var(--hulw-green-100); padding-top: 15px;">
+                        <strong style="font-size: 0.85rem; color: var(--ink-500); text-transform: uppercase; letter-spacing: 0.02em;">Materiais de Apoio e Condutas Anexadas:</strong>
                         <div class="anexo-lista">
                             {% for anexo in resposta.anexos.all %}
-                                <a href="{{ anexo.arquivo.url }}" target="_blank" class="btn-anexo" style="border-color: #28a745; color: #28a745;">📎 Baixar {{ anexo.arquivo.name }}</a>
+                                <a href="{{ anexo.arquivo.url }}" target="_blank" class="btn-anexo" style="background: var(--white);">📎 Baixar Anexo {{ forloop.counter }}</a>
                             {% endfor %}
                         </div>
                     </div>
                     {% endif %}
                 </div>
-                <small style="color: #999;">Finalizado em {{ resposta.data_res|date:"d/m/Y" }} às {{ resposta.data_res|date:"H:i" }}</small>
+                <div style="margin-top: 8px; padding-left: 5px;">
+                    <small style="color: var(--ink-500); font-weight: 500;">Finalizado em {{ resposta.data_res|date:"d/m/Y" }} às {{ resposta.data_res|date:"H:i" }}</small>
+                </div>
             </div>
             {% endfor %}
         {% else %}
             {% if sol.status != 'CANCELADA' %}
-            <div class="resposta-box" style="text-align: center; border: 2px dashed #cbd5e0;">
-                <p style="font-size: 1.1em; color: #4a5568;">
+            <div class="resposta-box" style="text-align: center; border: 2px dashed var(--ink-300); background: transparent;">
+                <p style="font-size: 1rem; color: var(--ink-700); margin: 0; padding: 10px 0;">
                     {% if sol.status == 'PENDENTE' %}
-                        Sua solicitação está na fila de processamento.<br>
+                        Sua solicitação está na fila de processamento e aguarda a triagem.<br>
                     {% elif sol.status == 'ANALISE' %}
-                        Sua solicitação está sendo analisada por nossa equipe médica.<br>
+                        Sua solicitação está em andamento, sendo revisada por nossa equipe médica especializada.<br>
                     {% elif sol.status == 'AGENDADO' %}
-                        Sua teleconsultoria está agendada. No horário marcado, o botão de acesso aparecerá acima.<br>
+                        Sua teleconsultoria está agendada. No horário marcado, utilize o botão de acesso Teams exibido acima.<br>
                     {% endif %}
-                    <strong>Mantenha este link salvo. A resposta aparecerá automaticamente aqui.</strong>
+                    <strong style="display:block; margin-top: 10px; color: var(--hulw-green-700);">Mantenha este link salvo. A resposta oficial será disponibilizada automaticamente aqui.</strong>
                 </p>
             </div>
             {% else %}
-            <div class="resposta-box" style="text-align: center; border: 2px solid #f8d7da; background: #fff5f5;">
-                <p style="color: #842029;"><strong>Esta solicitação foi cancelada.</strong></p>
-                <p>Justificativa: {{ sol.justificativa_cancelamento|default:"Não informada" }}</p>
+            <div class="resposta-box" style="border: 1px solid var(--danger-tx); background: var(--danger-bg); color: var(--danger-tx);">
+                <p style="margin: 0 0 6px 0; font-weight: 700; font-size: 1.05rem;">Esta solicitação foi cancelada.</p>
+                <p style="margin: 0; font-size: 0.95rem; opacity: 0.9;"><strong>Justificativa:</strong> {{ sol.justificativa_cancelamento|default:"Não informada." }}</p>
             </div>
             {% endif %}
         {% endif %}
     </div>
 
     <div class="footer-info">
-        Este é um link seguro de acesso temporário. Não compartilhe esta URL com pessoas não autorizadas.
+        Este é um link criptografado de acesso restrito e temporário. Não repasse esta URL a terceiros.
     </div>
+</div>
 
-    <script>
-        function toggleDetalhes() {
-            var content = document.getElementById("detalhes");
-            var seta = document.getElementById("seta");
-            if (content.style.display === "block") {
-                content.style.display = "none";
-                seta.innerHTML = "▼";
-            } else {
-                content.style.display = "block";
-                seta.innerHTML = "▲";
-            }
+<script>
+    // ALTERNADOR DE TEMA ESCURO/CLARO
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.getElementById('themeBtn');
+        body.classList.toggle('dark-mode');
+        
+        if (body.classList.contains('dark-mode')) {
+            btn.innerHTML = "☀️ Modo Claro";
+        } else {
+            btn.innerHTML = "🌙 Modo Escuro";
+        }
+    }
+
+    // ACCORDION TOGGLE UX
+    function toggleDetalhes() {
+        var content = document.getElementById("detalhes");
+        var seta = document.getElementById("seta");
+        if (content.style.display === "block") {
+            content.style.display = "none";
+            seta.innerHTML = "▼";
+        } else {
+            content.style.display = "block";
+            seta.innerHTML = "▲";
+        }
+    }
+
+    // LÓGICA DO CONTADOR DE EXPIRAÇÃO INTEGRAL
+    const dataExpiracao = new Date("{{ link_obj.data_expiracao|date:'Y-m-dTH:i:s' }}").getTime();
+
+    function atualizarContador() {
+        const agora = new Date().getTime();
+        const diferenca = dataExpiracao - agora;
+
+        if (diferenca <= 0) {
+            const banner = document.getElementById("banner-expiracao");
+            banner.innerHTML = "❌ Este link seguro de acesso expirou.";
+            banner.style.backgroundColor = "var(--danger-bg)";
+            banner.style.color = "var(--danger-tx)";
+            banner.style.borderColor = "var(--danger-tx)";
+            return;
         }
 
-        // Lógica do Contador de Expiração
-        // Converte a data do Django para um formato legível pelo JS
-        const dataExpiracao = new Date("{{ link_obj.data_expiracao|date:'Y-m-dTH:i:s' }}").getTime();
+        const dias = Math.floor(diferenca / (1000 * 60 * 60 * 24));
+        const horas = Math.floor((diferenca % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutos = Math.floor((diferenca % (1000 * 60 * 60)) / (1000 * 60));
+        const segundos = Math.floor((diferenca % (1000 * 60)) / 1000);
 
-        function atualizarContador() {
-            const agora = new Date().getTime();
-            const diferenca = dataExpiracao - agora;
+        let display = "";
+        if (dias > 0) display += dias + "d ";
+        display += horas.toString().padStart(2, '0') + "h " + 
+                   minutos.toString().padStart(2, '0') + "m " + 
+                   segundos.toString().padStart(2, '0') + "s";
 
-            if (diferenca <= 0) {
-                document.getElementById("banner-expiracao").innerHTML = "❌ Este link de acesso expirou.";
-                document.getElementById("banner-expiracao").style.backgroundColor = "#f8d7da";
-                document.getElementById("banner-expiracao").style.color = "#842029";
-                document.getElementById("contador").innerHTML = "";
-                return;
-            }
+        document.getElementById("contador").innerHTML = display;
+    }
 
-            const dias = Math.floor(diferenca / (1000 * 60 * 60 * 24));
-            const horas = Math.floor((diferenca % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutos = Math.floor((diferenca % (1000 * 60 * 60)) / (1000 * 60));
-            const segundos = Math.floor((diferenca % (1000 * 60)) / 1000);
-
-            let display = "";
-            if (dias > 0) display += dias + "d ";
-            display += horas.toString().padStart(2, '0') + "h " + 
-                       minutos.toString().padStart(2, '0') + "m " + 
-                       segundos.toString().padStart(2, '0') + "s";
-
-            document.getElementById("contador").innerHTML = display;
-        }
-
-        setInterval(atualizarContador, 1000);
-        atualizarContador();
-    </script>
+    setInterval(atualizarContador, 1000);
+    atualizarContador();
+</script>
 </body>
 </html>
