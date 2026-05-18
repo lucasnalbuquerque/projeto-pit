@@ -2,134 +2,468 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Responder Caso #{{ sol.id }}</title>
+    <title>Responder Caso #{{ sol.id }} | Teleconsultoria HULW</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; max-width: 1200px; margin: 20px auto; padding: 20px; line-height: 1.5; background-color: #f4f7f6; }
-        .container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start; }
-        .card { border: 1px solid #ccc; padding: 20px; border-radius: 8px; background-color: #fcfcfc; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .secao { margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
-        h3 { color: #007bff; margin-top: 0; }
-        h4 { margin-bottom: 2px; color: #555; font-size: 0.95em; font-weight: bold; }
-        p { margin: 2px 0 12px 0; font-size: 0.9em; }
-        textarea { width: 100%; padding: 12px; border-radius: 5px; border: 1px solid #ccc; resize: vertical; min-height: 400px; box-sizing: border-box; }
-        .btn-enviar { background: #28a745; color: white; padding: 15px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; font-size: 1.1em; }
-        .campo-anexo { margin: 20px 0; padding: 15px; border: 2px dashed #bbb; border-radius: 5px; background: #fff; }
-        .scrollable-info { max-height: 85vh; overflow-y: auto; padding-right: 15px; }
-        .anexo-btn { display: inline-block; padding: 6px 10px; background: #eef6ff; border: 1px solid #007bff; color: #007bff; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 0.85em; margin-top: 5px; margin-right: 5px; }
+        :root {
+            --hulw-green-900: #0b3d2e;
+            --hulw-green-700: #15724f;
+            --hulw-green-600: #1a8a5f;
+            --hulw-green-500: #22a06b;
+            --hulw-green-100: #e6f5ee;
+            --hulw-green-50:  #f3faf6;
+            --ink-900: #0f172a;
+            --ink-700: #334155;
+            --ink-500: #64748b;
+            --ink-300: #cbd5e1;
+            --line:    #e3ebe6;
+            --bg:      #f4f8f5;
+            --white:   #ffffff;
+            --warn-bg: #fff8e1;
+            --warn-bd: #f5b301;
+            --warn-tx: #6b4e00;
+            --shadow-sm: 0 1px 2px rgba(11,61,46,.06);
+            --shadow-md: 0 6px 18px rgba(11,61,46,.08);
+            --shadow-lg: 0 14px 40px rgba(11,61,46,.12);
+            --radius: 14px;
+        }
+
+        /* CLASSE PARA MODO ESCURO */
+        body.dark-mode {
+            --hulw-green-900: #d1f7e8;
+            --hulw-green-700: #4ade80;
+            --hulw-green-600: #22c55e;
+            --hulw-green-500: #16a34a;
+            --hulw-green-100: #064e3b;
+            --hulw-green-50:  #022c22;
+            --ink-900: #f8fafc;
+            --ink-700: #e2e8f0;
+            --ink-500: #94a3b8;
+            --ink-300: #334155;
+            --line:    #1e293b;
+            --bg:      #020617;
+            --white:   #0f172a;
+            --warn-bg: #422006;
+            --warn-bd: #d97706;
+            --warn-tx: #fef3c7;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background:
+                radial-gradient(1200px 600px at -10% -20%, var(--hulw-green-100), transparent 60%),
+                radial-gradient(900px 500px at 110% 0%, rgba(26,138,95,0.05), transparent 60%),
+                var(--bg);
+            color: var(--ink-900);
+            line-height: 1.55;
+            min-height: 100vh;
+            padding: 32px 16px 64px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        /* ===== HEADER ===== */
+        .hulw-header {
+            background: linear-gradient(135deg, #15724f, #22a06b);
+            color: #fff;
+            border-radius: 18px;
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hulw-header::after {
+            content: "";
+            position: absolute; inset: 0;
+            background: radial-gradient(400px 200px at 90% 120%, rgba(255,255,255,.18), transparent 60%);
+            pointer-events: none;
+        }
+        .header-left { display: flex; align-items: center; gap: 20px; z-index: 2; }
+        .header-right { display: flex; align-items: center; gap: 12px; z-index: 2; }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+            transition: all 0.2s;
+        }
+        .theme-toggle:hover { background: rgba(255, 255, 255, 0.3); }
+
+        .btn-voltar {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-voltar:hover { background: rgba(0, 0, 0, 0.3); }
+
+        .hulw-logo {
+            width: 50px; height: 50px;
+            border-radius: 12px;
+            background: rgba(255,255,255,.15);
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,.25);
+            flex-shrink: 0;
+        }
+        .hulw-logo img { max-width: 80%; max-height: 80%; object-fit: contain; }
+
+        .hulw-header h1 { font-size: 1.4rem; margin: 0; font-weight: 700; letter-spacing: -0.01em; }
+        .hulw-header p { margin: 2px 0 0; font-size: 0.85rem; opacity: .92; }
+
+        /* ===== LAYOUT DOIS PAINÉIS ===== */
+        .painel-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        /* ===== CARDS ===== */
+        .campo-box {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 24px 26px;
+            margin-bottom: 18px;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow .2s ease, background 0.3s ease;
+        }
+        .campo-box:hover { box-shadow: var(--shadow-md); }
         
-        /* Estilos para lista de arquivos (conforme nova_solicitacao) */
-        #lista-arquivos { margin-top: 10px; }
-        .arquivo-item { background: #eef6ff; padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; border: 1px solid #d1e7ff; }
-        .remover-arquivo { color: #dc3545; cursor: pointer; font-weight: bold; margin-left: 10px; }
+        .campo-box h3 {
+            margin: 0 0 18px;
+            font-size: 1.1rem;
+            color: var(--hulw-green-900);
+            font-weight: 700;
+            display: flex; align-items: center; gap: 10px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--line);
+        }
+        .campo-box h3::before {
+            content: "";
+            width: 4px; height: 18px;
+            background: linear-gradient(180deg, var(--hulw-green-500), var(--hulw-green-700));
+            border-radius: 4px;
+        }
+        
+        .campo-box h4 {
+            margin: 14px 0 4px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--ink-500);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .campo-box p {
+            margin: 0 0 14px;
+            font-size: 0.98rem;
+            color: var(--ink-900);
+            background: var(--bg);
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+        }
+
+        .scrollable-info {
+            max-height: 80vh;
+            overflow-y: auto;
+            padding-right: 6px;
+            scrollbar-width: thin;
+        }
+        .scrollable-info::-webkit-scrollbar { width: 6px; }
+        .scrollable-info::-webkit-scrollbar-thumb { background: var(--line); border-radius: 6px; }
+
+        /* ===== INPUTS E TEXTAREA ===== */
+        textarea {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1.5px solid var(--line);
+            background: var(--white);
+            font-family: inherit;
+            font-size: 0.98rem;
+            color: var(--ink-900);
+            transition: all .15s ease;
+            resize: vertical;
+            min-height: 280px;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: var(--hulw-green-500);
+            box-shadow: 0 0 0 4px rgba(34,160,107,.15);
+            background: var(--hulw-green-50);
+        }
+
+        /* ===== ARQUIVOS / ANEXOS ===== */
+        .anexo-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .anexo-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: var(--hulw-green-50);
+            border: 1px solid var(--hulw-green-500);
+            color: var(--hulw-green-700);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            transition: all 0.15s;
+        }
+        .anexo-btn:hover {
+            background: var(--hulw-green-600);
+            color: #fff;
+        }
+
+        input[type="file"] {
+            padding: 12px;
+            background: var(--hulw-green-50);
+            border: 1.5px dashed var(--hulw-green-500);
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 6px;
+        }
+        
+        #lista-arquivos { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+        .arquivo-item {
+            background: var(--hulw-green-50);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid var(--hulw-green-100);
+        }
+        .remover-arquivo {
+            color: #c0392b;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        /* ===== BOTÃO SUBMIT ===== */
+        .btn-enviar {
+            background: linear-gradient(135deg, var(--hulw-green-700), var(--hulw-green-500));
+            color: #fff;
+            padding: 16px;
+            border: none;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            width: 100%;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(21,114,79,.28);
+            transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+            margin-top: 10px;
+        }
+        .btn-enviar:hover { 
+            transform: translateY(-2px); 
+            filter: brightness(1.05); 
+            box-shadow: 0 12px 28px rgba(21,114,79,.36); 
+        }
+
+        @media (max-width: 900px) {
+            .painel-grid { grid-template-columns: 1fr; }
+            .scrollable-info { max-height: none; }
+            .hulw-header { flex-direction: column; align-items: flex-start; padding: 22px; }
+            .header-right { width: 100%; justify-content: space-between; }
+        }
     </style>
 </head>
 <body>
-    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-        <h1>Responder Solicitação #{{ sol.id }}</h1>
-        <a href="{% url 'fila_medica' %}" style="text-decoration: none; color: #666;">← Voltar para a Fila</a>
-    </div>
+<div class="container">
 
-    <div class="container">
-        <div class="card scrollable-info">
+    <header class="hulw-header">
+        <div class="header-left">
+            <div class="hulw-logo">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQryXQkqFL8UMlNXtInfmWSQhSp1ZcKgreHmw&s" alt="Logo HULW">
+            </div>
+            <div>
+                <h1>Responder Solicitação</h1>
+                <p>Ambiente de Resposta Médica · Teleconsultoria HULW</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Modo Escuro</button>
+            <a href="{% url 'fila_medica' %}" class="btn-voltar">← Voltar à Fila</a>
+        </div>
+    </header>
+
+    <div class="painel-grid">
+        
+        <div class="campo-box scrollable-info">
             <h3>Dados da Solicitação</h3>
             
             {% if sol.idade_pac > 0 %}
-                <div class="secao">
-                    <h4>Idade:</h4> <p>{{ sol.idade_pac }} anos</p>
-                    <h4>Sexo:</h4> <p>{{ sol.get_sexo_pac_display }}</p>
-                    <h4>Diagnóstico Principal:</h4> <p>{{ sol.diagnostico_princ }}</p>
-                    
-                    {% if sol.diagnostico_sec %}
-                        <h4>Diagnóstico Secundário:</h4> <p>{{ sol.diagnostico_sec }}</p>
-                    {% endif %}
-                    
-                    <h4>Queixas Principais:</h4> <p>{{ sol.queixas }}</p>
-                    <h4>Histórico Médico:</h4> <p>{{ sol.historico_med|linebreaks }}</p>
-                    <h4>Uso Atual de Medicamentos:</h4> <p>{{ sol.medicamentos|linebreaks }}</p>
-                    <h4>Exames Recentes:</h4> <p>{{ sol.exames_recentes|linebreaks }}</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <h4>Idade</h4>
+                        <p>{{ sol.idade_pac }} anos</p>
+                    </div>
+                    <div>
+                        <h4>Identidade de Gênero</h4>
+                        <p>{{ sol.get_sexo_pac_display }}</p>
+                    </div>
                 </div>
+
+                {% if sol.sexo_biologico_pac %}
+                <h4>Sexo Atribuído no Nascimento</h4>
+                <p>{{ sol.get_sexo_biologico_pac_display }}</p>
+                {% endif %}
+
+                <h4>Diagnóstico Principal</h4>
+                <p>{{ sol.diagnostico_princ|default:"Não informado" }}</p>
+                
+                {% if sol.diagnostico_sec %}
+                    <h4>Diagnóstico Secundário</h4>
+                    <p>{{ sol.diagnostico_sec }}</p>
+                {% endif %}
+                
+                <h4>Queixas Principais</h4>
+                <p>{{ sol.queixas|linebreaksbr }}</p>
+                
+                <h4>Histórico Médico</h4>
+                <p>{{ sol.historico_med|linebreaksbr|default:"Sem histórico registrado" }}</p>
+                
+                <h4>Uso Atual de Medicamentos</h4>
+                <p>{{ sol.medicamentos|linebreaksbr|default:"Nenhum medicamento informado" }}</p>
+                
+                <h4>Exames Recentes</h4>
+                <p>{{ sol.exames_recentes|linebreaksbr|default:"Nenhum exame anexado em texto" }}</p>
+
             {% else %}
-                <div class="secao">
-                    <h4>Dúvida Geral:</h4>
-                    <p style="background: #eef6ff; padding: 15px; border-radius: 4px;">{{ sol.duvida_clinica|linebreaks }}</p>
-                </div>
+                <h4>Dúvida Geral / Conceitual</h4>
+                <p style="background: var(--hulw-green-50); border-color: var(--hulw-green-100);">
+                    {{ sol.duvida_clinica|linebreaksbr }}
+                </p>
+            {% endif %}
+
+            {% if sol.idade_pac > 0 %}
+                <h4>Dúvida Clínica</h4>
+                <p style="background: var(--hulw-green-50); border-color: var(--hulw-green-100); font-weight: 500;">
+                    {{ sol.duvida_clinica|linebreaksbr }}
+                </p>
             {% endif %}
 
             {% if sol.anexos.all %}
-            <div class="secao">
-                <h4>Anexos do Solicitante ({{ sol.anexos.count }}):</h4>
-                <div style="margin-top: 10px;">
+                <h4 style="margin-top: 20px;">Anexos do Solicitante ({{ sol.anexos.count }})</h4>
+                <div class="anexo-container">
                     {% for item in sol.anexos.all %}
                         <a href="{{ item.arquivo.url }}" target="_blank" class="anexo-btn">
-                            📎 Arq. {{ forloop.counter }}
+                            📎 Arquivo {{ forloop.counter }}
                         </a>
                     {% endfor %}
                 </div>
-            </div>
             {% endif %}
         </div>
 
-        <div class="card">
+        <div class="campo-box">
             <form method="POST" enctype="multipart/form-data" id="form-resposta">
                 {% csrf_token %}
-                <h3>Sua Resposta</h3>
-                <textarea name="resposta" placeholder="Digite aqui sua conduta médica..." required></textarea>
+                <h3>Sua Resposta Especializada</h3>
+                
+                <textarea name="resposta" placeholder="Digite detalhadamente a conduta, orientações e parecer clínico para este caso..." required></textarea>
 
-                <div class="campo-anexo">
-                    <label><strong>Anexar arquivos na resposta:</strong></label>
-                    <input type="file" id="input-anexos" onchange="adicionarArquivos()" multiple style="margin-top: 10px; width: 100%;">
+                <div style="margin-top: 20px; background: var(--bg); padding: 16px; border-radius: 10px; border: 1px dashed var(--hulw-green-500);">
+                    <label style="font-size: 0.9rem; font-weight: 700; color: var(--hulw-green-900);">Anexar Documentos/Exames na Resposta (Opcional)</label>
+                    <input type="file" id="input-anexos" onchange="adicionarArquivos()" multiple>
                     <div id="lista-arquivos"></div>
-                    <p style="font-size: 0.75em; color: #777; margin-top: 8px;">Você pode selecionar vários arquivos ou adicionar um por um.</p>
+                    <p style="font-size: 0.78rem; color: var(--ink-500); margin: 8px 0 0 0;">Você pode anexar múltiplos arquivos simultaneamente se desejar.</p>
                 </div>
 
-                <button type="submit" class="btn-enviar">Enviar Resposta</button>
+                <button type="submit" class="btn-enviar">Enviar Resposta Final</button>
             </form>
         </div>
+
     </div>
+</div>
 
-    <script>
-        let arquivosAcumulados = [];
-
-        function adicionarArquivos() {
-            const input = document.getElementById('input-anexos');
-            
-            for (let file of input.files) {
-                arquivosAcumulados.push(file);
-            }
-            
-            input.value = ""; // Limpa o input para permitir selecionar o mesmo arquivo novamente
-            atualizarListaExibicao();
+<script>
+    // ALTERNADOR DE TEMA ESCURO/CLARO
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.getElementById('themeBtn');
+        body.classList.toggle('dark-mode');
+        
+        if (body.classList.contains('dark-mode')) {
+            btn.innerHTML = "☀️ Modo Claro";
+        } else {
+            btn.innerHTML = "🌙 Modo Escuro";
         }
+    }
 
-        function atualizarListaExibicao() {
-            const lista = document.getElementById('lista-arquivos');
-            lista.innerHTML = "";
-            
-            arquivosAcumulados.forEach((file, index) => {
-                const item = document.createElement('div');
-                item.className = 'arquivo-item';
-                item.innerHTML = `
-                    <span>📎 ${file.name}</span>
-                    <span class="remover-arquivo" onclick="removerArquivo(${index})">Remover</span>
-                `;
-                lista.appendChild(item);
-            });
+    // MANUTENÇÃO INTEGRAL DA LÓGICA DE ANEXOS SOLICITADA
+    let arquivosAcumulados = [];
+
+    function adicionarArquivos() {
+        const input = document.getElementById('input-anexos');
+        
+        for (let file of input.files) {
+            arquivosAcumulados.push(file);
         }
+        
+        input.value = "";
+        atualizarListaExibicao();
+    }
 
-        function removerArquivo(index) {
-            arquivosAcumulados.splice(index, 1);
-            atualizarListaExibicao();
-        }
+    function atualizarListaExibicao() {
+        const lista = document.getElementById('lista-arquivos');
+        lista.innerHTML = "";
+        
+        arquivosAcumulados.forEach((file, index) => {
+            const item = document.createElement('div');
+            item.className = 'arquivo-item';
+            item.innerHTML = `
+                <span>📎 ${file.name}</span>
+                <span class="remover-arquivo" onclick="removerArquivo(${index})">Remover</span>
+            `;
+            lista.appendChild(item);
+        });
+    }
 
-        // Intercepta o envio do formulário para injetar os arquivos acumulados (conforme sua lógica)
-        document.getElementById('form-resposta').onsubmit = function(e) {
-            const dataTransfer = new DataTransfer();
-            arquivosAcumulados.forEach(file => dataTransfer.items.add(file));
-            
-            const input = document.getElementById('input-anexos');
-            input.files = dataTransfer.files;
-            input.name = "anexos"; // Define o nome para o Django reconhecer no request.FILES.getlist
-        };
-    </script>
+    function removerArquivo(index) {
+        arquivosAcumulados.splice(index, 1);
+        atualizarListaExibicao();
+    }
+
+    document.getElementById('form-resposta').onsubmit = function(e) {
+        const dataTransfer = new DataTransfer();
+        arquivosAcumulados.forEach(file => dataTransfer.items.add(file));
+        
+        const input = document.getElementById('input-anexos');
+        input.files = dataTransfer.files;
+        input.name = "anexos";
+    };
+</script>
 </body>
 </html>
