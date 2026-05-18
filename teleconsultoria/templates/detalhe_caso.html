@@ -258,8 +258,12 @@
                     <p>{{ sol.profissional.instituicao|default:"Não informada" }}</p>
                 </div>
                 <div>
-                    <h4>Contato:</h4>
+                    <h4>E-mail:</h4>
                     <p>{{ sol.profissional.email }}</p>
+                </div>
+                <div>
+                    <h4>Telefone:</h4>
+                    <p>{{ sol.profissional.telefone }}</p>
                 </div>
             </div>
         </div>
@@ -301,13 +305,33 @@
                 <h3>Dados do Paciente</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                     <div><h4>Idade:</h4> <p>{{ sol.idade_pac }} anos</p></div>
-                    <div><h4>Sexo:</h4> <p>{{ sol.get_sexo_pac_display }}</p></div>
-                    <div><h4>Diagnóstico Principal:</h4> <p>{{ sol.diagnostico_princ|default:"Não informado" }}</p></div>
+                    <div>
+                        <h4>Identidade de gênero:</h4> 
+                        <p>
+                            {% if sol.sexo_pac == 'M' %}Masculino
+                            {% elif sol.sexo_pac == 'F' %}Feminino
+                            {% elif sol.sexo_pac == 'NB' %}Não Binário
+                            {% elif sol.sexo_pac == 'O' %}Outro
+                            {% else %}Não informado{% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <h4>Sexo Biológico:</h4> 
+                        <p>
+                            {% if sol.sexo_biologico_pac == 'M' %}Masculino
+                            {% elif sol.sexo_biologico_pac == 'F' %}Feminino
+                            {% else %}Não informado{% endif %}
+                        </p>
+                    </div>
+                </div>
+                    <h4>Queixas Principais:</h4> <p>{{ sol.queixas }}</p>
+                    <div><h4>Diagnóstico Principal:</h4> <p>{{ sol.diagnostico_princ|default:"Não informado" }}
+                    <div><h4>Diagnóstico Secundário:</h4> <p>{{ sol.diagnostico_sec|default:"Não informado" }}
                 </div>
 
-                <h4>Queixas Principais:</h4> <p>{{ sol.queixas }}</p>
                 <h4>Histórico Médico:</h4> <p>{{ sol.historico_med|linebreaks }}</p>
-
+                <h4>Exames recentes:</h4> <p>{{ sol.exames_recentes|linebreaks }}</p>
+                <h4>Medicamentos:</h4> <p>{{ sol.medicamentos|linebreaks }}</p>
                 <div style="border-top: 1px dashed var(--line); padding-top: 15px; margin-top: 10px;"></div>
 
                 <h3>Dúvida clínica</h3>

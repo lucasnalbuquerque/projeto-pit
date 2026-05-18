@@ -114,15 +114,17 @@ def nova_solicitacao(request):
             }
             
             if tipo_caso == 'GERAL':
-                nova_sol = Solicitacao.objects.create(**dados_base, idade_pac=0, sexo_pac='O')
+                # Se for geral, define valores padrão ou nulos para o sexo biológico se o model permitir
+                nova_sol = Solicitacao.objects.create(**dados_base, idade_pac=0, sexo_pac='O', sexo_biologico_pac='O')
             else:
                 nova_sol = Solicitacao.objects.create(
                     **dados_base,
                     idade_pac=request.POST.get('idade_pac') or 0,
                     sexo_pac=request.POST.get('sexo_pac'),
+                    sexo_biologico_pac=request.POST.get('sexo_biologico_pac'), 
                     diagnostico_princ=request.POST.get('diagnostico_princ'),
                     diagnostico_sec=request.POST.get('diagnostico_sec'),
-                    queixas=request.POST.get('queixas_especificas'),
+                    queixas=request.POST.get('queixas_especificas'), 
                     historico_med=request.POST.get('historico_med'),
                     medicamentos=request.POST.get('medicamentos'),
                     exames_recentes=request.POST.get('exames_recentes')

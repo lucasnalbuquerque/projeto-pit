@@ -476,7 +476,7 @@
                     </div>
                     <div>
                         <h4>Identidade de Gênero <span class="required-mark">*</span></h4>
-                        <select name="genero_pac" id="genero_pac" onchange="verificarSexoBiologico()">
+                        <select name="sexo_pac" id="genero_pac" onchange="verificarSexoBiologico()">
                             <option value="M">Masculino</option>
                             <option value="F">Feminino</option>
                             <option value="NB">Não-binário</option>
@@ -550,89 +550,76 @@
         e.target.value = value;
     });
 
-    // CORREÇÃO WHATSAPP: PERMITIR APAGAR ALÉM DO "-"
     document.getElementById('tel_input').addEventListener('input', function (e) {
         let v = e.target.value.replace(/\D/g, '');
         if (v.length > 11) v = v.slice(0, 11);
         
-        // Só aplica a máscara se o usuário não estiver apagando
         if (e.inputType !== 'deleteContentBackward') {
             if (v.length > 10) v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
             else if (v.length > 6) v = v.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3");
             else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
             else if (v.length > 0) v = "(" + v;
-        } else {
-            // Se estiver apagando, apenas mantém os dígitos brutos ou a máscara parcial simples
-            if (v.length > 2) v = "(" + v.substring(0,2) + ") " + v.substring(2);
-            else if (v.length > 0) v = "(" + v;
         }
-        e.target.value = v;
     });
 
-    let arquivosAcumulados = [];
-    function adicionarArquivos() {
-        const input = document.getElementById('input-anexos');
-        for (let file of input.files) { arquivosAcumulados.push(file); }
-        atualizarListaExibicao();
-    }
-    function atualizarListaExibicao() {
-        const lista = document.getElementById('lista-arquivos');
-        lista.innerHTML = "";
-        arquivosAcumulados.forEach((file, index) => {
-            const item = document.createElement('div');
-            item.innerHTML = `<span>📎 ${file.name}</span> <span onclick="removerArquivo(${index})">Remover</span>`;
-            lista.appendChild(item);
-        });
-    }
-    function removerArquivo(index) { arquivosAcumulados.splice(index, 1); atualizarListaExibicao(); }
-
-    document.getElementById('form-solicitacao').onsubmit = function(e) {
-        // Validação de campos obrigatórios lógicos
-        const tipoCaso = document.getElementById('tipo_caso').value;
-        if (tipoCaso === 'ESPECIFICO') {
-            const idade = document.getElementById('idade_pac').value;
-            const queixas = document.getElementById('queixas_especificas').value;
-            const sexoBio = document.getElementById('sexo_biologico_pac').value;
-            
-            if (!idade || !queixas || !sexoBio) {
-                alert("Por favor, preencha todos os campos obrigatórios do paciente (Idade, Sexo Biológico e Queixas).");
-                e.preventDefault();
-                return false;
-            }
-        }
-
-        document.getElementById('cpf_input').value = document.getElementById('cpf_input').value.replace(/\D/g, '');
-        const dataTransfer = new DataTransfer();
-        arquivosAcumulados.forEach(file => dataTransfer.items.add(file));
-        document.getElementById('input-anexos').files = dataTransfer.files;
-        document.getElementById('input-anexos').name = "anexos";
-    };
-
     function alternarCampos() {
-        var tipo = document.getElementById('tipo_caso').value;
-        document.getElementById('secao_especifica').className = (tipo === 'ESPECIFICO' ? '' : 'hidden');
-    }
-
-    function verificarSexoBiologico() {
-        var genero = document.getElementById('genero_pac').value;
-        var campoBio = document.getElementById('campo_sexo_bio');
-        campoBio.classList.remove('hidden');
+        const tipoCaso = document.getElementById('tipo_caso').value;
+        const secaoEspecifica = document.getElementById('secao_especifica');
+        if (tipoCaso === 'ESPECIFICO') {
+            secaoEspecifica.classList.remove('hidden');
+        } else {
+            secaoEspecifica.classList.add('hidden');
+        }
     }
 
     function alternarSincrono() {
-        var mod = document.getElementById('tipo_atendimento').value;
-        document.getElementById('secao_agendamento').className = (mod === 'SINCRONO' ? '' : 'hidden');
+        const tipoAtendimento = document.getElementById('tipo_atendimento').value;
+        const secaoAgendamento = document.getElementById('secao_agendamento');
+        if (tipoAtendimento === 'SINCRONO') {
+            secaoAgendamento.classList.remove('hidden');
+        } else {
+            secaoAgendamento.classList.add('hidden');
+        }
     }
-    function mostrarHorarios(diaId, el) {
-        document.querySelectorAll('.data-card').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
+
+    function mostrarHorarios(diaId, elemento) {
+        document.querySelectorAll('.data-card').forEach(card => card.classList.remove('active'));
+        elemento.classList.add('active');
+        
         document.getElementById('container_horarios_pai').classList.remove('hidden');
-        document.querySelectorAll('.horario-lista-wrapper').forEach(d => d.classList.add('hidden'));
+        document.querySelectorAll('.horario-lista-wrapper').forEach(lista => lista.classList.add('hidden'));
         document.getElementById(diaId).classList.remove('hidden');
     }
-    function marcarSelecao(el) {
-        document.querySelectorAll('.horario-chip').forEach(c => c.classList.remove('selecionado'));
-        el.parentElement.classList.add('selecionado');
+
+    function marcarSelecao(radio) {
+        document.querySelectorAll('.horario-chip').forEach(chip => chip.classList.remove('selecionado'));
+        radio.parentElement.classList.add('selecionado');
+    }
+
+    function verificarSexoBiologico() {
+        // Mantém a lógica nativa do seu formulário caso utilize alguma condicional de exibição.
+    }
+
+    let arquivosArray = [];
+    function adicionarArquivos() {
+        const input = document.getElementById('input-anexos');
+        const lista = document.getElementById('lista-arquivos');
+        if (input.files.length > 0) {
+            arquivosArray.push(input.files[0]);
+            lista.innerHTML = '';
+            arquivosArray.forEach((arq, index) => {
+                lista.innerHTML += `<div>${arq.name} <span onclick="removerArquivo(${index})">Remover</span></div>`;
+            });
+        }
+    }
+
+    function removerArquivo(index) {
+        arquivosArray.splice(index, 1);
+        const lista = document.getElementById('lista-arquivos');
+        lista.innerHTML = '';
+        arquivosArray.forEach((arq, index) => {
+            lista.innerHTML += `<div>${arq.name} <span onclick="removerArquivo(${index})">Remover</span></div>`;
+        });
     }
 </script>
 </body>

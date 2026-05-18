@@ -91,7 +91,7 @@ class Solicitacao(models.Model):
     data_limite = models.DateField(null=True, blank=True)
     horario_limite = models.TimeField(null=True, blank=True)
 
-    # Campos do Paciente (Obrigatoriedade tratada no Form/JS)
+    # Campos do Paciente
     idade_pac = models.IntegerField(null=True, blank=True)
     sexo_pac = models.CharField(max_length=2, choices=Sexo.choices, null=True, blank=True)
     sexo_biologico_pac = models.CharField(max_length=1, choices=[('M', 'Masculino'), ('F', 'Feminino')], null=True, blank=True)
