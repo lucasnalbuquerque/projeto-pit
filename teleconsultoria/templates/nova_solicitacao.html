@@ -472,7 +472,7 @@
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:12px;">
                     <div>
                         <h4>Idade <span class="required-mark">*</span></h4>
-                        <input type="number" name="idade_pac" id="idade_pac" placeholder="Idade aproximada">
+                        <input type="number" name="idade_pac" id="idade_pac" placeholder="Idade aproximada" min="0" max="130">
                     </div>
                     <div>
                         <h4>Identidade de Gênero <span class="required-mark">*</span></h4>
@@ -562,13 +562,28 @@
         }
     });
 
+    // VALIDAÇÃO E RESTRIÇÃO DA IDADE DO PACIENTE
+    const idadeInput = document.getElementById('idade_pac');
+    
+    idadeInput.addEventListener('invalid', function (e) {
+        e.target.setCustomValidity('Informe uma idade válida');
+    });
+
+    idadeInput.addEventListener('input', function (e) {
+        e.target.setCustomValidity('');
+    });
+
     function alternarCampos() {
         const tipoCaso = document.getElementById('tipo_caso').value;
         const secaoEspecifica = document.getElementById('secao_especifica');
         if (tipoCaso === 'ESPECIFICO') {
             secaoEspecifica.classList.remove('hidden');
+            idadeInput.setAttribute('required', 'required');
         } else {
             secaoEspecifica.classList.add('hidden');
+            idadeInput.removeAttribute('required');
+            idadeInput.value = '';
+            idadeInput.setCustomValidity('');
         }
     }
 
