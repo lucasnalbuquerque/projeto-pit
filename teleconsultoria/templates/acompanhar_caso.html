@@ -11,6 +11,8 @@
             --hulw-green-900: #0b3d2e;
             --hulw-green-700: #15724f;
             --hulw-green-600: #1a8a5f;
+            --hulw-green-500: #22c55e; 
+            --hulw-green-100: #e8f5e9; 
             --hulw-green-50:  #f3faf6;
             --ink-900: #0f172a;
             --ink-700: #334155;
@@ -29,6 +31,9 @@
             --success-tx: #0f5132;
             --danger-bg: #fdf2f2;
             --danger-tx: #9b1c1c;
+
+            --agendado-bg: #e0e0ff;
+            --agendado-tx: #464eb8;
 
             --shadow-sm: 0 1px 2px rgba(11,61,46,.06);
             --shadow-md: 0 6px 18px rgba(11,61,46,.08);
@@ -60,6 +65,9 @@
             --success-tx: #86efac;
             --danger-bg: #450a0a;
             --danger-tx: #fca5a5;
+
+            --agendado-bg: #1e1b4b;
+            --agendado-tx: #a5b4fc;
         }
 
         * { box-sizing: border-box; }
@@ -183,6 +191,10 @@
             border-radius: 4px;
         }
 
+        .campo-box h3.no-indicator::before {
+            content: none !important;
+        }
+
         .campo-box p {
             margin: 0 0 14px;
             font-size: 0.98rem;
@@ -196,7 +208,7 @@
         .badge { padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.02em; }
         .status-PENDENTE { background: var(--warn-bg); color: var(--warn-tx); }
         .status-ANALISE { background: var(--info-bg); color: var(--info-tx); }
-        .status-AGENDADO { background: #e0e0ff; color: #464eb8; }
+        .status-AGENDADO { background: var(--agendado-bg); color: var(--agendado-tx); }
         .status-CONCLUIDA { background: var(--success-bg); color: var(--success-tx); }
         .status-CANCELADA { background: var(--danger-bg); color: var(--danger-tx); }
 
@@ -301,21 +313,20 @@
     </header>
 
     <div class="campo-box">
-    <div class="box-titulo-flex">
-        <div>
-            <h3 style="margin: 0; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; color: var(--hulw-green-900); font-weight: 700;" data-content-override>
-                <style>div.box-titulo-flex h3::before { content: none !important; }</style>
-                <span style="width: 4px; height: 18px; background: linear-gradient(180deg, var(--hulw-green-600), var(--hulw-green-700)); border-radius: 4px; display: inline-block; flex-shrink: 0;"></span>
-                Acompanhamento
-            </h3>
-            <small style="color: var(--ink-500); font-weight: 500; display: block; margin-top: 4px; margin-left: 14px;">
-                Protocolo gerado em {{ sol.data_sol|date:"d/m/Y" }}
-            </small>
+        <div class="box-titulo-flex">
+            <div>
+                <h3 class="no-indicator" style="margin: 0; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; color: var(--hulw-green-900); font-weight: 700;" data-content-override>
+                    <span style="width: 4px; height: 18px; background: linear-gradient(180deg, var(--hulw-green-600), var(--hulw-green-700)); border-radius: 4px; display: inline-block; flex-shrink: 0;"></span>
+                    Acompanhamento
+                </h3>
+                <small style="color: var(--ink-500); font-weight: 500; display: block; margin-top: 4px; margin-left: 14px;">
+                    Protocolo gerado em {{ sol.data_sol|date:"d/m/Y" }}
+                </small>
+            </div>
+            <span class="badge status-{{ sol.status }}">
+                {{ sol.get_status_display }}
+            </span>
         </div>
-        <span class="badge status-{{ sol.status }}">
-            {{ sol.get_status_display }}
-        </span>
-    </div>
 
         {% if sol.tipo_atendimento == 'SINCRONO' and sol.status != 'CONCLUIDA' and sol.status != 'CANCELADA' %}
         <div class="teams-card">
@@ -474,11 +485,8 @@
         }
     }
 
-    // Resgata os segundos calculados pelo Python no fuso correto do servidor
     let segundosRestantes = parseInt("{{ segundos_restantes|default:0 }}");
     
-    // Se o Django abriu a página (link válido), mas os segundos vieram zerados,
-    // definimos uma folga visual padrão (ex: 2 horas) para o usuário não ver a tela quebrando.
     if (segundosRestantes <= 0) {
         segundosRestantes = 7200; 
     }
@@ -490,7 +498,6 @@
             banner.style.backgroundColor = "var(--danger-bg)";
             banner.style.color = "var(--danger-tx)";
             banner.style.borderColor = "var(--danger-tx)";
-            document.getElementById("contador").innerHTML = "";
             return;
         }
 
