@@ -12,21 +12,21 @@
             --green-800: #066b34;
             --green-700: #05922f;
             --green-600: #0ba84a;
-            --green-500: #22c55e;
-            --green-100: #dcfce7;
             --green-50:  #f0fdf4;
-            --gray-900: #0f1f17;
-            --gray-700: #334155;
-            --gray-500: #64748b;
-            --gray-300: #cbd5e1;
-            --gray-200: #e2e8f0;
-            --gray-100: #f1f5f9;
+            --green-100: #dcfce7;
             --white: #ffffff;
             --bg: #f4faf6;
             --shadow-sm: 0 1px 2px rgba(6, 78, 43, 0.06);
             --shadow-md: 0 4px 12px rgba(6, 78, 43, 0.08);
             --radius: 12px;
             --transition: all 0.3s ease;
+            --green-500: #22c55e;
+            --gray-900: #0f1f17;
+            --gray-700: #334155;
+            --gray-500: #64748b;
+            --gray-300: #cbd5e1;
+            --gray-200: #e2e8f0;
+            --gray-100: #f1f5f9;
         }
 
         /* Variáveis do Modo Escuro */
@@ -285,7 +285,7 @@
             </div>
 
             <div class="sort-dropdown">
-                <button class="sort-btn" onclick="toggleSort()">
+                <button class="sort-btn" onclick="toggleSort(event)">
                     <span>⇅</span> Ordenar por
                 </button>
                 <div id="sortOptions" class="sort-content">
@@ -424,12 +424,13 @@
         }
 
         // Lógica de Ordenação
-        function toggleSort() {
+        function toggleSort(event) {
+            if (event) event.stopPropagation();
             document.getElementById("sortOptions").classList.toggle("show");
         }
 
         window.onclick = function(event) {
-            if (!event.target.matches('.sort-btn') && !event.target.parentElement.matches('.sort-btn')) {
+            if (!event.target.closest('.sort-dropdown')) {
                 var dropdowns = document.getElementsByClassName("sort-content");
                 for (var i = 0; i < dropdowns.length; i++) {
                     dropdowns[i].classList.remove('show');
@@ -442,20 +443,21 @@
             const linhas = Array.from(tableBody.querySelectorAll('.linha-solicitacao'));
 
             linhas.sort((a, b) => {
-                let valA = a.getAttribute('data-' + criterio);
-                let valB = b.getAttribute('data-' + criterio);
+                let valA = a.getAttribute('data-' + criterio) || '';
+                let valB = b.getAttribute('data-' + criterio) || '';
                 
                 if(criterio === 'data') return valB.localeCompare(valA); // Mais recente primeiro
                 return valA.localeCompare(valB);
             });
 
             linhas.forEach(linha => tableBody.appendChild(linha));
-            toggleSort();
+            document.getElementById("sortOptions").classList.remove("show");
         }
 
         // Filtros e Badge
         function atualizarBadgePendentes() {
-            const pendentes = document.querySelectorAll('.linha-solicitacao[data-status="PENDENTE"]').length;
+            const pendentes = Array.from(document.querySelectorAll('.linha-solicitacao[data-status="PENDENTE"]'))
+                                   .filter(linha => linha.style.display !== 'none').length;
             const badge = document.getElementById('count-badge');
             
             if (pendentes === 0) {
@@ -476,14 +478,14 @@
 
             linhas.forEach(linha => {
                 const dataCompleta = linha.getAttribute('data-data');
-                const dataLinha = dataCompleta.split(' ')[0];
+                const dataLinha = dataCompleta ? dataCompleta.split(' ')[0] : '';
                 
                 let matchData = true;
                 if (dataInicio && dataLinha < dataInicio) matchData = false;
                 if (dataFim && dataLinha > dataFim) matchData = false;
 
-                const matchStatus = !status || linha.getAttribute('data-status') === status;
-                const matchMod = !modalidade || linha.getAttribute('data-modalidade') === modalidade;
+                const matchStatus = !status || (linha.getAttribute('data-status') || "").toUpperCase() === status.toUpperCase();
+                const matchMod = !modalidade || (linha.getAttribute('data-modalidade') || "").toUpperCase() === modalidade.toUpperCase();
                 const matchTipo = !tipo || (linha.getAttribute('data-tipo') || "").trim() === tipo;
                 
                 linha.style.display = (matchData && matchStatus && matchMod && matchTipo) ? "" : "none";
@@ -500,7 +502,9 @@
             filtrarTabela();
         }
 
-        window.onload = atualizarBadgePendentes;
+        window.addEventListener('DOMContentLoaded', () => {
+            atualizarBadgePendentes();
+        });
     </script>
 </body>
 </html>

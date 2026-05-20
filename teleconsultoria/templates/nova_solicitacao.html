@@ -501,7 +501,7 @@
                 <h4>Diagnóstico Principal</h4>
                 <textarea name="diagnostico_princ" placeholder="Informe a patologia base ou a hipótese diagnóstica principal..."></textarea>
                 
-                <h4>Diagóstico secundário</h4>
+                <h4>Diagnóstico secundário</h4>
                 <textarea name="diagnostico_sec" placeholder="Liste comorbidades associadas ou condições secundárias relevantes para o caso, caso haja..."></textarea>
                 
                 <h4>Medicamentos</h4>
@@ -560,6 +560,7 @@
             else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
             else if (v.length > 0) v = "(" + v;
         }
+        e.target.value = v;
     });
 
     // VALIDAÇÃO E RESTRIÇÃO DA IDADE DO PACIENTE

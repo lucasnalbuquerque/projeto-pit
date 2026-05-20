@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Responder Caso #{{ sol.id }} | Teleconsultoria HULW</title>
+    <title>Responder Caso | Teleconsultoria HULW</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -30,7 +30,6 @@
             --radius: 14px;
         }
 
-        /* CLASSE PARA MODO ESCURO */
         body.dark-mode {
             --hulw-green-900: #d1f7e8;
             --hulw-green-700: #4ade80;
@@ -67,7 +66,6 @@
 
         .container { max-width: 1200px; margin: 0 auto; }
 
-        /* ===== HEADER ===== */
         .hulw-header {
             background: linear-gradient(135deg, #15724f, #22a06b);
             color: #fff;
@@ -134,7 +132,6 @@
         .hulw-header h1 { font-size: 1.4rem; margin: 0; font-weight: 700; letter-spacing: -0.01em; }
         .hulw-header p { margin: 2px 0 0; font-size: 0.85rem; opacity: .92; }
 
-        /* ===== LAYOUT DOIS PAINÉIS ===== */
         .painel-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -142,7 +139,6 @@
             align-items: start;
         }
 
-        /* ===== CARDS ===== */
         .campo-box {
             background: var(--white);
             border: 1px solid var(--line);
@@ -197,7 +193,6 @@
         .scrollable-info::-webkit-scrollbar { width: 6px; }
         .scrollable-info::-webkit-scrollbar-thumb { background: var(--line); border-radius: 6px; }
 
-        /* ===== INPUTS E TEXTAREA ===== */
         textarea {
             width: 100%;
             padding: 14px;
@@ -218,7 +213,6 @@
             background: var(--hulw-green-50);
         }
 
-        /* ===== ARQUIVOS / ANEXOS ===== */
         .anexo-container {
             display: flex;
             flex-wrap: wrap;
@@ -270,7 +264,6 @@
             font-weight: 600;
         }
 
-        /* ===== BOTÃO SUBMIT ===== */
         .btn-enviar {
             background: linear-gradient(135deg, var(--hulw-green-700), var(--hulw-green-500));
             color: #fff;
@@ -362,16 +355,14 @@
                 <h4>Exames Recentes</h4>
                 <p>{{ sol.exames_recentes|linebreaksbr|default:"Nenhum exame anexado em texto" }}</p>
 
+                <h4>Dúvida Clínica</h4>
+                <p style="background: var(--hulw-green-50); border-color: var(--hulw-green-100); font-weight: 500;">
+                    {{ sol.duvida_clinica|linebreaksbr }}
+                </p>
+
             {% else %}
                 <h4>Dúvida Geral / Conceitual</h4>
                 <p style="background: var(--hulw-green-50); border-color: var(--hulw-green-100);">
-                    {{ sol.duvida_clinica|linebreaksbr }}
-                </p>
-            {% endif %}
-
-            {% if sol.idade_pac > 0 %}
-                <h4>Dúvida Clínica</h4>
-                <p style="background: var(--hulw-green-50); border-color: var(--hulw-green-100); font-weight: 500;">
                     {{ sol.duvida_clinica|linebreaksbr }}
                 </p>
             {% endif %}
@@ -397,7 +388,11 @@
 
                 <div style="margin-top: 20px; background: var(--bg); padding: 16px; border-radius: 10px; border: 1px dashed var(--hulw-green-500);">
                     <label style="font-size: 0.9rem; font-weight: 700; color: var(--hulw-green-900);">Anexar Documentos/Exames na Resposta (Opcional)</label>
-                    <input type="file" id="input-anexos" onchange="adicionarArquivos()" multiple>
+                    
+                    <input type="file" id="input-anexos-visual" onchange="adicionarArquivos()" multiple>
+                    
+                    <input type="file" id="input-anexos-final" name="anexos" multiple style="display: none;">
+                    
                     <div id="lista-arquivos"></div>
                     <p style="font-size: 0.78rem; color: var(--ink-500); margin: 8px 0 0 0;">Você pode anexar múltiplos arquivos simultaneamente se desejar.</p>
                 </div>
@@ -410,7 +405,6 @@
 </div>
 
 <script>
-    // ALTERNADOR DE TEMA ESCURO/CLARO
     function toggleTheme() {
         const body = document.body;
         const btn = document.getElementById('themeBtn');
@@ -423,17 +417,18 @@
         }
     }
 
-    // MANUTENÇÃO INTEGRAL DA LÓGICA DE ANEXOS SOLICITADA
+    // LISTA GLOBAL DE ARQUIVOS ACUMULADOS
     let arquivosAcumulados = [];
 
     function adicionarArquivos() {
-        const input = document.getElementById('input-anexos');
+        const inputVisual = document.getElementById('input-anexos-visual');
         
-        for (let file of input.files) {
+        for (let file of inputVisual.files) {
             arquivosAcumulados.push(file);
         }
         
-        input.value = "";
+        // Limpa o input temporário para permitir re-seleção do mesmo arquivo se necessário
+        inputVisual.value = "";
         atualizarListaExibicao();
     }
 
@@ -457,13 +452,13 @@
         atualizarListaExibicao();
     }
 
+    // CORREÇÃO DO ENVIO: Vincula os arquivos acumulados de forma segura antes do submit
     document.getElementById('form-resposta').onsubmit = function(e) {
         const dataTransfer = new DataTransfer();
         arquivosAcumulados.forEach(file => dataTransfer.items.add(file));
         
-        const input = document.getElementById('input-anexos');
-        input.files = dataTransfer.files;
-        input.name = "anexos";
+        const inputFinal = document.getElementById('input-anexos-final');
+        inputFinal.files = dataTransfer.files;
     };
 </script>
 </body>

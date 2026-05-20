@@ -364,6 +364,7 @@
                         <div class="detalhe-item"><strong>Idade</strong>{{ sol.idade_pac }} anos</div>
                     </div>
                     <div class="detalhe-item"><strong>Diagnóstico Principal</strong><p>{{ sol.diagnostico_princ|default:"Não informado" }}</p></div>
+                    <div class="detalhe-item"><strong>Diagnóstico Secundário</strong><p>{{ sol.diagnostico_sec|default:"Não informado" }}</p></div>
                     <div class="detalhe-item"><strong>Queixas</strong><p>{{ sol.queixas|linebreaksbr }}</p></div>
                     <div class="detalhe-item"><strong>Histórico</strong><p>{{ sol.historico_med|linebreaksbr|default:"-" }}</p></div>
                     <div class="detalhe-item"><strong>Medicamentos em uso</strong><p>{{ sol.medicamentos|linebreaksbr|default:"-" }}</p></div>
