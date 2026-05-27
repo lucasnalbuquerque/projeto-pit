@@ -4,14 +4,55 @@
     <meta charset="UTF-8">
     <title>Registrar Link</title>
     <style>
-        body { font-family: sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
-        h2 { color: #464eb8; margin-top: 0; }
-        input[type="url"] { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        :root {
+            --bg: #f4f7f6;
+            --white: #ffffff;
+            --ink-900: #333333;
+            --h2-color: #464eb8;
+            --input-border: #ccc;
+            --cancel-color: #666;
+            --shadow: rgba(0,0,0,0.1);
+        }
+
+        body.dark-mode {
+            --bg: #020617;
+            --white: #0f172a;
+            --ink-900: #f8fafc;
+            --h2-color: #4ade80;
+            --input-border: #334155;
+            --cancel-color: #94a3b8;
+            --shadow: rgba(0,0,0,0.5);
+        }
+
+        body { font-family: sans-serif; background: var(--bg); color: var(--ink-900); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; transition: background 0.3s ease, color 0.3s ease; position: relative; }
+        .card { background: var(--white); padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px var(--shadow); width: 100%; max-width: 450px; transition: background 0.3s ease, box-shadow 0.3s ease; }
+        h2 { color: var(--h2-color); margin-top: 0; }
+        input[type="url"] { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid var(--input-border); border-radius: 5px; box-sizing: border-box; background: var(--white); color: var(--ink-900); transition: background 0.3s ease, border-color 0.3s ease; }
         .btn-save { background: #28a745; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            color: inherit;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        body.dark-mode .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
     </style>
 </head>
 <body>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Modo Escuro</button>
+
     <div class="card">
         <h2>Registrar Link de Vídeo</h2>
         <p>Atendimento marcado para às <strong>{{ sol.horario_marcado }}</strong>.</p>
@@ -20,7 +61,21 @@
             <input type="url" name="link_teams" placeholder="Cole o link do Teams aqui..." required autofocus>
             <button type="submit" class="btn-save">Salvar e Disponibilizar</button>
         </form>
-        <p style="text-align: center;"><a href="{% url 'detalhe_caso' sol.id %}" style="color: #666; font-size: 0.9em;">Cancelar</a></p>
+        <p style="text-align: center;"><a href="{% url 'detalhe_caso' sol.id %}" style="color: var(--cancel-color); font-size: 0.9em;">Cancelar</a></p>
     </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.getElementById('themeBtn');
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                btn.innerHTML = "☀️ Modo Claro";
+            } else {
+                btn.innerHTML = "🌙 Modo Escuro";
+            }
+        }
+    </script>
 </body>
 </html>

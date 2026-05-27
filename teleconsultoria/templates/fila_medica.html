@@ -236,6 +236,10 @@
         .status-AUSENTE { background: #fefce8; color: #854d0e; border: 1px solid #fef08a; } /* Amarelo */
         .status-AUSENTE::before { background: #eab308; }
 
+        /* Estilização para o status Reunião Agendada */
+        .status-AGENDADO, .status-AGENDADA { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; } /* Roxo */
+        .status-AGENDADO::before, .status-AGENDADA::before { background: #a855f7; }
+
         .btn {
             padding: 9px 16px;
             text-decoration: none;
@@ -311,6 +315,7 @@
                     <option value="">Todos</option>
                     <option value="PENDENTE">Pendente</option>
                     <option value="ANALISE">Em Análise</option>
+                    <option value="AGENDADO">Reunião Agendada</option>
                     <option value="CONCLUIDA">Concluída</option>
                     <option value="CANCELADA">Cancelada</option>
                     <option value="AUSENTE">Ausente</option>
@@ -447,6 +452,13 @@
                 let valB = b.getAttribute('data-' + criterio) || '';
                 
                 if(criterio === 'data') return valB.localeCompare(valA); // Mais recente primeiro
+                
+                // Força o status PENDENTE a ficar sempre no topo da ordenação por status
+                if(criterio === 'status') {
+                    if (valA === 'PENDENTE' && valB !== 'PENDENTE') return -1;
+                    if (valB === 'PENDENTE' && valA !== 'PENDENTE') return 1;
+                }
+                
                 return valA.localeCompare(valB);
             });
 
