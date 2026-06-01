@@ -131,7 +131,9 @@ def nova_solicitacao(request):
                 )
             
             LinkAcesso.objects.create(solicitacao=nova_sol)
-            arquivos = request.FILES.getlist('anexos')
+            
+            # CORREÇÃO AQUI: Mudado de 'anexos' para 'arquivos_anexos' para sincronizar com o HTML
+            arquivos = request.FILES.getlist('arquivos_anexos')
             for f in arquivos:
                 AnexoSolicitacao.objects.create(solicitacao=nova_sol, arquivo=f)
             

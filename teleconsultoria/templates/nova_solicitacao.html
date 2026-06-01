@@ -539,6 +539,7 @@
             <h4 style="margin-top:16px;"><label for="input-anexos">Anexos (opcional)</label></h4>
             <div class="file-input-wrapper">
                 <input type="file" id="input-anexos" onchange="adicionarArquivos()">
+                <input type="file" name="arquivos_anexos" id="arquivos_finais" multiple class="hidden">
             </div>
             <div id="lista-arquivos"></div>
         </div>
@@ -638,13 +639,13 @@
 
     // CORREÇÃO LOGÍSTICA PARA MULTI-ANEXOS NO DJANGO backend
     let arquivosArray = [];
+    
     function adicionarArquivos() {
         const input = document.getElementById('input-anexos');
-        const lista = document.getElementById('lista-arquivos');
         if (input.files.length > 0) {
             arquivosArray.push(input.files[0]);
             atualizarListaArquivos();
-            input.value = ""; // Reseta o input nativo para permitir re-upload do mesmo arquivo se necessário
+            input.value = ""; // Reseta o input nativo para permitir re-upload do mesmo arquivo
         }
     }
 
@@ -659,11 +660,15 @@
         arquivosArray.forEach((arq, index) => {
             lista.innerHTML += `<div>${arq.name} <span onclick="removerArquivo(${index})">Remover</span></div>`;
         });
+
+        // Sincroniza em tempo real a lista virtual com o input oculto via DataTransfer API
+        const dataTransfer = new DataTransfer();
+        arquivosArray.forEach(file => dataTransfer.items.add(file));
+        document.getElementById('arquivos_finais').files = dataTransfer.files;
     }
 
-    // Intercepta o envio para anexar os arquivos reais do array ao FormData do Django
+    // Sincroniza cookies CSRF e garante consistência final no envio nativo multipart/form-data
     document.getElementById('form-solicitacao').addEventListener('submit', function(e) {
-        // Função auxiliar para capturar o cookie do CSRF de forma atualizada e segura
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -682,7 +687,6 @@
         const csrfToken = getCookie('csrftoken');
         let csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
         
-        // Sincroniza o token do cookie com o formulário para evitar erros de rotação de sessão (Tanto nativo quanto AJAX)
         if (!csrfInput && csrfToken) {
             csrfInput = document.createElement('input');
             csrfInput.type = 'hidden';
@@ -693,44 +697,13 @@
             csrfInput.value = csrfToken;
         }
 
-        if(arquivosArray.length > 0) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            
-            // Remove o input de arquivo vazio do ciclo padrão
-            formData.delete('agenda_id'); // Garante envio limpo se houver lógica adicional
-            
-            // Re-injeta todos os itens da lista virtual no pacote HTTP
-            arquivosArray.forEach((file) => {
-                formData.append('arquivos_anexos', file);
-            });
-
-            // Seletor de rádio manual para garantir o ID selecionado
-            const radioSelecionado = document.querySelector('input[name="agenda_id"]:checked');
-            if (radioSelecionado) {
-                formData.set('agenda_id', radioSelecionado.value);
-            }
-
-            fetch(this.action || window.location.href, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRFToken': csrfToken || (csrfInput ? csrfInput.value : '')
-                }
-            }).then(response => {
-                if(response.redirected) {
-                    window.location.href = response.url;
-                } else if(response.ok) {
-                    alert('Solicitação enviada com sucesso!');
-                    window.location.reload();
-                } else {
-                    alert('Erro ao enviar o formulário. Verifique os dados.');
-                }
-            }).catch(err => {
-                console.error(err);
-                alert('Erro na comunicação com o servidor.');
-            });
-        }
+        // Garante a última atualização da lista de anexos no input real no momento do clique de envio
+        const dataTransfer = new DataTransfer();
+        arquivosArray.forEach(file => dataTransfer.items.add(file));
+        document.getElementById('arquivos_finais').files = dataTransfer.files;
+        
+        // O formulário agora segue o fluxo nativo padrão do navegador, processando
+        // corretamente redirecionamentos e mensagens de validação vindos de views.py.
     });
 </script>
 </body>

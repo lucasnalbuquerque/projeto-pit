@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('nova/', views.nova_solicitacao, name='nova_solicitacao'),
@@ -18,3 +20,6 @@ urlpatterns = [
     path('cancelar/<int:sol_id>/', views.cancelar_solicitacao, name='cancelar_solicitacao'),
     path('concluir-sincrona/<int:sol_id>/', views.concluir_sincrona, name='concluir_sincrona'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

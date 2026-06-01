@@ -443,7 +443,7 @@
                         <strong style="font-size: 0.85rem; color: var(--ink-500); text-transform: uppercase; letter-spacing: 0.02em;">Materiais de Apoio e Condutas Anexadas:</strong>
                         <div class="anexo-lista">
                             {% for anexo in resposta.anexos.all %}
-                                <a href="{{ anexo.arquivo.url }}" target="_blank" class="btn-anexo" style="background: var(--white);">📎 Baixar Anexo {{ forloop.counter }}</a>
+                                <a href="{{ anexo.arquivo.url }}" target="_blank" class="btn-anexo" style="background: var(--white);">📎Anexo {{ forloop.counter }}</a>
                             {% endfor %}
                         </div>
                     </div>
