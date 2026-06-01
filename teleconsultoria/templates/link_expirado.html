@@ -115,12 +115,12 @@
         <h1>Link de Acesso Expirado</h1>
         <p>Por razões de segurança, este link de acompanhamento expirou e não é mais válido.</p>
         
-        <p>Clique no botão abaixo para gerar um <strong>novo link de acesso</strong>. Ele será enviado imediatamente para o seu e-mail cadastrado.</p>
+        <p>Clique no botão abaixo para gerar um <strong>novo link de acesso</strong>. Ele será enviado imediatamente para o seu whatsapp cadastrado.</p>
 
         <form action="{% url 'renovar_acesso' link_obj.token %}" method="POST">
             {% csrf_token %}
             <button type="submit" class="btn-renovar">
-                📧 Enviar novo link para meu e-mail
+                📧 Enviar novo link para meu whatsapp
             </button>
         </form>
 
@@ -130,7 +130,6 @@
     </div>
 
     <script>
-        // Carrega o tema salvo ao renderizar a página
         document.addEventListener("DOMContentLoaded", function() {
             const currentTheme = localStorage.getItem("theme");
             const body = document.body;
@@ -145,7 +144,6 @@
             }
         });
 
-        // Alterna o tema e salva o estado no localStorage
         function toggleTheme() {
             const body = document.body;
             const btn = document.getElementById('themeBtn');
