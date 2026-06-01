@@ -28,6 +28,14 @@
             --shadow-md: 0 6px 18px rgba(11,61,46,.08);
             --shadow-lg: 0 14px 40px rgba(11,61,46,.12);
             --radius: 14px;
+
+            /* Variáveis adaptativas para Header e Botões Principais */
+            --header-bg: linear-gradient(135deg, #15724f, #22a06b);
+            --header-tx: #ffffff;
+            --btn-submit-bg: linear-gradient(135deg, var(--hulw-green-700), var(--hulw-green-500));
+            --btn-submit-tx: #ffffff;
+            --btn-submit-shadow: rgba(21,114,79,.28);
+            --btn-submit-shadow-hover: rgba(21,114,79,.36);
         }
 
         body.dark-mode {
@@ -47,6 +55,14 @@
             --warn-bg: #422006;
             --warn-bd: #d97706;
             --warn-tx: #fef3c7;
+
+            /* Ajustes do Header e Botões para o Modo Escuro */
+            --header-bg: linear-gradient(135deg, #064e3b, #022c22);
+            --header-tx: #f8fafc;
+            --btn-submit-bg: linear-gradient(135deg, var(--hulw-green-600), var(--hulw-green-500));
+            --btn-submit-tx: #022c22;
+            --btn-submit-shadow: rgba(34,160,107,.15);
+            --btn-submit-shadow-hover: rgba(34,160,107,.25);
         }
 
         * { box-sizing: border-box; }
@@ -67,8 +83,8 @@
         .container { max-width: 1200px; margin: 0 auto; }
 
         .hulw-header {
-            background: linear-gradient(135deg, #15724f, #22a06b);
-            color: #fff;
+            background: var(--header-bg);
+            color: var(--header-tx);
             border-radius: 18px;
             padding: 24px 32px;
             display: flex;
@@ -79,20 +95,21 @@
             margin-bottom: 24px;
             position: relative;
             overflow: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
         }
         .hulw-header::after {
             content: "";
             position: absolute; inset: 0;
-            background: radial-gradient(400px 200px at 90% 120%, rgba(255,255,255,.18), transparent 60%);
+            background: radial-gradient(400px 200px at 90% 120%, rgba(255,255,255,.08), transparent 60%);
             pointer-events: none;
         }
         .header-left { display: flex; align-items: center; gap: 20px; z-index: 2; }
         .header-right { display: flex; align-items: center; gap: 12px; z-index: 2; }
 
         .theme-toggle {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: var(--header-tx);
             padding: 8px 12px;
             border-radius: 10px;
             cursor: pointer;
@@ -101,12 +118,12 @@
             backdrop-filter: blur(4px);
             transition: all 0.2s;
         }
-        .theme-toggle:hover { background: rgba(255, 255, 255, 0.3); }
+        .theme-toggle:hover { background: rgba(255, 255, 255, 0.25); }
 
         .btn-voltar {
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white;
+            color: var(--header-tx);
             padding: 8px 14px;
             border-radius: 10px;
             text-decoration: none;
@@ -114,7 +131,7 @@
             font-weight: 600;
             transition: all 0.2s;
         }
-        .btn-voltar:hover { background: rgba(0, 0, 0, 0.3); }
+        .btn-voltar:hover { background: rgba(0, 0, 0, 0.25); }
 
         .hulw-logo {
             width: 50px; height: 50px;
@@ -146,7 +163,7 @@
             padding: 24px 26px;
             margin-bottom: 18px;
             box-shadow: var(--shadow-sm);
-            transition: box-shadow .2s ease, background 0.3s ease;
+            transition: box-shadow .2s ease, background 0.3s ease, border-color 0.3s ease;
         }
         .campo-box:hover { box-shadow: var(--shadow-md); }
         
@@ -182,6 +199,7 @@
             padding: 10px 14px;
             border-radius: 8px;
             border: 1px solid var(--line);
+            transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
 
         .scrollable-info {
@@ -202,7 +220,7 @@
             font-family: inherit;
             font-size: 0.98rem;
             color: var(--ink-900);
-            transition: all .15s ease;
+            transition: all .15s ease, background 0.3s ease, border-color 0.3s ease;
             resize: vertical;
             min-height: 280px;
         }
@@ -243,9 +261,11 @@
             background: var(--hulw-green-50);
             border: 1.5px dashed var(--hulw-green-500);
             border-radius: 10px;
+            color: var(--ink-900);
             cursor: pointer;
             width: 100%;
             margin-top: 6px;
+            transition: background 0.3s ease;
         }
         
         #lista-arquivos { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
@@ -256,17 +276,18 @@
             font-size: 0.9rem;
             display: flex; justify-content: space-between; align-items: center;
             border: 1px solid var(--hulw-green-100);
+            color: var(--ink-900);
         }
         .remover-arquivo {
-            color: #c0392b;
+            color: #e74c3c;
             cursor: pointer;
             font-size: 0.82rem;
             font-weight: 600;
         }
 
         .btn-enviar {
-            background: linear-gradient(135deg, var(--hulw-green-700), var(--hulw-green-500));
-            color: #fff;
+            background: var(--btn-submit-bg);
+            color: var(--btn-submit-tx);
             padding: 16px;
             border: none;
             font-size: 1.05rem;
@@ -275,14 +296,14 @@
             width: 100%;
             border-radius: 12px;
             cursor: pointer;
-            box-shadow: 0 8px 24px rgba(21,114,79,.28);
-            transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+            box-shadow: 0 8px 24px var(--btn-submit-shadow);
+            transition: transform .15s ease, box-shadow .15s ease, filter .15s ease, background 0.3s ease, color 0.3s ease;
             margin-top: 10px;
         }
         .btn-enviar:hover { 
             transform: translateY(-2px); 
             filter: brightness(1.05); 
-            box-shadow: 0 12px 28px rgba(21,114,79,.36); 
+            box-shadow: 0 12px 28px var(--btn-submit-shadow-hover); 
         }
 
         @media (max-width: 900px) {
@@ -386,7 +407,7 @@
                 
                 <textarea name="resposta" placeholder="Digite detalhadamente a conduta, orientações e parecer clínico para este caso..." required></textarea>
 
-                <div style="margin-top: 20px; background: var(--bg); padding: 16px; border-radius: 10px; border: 1px dashed var(--hulw-green-500);">
+                <div style="margin-top: 20px; background: var(--bg); padding: 16px; border-radius: 10px; border: 1px dashed var(--hulw-green-500); transition: background 0.3s ease, border-color 0.3s ease;">
                     <label style="font-size: 0.9rem; font-weight: 700; color: var(--hulw-green-900);">Anexar Documentos/Exames na Resposta (Opcional)</label>
                     
                     <input type="file" id="input-anexos-visual" onchange="adicionarArquivos()" multiple>
@@ -405,6 +426,21 @@
 </div>
 
 <script>
+    // Inicialização do tema baseado no localStorage ao carregar a página
+    document.addEventListener("DOMContentLoaded", function() {
+        const currentTheme = localStorage.getItem("theme");
+        const body = document.body;
+        const btn = document.getElementById('themeBtn');
+        
+        if (currentTheme === "dark") {
+            body.classList.add("dark-mode");
+            btn.innerHTML = "☀️ Modo Claro";
+        } else {
+            body.classList.remove("dark-mode");
+            btn.innerHTML = "🌙 Modo Escuro";
+        }
+    });
+
     function toggleTheme() {
         const body = document.body;
         const btn = document.getElementById('themeBtn');
@@ -412,8 +448,10 @@
         
         if (body.classList.contains('dark-mode')) {
             btn.innerHTML = "☀️ Modo Claro";
+            localStorage.setItem("theme", "dark");
         } else {
             btn.innerHTML = "🌙 Modo Escuro";
+            localStorage.setItem("theme", "light");
         }
     }
 

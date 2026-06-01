@@ -36,6 +36,7 @@
             --ink-soft: #b0beb6;
             --muted: #718278;
             --line: #2d3832;
+            --hulw-green: #2ecc71;
             --hulw-green-dark: #2ecc71;
             --hulw-green-soft: #1e2622;
             --warning-bg: #2d2613;
@@ -54,6 +55,7 @@
             line-height: 1.55;
             background-color: var(--bg);
             color: var(--ink);
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
         h1 {
@@ -127,6 +129,9 @@
             font-size: 0.82rem;
             letter-spacing: 0.02em;
         }
+        body.dark-mode .status-badge {
+            color: #121614; /* Melhora contraste do badge no modo escuro */
+        }
 
         .secao {
             margin-top: 26px;
@@ -186,6 +191,7 @@
         }
 
         .btn-responder { background: var(--hulw-green); color: #ffffff; }
+        body.dark-mode .btn-responder { color: #121614; }
         .btn-ausente { background: #f0c14b; color: #4a3a08; }
         .btn-cancelar { background: var(--white); color: var(--danger); border: 1px solid var(--danger); }
         .btn-teams { background: var(--teams); color: #ffffff; }
@@ -230,12 +236,17 @@
             border-left: 4px solid var(--teams);
             margin-bottom: 22px;
         }
+        
+        /* Ajuste do card interno do Teams para respeitar as variáveis de cor */
+        .teams-white-card {
+            background: var(--white);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+        }
+
         body.dark-mode .sincrona-block {
             background: linear-gradient(180deg, #1e2238 0%, #171a2b 100%);
-        }
-        body.dark-mode .sincrona-block .teams-white-card {
-            background: #1a201c !important;
-            border-color: #2d3832 !important;
         }
 
         .theme-toggle-btn {
@@ -317,7 +328,7 @@
             <p><strong>Horário Reservado:</strong> {{ sol.data_marcada|date:"d/m/Y" }} às {{ sol.horario_marcado|time:"H:i" }}</p>
 
             {% if sol.link_teams %}
-                <div class="teams-white-card" style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #d1d5e8;">
+                <div class="teams-white-card">
                     <p style="color: var(--hulw-green-dark); font-weight: 600; margin-bottom: 10px;">✅ Link registrado:</p>
                     <a href="{{ sol.link_teams }}" target="_blank" class="btn-teams">📹 Entrar na Reunião (Teams)</a>
                 </div>
@@ -343,7 +354,10 @@
             <div class="secao">
                 <h3>Dados do Paciente</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                    <div><h4>Idade:</h4> <p>{{ sol.idade_pac }} anos</p></div>
+                    <div>
+                        <h4>Idade:</h4> 
+                        <p>{{ sol.idade_pac }} anos</p>
+                    </div>
                     <div>
                         <h4>Identidade de gênero:</h4> 
                         <p>
@@ -363,9 +377,17 @@
                         </p>
                     </div>
                 </div>
-                    <h4>Queixas Principais:</h4> <p>{{ sol.queixas }}</p>
-                    <div><h4>Diagnóstico Principal:</h4> <p>{{ sol.diagnostico_princ|default:"Não informado" }}
-                    <div><h4>Diagnóstico Secundário:</h4> <p>{{ sol.diagnostico_sec|default:"Não informado" }}
+                
+                <h4>Queixas Principais:</h4> 
+                <p>{{ sol.queixas }}</p>
+                
+                <div>
+                    <h4>Diagnóstico Principal:</h4> 
+                    <p>{{ sol.diagnostico_princ|default:"Não informado" }}</p>
+                </div>
+                <div>
+                    <h4>Diagnóstico Secundário:</h4> 
+                    <p>{{ sol.diagnostico_sec|default:"Não informado" }}</p>
                 </div>
 
                 <h4>Histórico Médico:</h4> <p>{{ sol.historico_med|linebreaks }}</p>

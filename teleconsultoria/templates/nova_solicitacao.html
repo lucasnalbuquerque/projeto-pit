@@ -2,12 +2,14 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nova Solicitação | Teleconsultoria HULW</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
+            /* PALETA: MODO CLARO (Mantida estável) */
             --hulw-green-900: #0b3d2e;
             --hulw-green-700: #15724f;
             --hulw-green-600: #1a8a5f;
@@ -30,29 +32,32 @@
             --radius: 14px;
         }
 
-        /* CLASSE PARA MODO ESCURO */
+        /* CORREÇÃO DA PALETA: MODO ESCURO INSTITUCIONAL (Sem tons azulados/fluorescentes) */
         body.dark-mode {
-            --hulw-green-900: #d1f7e8;
-            --hulw-green-700: #4ade80;
-            --hulw-green-600: #22c55e;
-            --hulw-green-500: #16a34a;
-            --hulw-green-100: #064e3b;
-            --hulw-green-50:  #022c22;
-            --ink-900: #f8fafc;
-            --ink-700: #e2e8f0;
-            --ink-500: #94a3b8;
-            --ink-300: #334155;
-            --line:    #1e293b;
-            --bg:      #020617;
-            --white:   #0f172a;
-            --warn-bg: #422006;
-            --warn-bd: #d97706;
+            --hulw-green-900: #e6f5ee; /* Texto claro principal em tom verde-claro suave */
+            --hulw-green-700: #34d399; /* Destaques intermediários confortáveis */
+            --hulw-green-600: #10b981; /* Verde de ação principal */
+            --hulw-green-500: #059669; /* Verde de foco/borda */
+            --hulw-green-100: #0b3d2e; /* Fundo de badges/avisos escuros */
+            --hulw-green-50:  #06241b; /* Elementos sutis de fundo */
+            --ink-900: #f1f5f9;        /* Textos comuns (quase branco) */
+            --ink-700: #cbd5e1;        /* Subtítulos */
+            --ink-500: #64748b;        /* Placeholders e desabilitados */
+            --ink-300: #334155;        
+            --line:    #164e3f;        /* Divisórias integradas ao tom esverdeado */
+            --bg:      #03140f;        /* CORRIGIDO: Fundo escuro baseado na paleta verde HULW */
+            --white:   #08221a;        /* CORRIGIDO: Cor dos cards integrada ao ecossistema esverdeado */
+            --warn-bg: #3f2006;
+            --warn-bd: #b45309;
             --warn-tx: #fef3c7;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,.3);
+            --shadow-md: 0 6px 18px rgba(0,0,0,.4);
+            --shadow-lg: 0 14px 40px rgba(0,0,0,.5);
         }
 
         /* CORREÇÃO DO BUG VISUAL NO MODO ESCURO */
         body.dark-mode select {
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234ade80' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2334d399' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
             background-repeat: no-repeat;
             background-position: right 12px center;
             background-size: 16px;
@@ -64,7 +69,7 @@
             font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
             background:
                 radial-gradient(1200px 600px at -10% -20%, var(--hulw-green-100), transparent 60%),
-                radial-gradient(900px 500px at 110% 0%, rgba(26,138,95,0.05), transparent 60%),
+                radial-gradient(900px 500px at 110% 0%, rgba(26,138,95,0.03), transparent 60%),
                 var(--bg);
             color: var(--ink-900);
             line-height: 1.55;
@@ -77,7 +82,7 @@
 
         /* ===== HEADER ===== */
         .hulw-header {
-            background: linear-gradient(135deg, #15724f, #22a06b);
+            background: linear-gradient(135deg, var(--hulw-green-700), var(--hulw-green-500));
             color: #fff;
             border-radius: 18px;
             padding: 28px 32px;
@@ -88,11 +93,16 @@
             margin-bottom: 24px;
             position: relative;
             overflow: hidden;
+            transition: background 0.3s ease;
+        }
+        body.dark-mode .hulw-header {
+            background: linear-gradient(135deg, #0b3d2e, #15724f);
+            color: var(--ink-900);
         }
         .hulw-header::after {
             content: "";
             position: absolute; inset: 0;
-            background: radial-gradient(400px 200px at 90% 120%, rgba(255,255,255,.18), transparent 60%);
+            background: radial-gradient(400px 200px at 90% 120%, rgba(255,255,255,.12), transparent 60%);
             pointer-events: none;
         }
 
@@ -102,8 +112,8 @@
             top: 20px;
             right: 20px;
             z-index: 10;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             color: white;
             padding: 8px 12px;
             border-radius: 10px;
@@ -113,7 +123,7 @@
             backdrop-filter: blur(4px);
             transition: all 0.2s;
         }
-        .theme-toggle:hover { background: rgba(255, 255, 255, 0.3); }
+        .theme-toggle:hover { background: rgba(255, 255, 255, 0.25); }
 
         .hulw-logo {
             width: 56px; height: 56px;
@@ -154,8 +164,8 @@
         }
         .aviso-whatsapp {
             background: var(--hulw-green-50);
-            border: 1px solid var(--hulw-green-100);
-            color: var(--hulw-green-900);
+            border: 1px solid var(--line);
+            color: var(--ink-900);
         }
         .aviso-whatsapp .aviso-icon { background: #25d366; color: #fff; }
         .aviso-email-info {
@@ -179,7 +189,7 @@
         .campo-box h3 {
             margin: 0 0 18px;
             font-size: 1.05rem;
-            color: var(--hulw-green-900);
+            color: var(--hulw-green-700);
             font-weight: 700;
             display: flex; align-items: center; gap: 10px;
             padding-bottom: 12px;
@@ -188,7 +198,7 @@
         .campo-box h3::before {
             content: "";
             width: 4px; height: 18px;
-            background: linear-gradient(180deg, var(--hulw-green-500), var(--hulw-green-700));
+            background: linear-gradient(180deg, var(--hulw-green-600), var(--hulw-green-700));
             border-radius: 4px;
         }
         .campo-box h4 {
@@ -202,6 +212,8 @@
         .campo-box > label {
             font-size: 1rem;
             color: var(--hulw-green-900);
+            display: block;
+            margin-bottom: 8px;
         }
 
         /* Marcador de campo obrigatório */
@@ -226,8 +238,8 @@
         }
         input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: var(--hulw-green-500);
-            box-shadow: 0 0 0 4px rgba(34,160,107,.15);
+            border-color: var(--hulw-green-600);
+            box-shadow: 0 0 0 4px rgba(16,185,129,.15);
             background: var(--hulw-green-50);
         }
         input::placeholder, textarea::placeholder { color: var(--ink-500); }
@@ -275,7 +287,7 @@
             transition: all .15s ease;
             user-select: none;
         }
-        .data-card:hover { border-color: var(--hulw-green-500); transform: translateY(-2px); }
+        .data-card:hover { border-color: var(--hulw-green-600); transform: translateY(-2px); }
         .data-card .dia-semana {
             font-size: 0.72rem; font-weight: 600;
             text-transform: uppercase; color: var(--ink-500); letter-spacing: 0.05em;
@@ -287,7 +299,7 @@
             border-color: var(--hulw-green-600);
             background: linear-gradient(135deg, var(--hulw-green-600), var(--hulw-green-500));
             color: #fff;
-            box-shadow: 0 6px 16px rgba(26,138,95,.35);
+            box-shadow: 0 6px 16px rgba(16,185,129,.25);
         }
         .data-card.active .dia-semana,
         .data-card.active .dia-mes { color: #fff; }
@@ -295,24 +307,25 @@
         .horarios-grid { display: flex; flex-wrap: wrap; gap: 8px; }
         .horario-chip {
             padding: 9px 18px;
-            border: 1.5px solid var(--hulw-green-500);
+            border: 1.5px solid var(--hulw-green-600);
             color: var(--hulw-green-700);
             background: var(--white);
             border-radius: 999px; cursor: pointer;
             font-size: 0.9rem; font-weight: 600;
             transition: all .15s ease;
+            display: inline-block;
         }
         .horario-chip:hover { background: var(--hulw-green-50); }
         .horario-chip.selecionado {
             background: var(--hulw-green-600);
             color: #fff;
             border-color: var(--hulw-green-600);
-            box-shadow: 0 4px 10px rgba(26,138,95,.3);
+            box-shadow: 0 4px 10px rgba(16,185,129,.3);
         }
 
         /* ===== BOTÃO ===== */
         button[type="submit"] {
-            background: linear-gradient(135deg, var(--hulw-green-700), var(--hulw-green-500));
+            background: linear-gradient(135deg, var(--hulw-green-600), var(--hulw-green-500));
             color: #fff;
             padding: 16px;
             border: none;
@@ -323,17 +336,21 @@
             border-radius: 12px;
             cursor: pointer;
             margin-top: 10px;
-            box-shadow: 0 8px 24px rgba(21,114,79,.28);
+            box-shadow: 0 8px 24px rgba(16,185,129,.2);
             transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
         }
-        button[type="submit"]:hover { transform: translateY(-2px); filter: brightness(1.05); box-shadow: 0 12px 28px rgba(21,114,79,.36); }
+        button[type="submit"]:hover { transform: translateY(-2px); filter: brightness(1.05); box-shadow: 0 12px 28px rgba(16,185,129,.3); }
         button[type="submit"]:active { transform: translateY(0); }
 
         /* ===== ARQUIVOS ===== */
+        .file-input-wrapper {
+            position: relative;
+            margin-top: 6px;
+        }
         input[type="file"] {
             padding: 10px;
             background: var(--hulw-green-50);
-            border: 1.5px dashed var(--hulw-green-500);
+            border: 1.5px dashed var(--hulw-green-600);
             cursor: pointer;
         }
         #lista-arquivos { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
@@ -343,10 +360,10 @@
             border-radius: 8px;
             font-size: 0.9rem;
             display: flex; justify-content: space-between; align-items: center;
-            border: 1px solid var(--hulw-green-100);
+            border: 1px solid var(--line);
         }
         #lista-arquivos span {
-            color: #c0392b;
+            color: #f87171;
             cursor: pointer;
             font-size: 0.82rem;
             font-weight: 600;
@@ -358,7 +375,7 @@
             body { padding: 16px 10px 48px; }
             .hulw-header { padding: 22px; flex-direction: column; align-items: flex-start; text-align: left; }
             .campo-box { padding: 20px; }
-            .campo-box [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+            .grid-2col { grid-template-columns: 1fr !important; gap: 12px !important; }
         }
     </style>
 </head>
@@ -386,42 +403,42 @@
 
         <div class="campo-box">
             <h3>Identificação do Solicitante</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div class="grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                 <div>
-                    <h4>Nome Completo <span class="required-mark">*</span></h4>
-                    <input type="text" name="nome_completo" required>
+                    <h4><label for="nome_completo">Nome Completo <span class="required-mark">*</span></label></h4>
+                    <input type="text" name="nome_completo" id="nome_completo" required>
                 </div>
                 <div>
-                    <h4>CPF <span class="required-mark">*</span></h4>
+                    <h4><label for="cpf_input">CPF <span class="required-mark">*</span></label></h4>
                     <input type="text" name="cpf" id="cpf_input" maxlength="14" required>
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div class="grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                 <div>
-                    <h4>WhatsApp (DDD + Número) <span class="required-mark">*</span></h4>
+                    <h4><label for="tel_input">WhatsApp (DDD + Número) <span class="required-mark">*</span></label></h4>
                     <input type="text" name="telefone" id="tel_input" placeholder="(83) 99999-0000" required>
                 </div>
                 <div>
-                    <h4>E-mail <span class="required-mark">*</span></h4>
-                    <input type="email" name="email" required>
+                    <h4><label for="email">E-mail <span class="required-mark">*</span></label></h4>
+                    <input type="email" name="email" id="email" required>
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div><h4>Cargo / Função <span class="required-mark">*</span></h4><input type="text" name="cargo" required></div>
-                <div><h4>Instituição / UBS <span class="required-mark">*</span></h4><input type="text" name="instituicao" required></div>
+            <div class="grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div><h4><label for="cargo">Cargo / Função <span class="required-mark">*</span></label></h4><input type="text" name="cargo" id="cargo" required></div>
+                <div><h4><label for="instituicao">Instituição / UBS <span class="required-mark">*</span></label></h4><input type="text" name="instituicao" id="instituicao" required></div>
             </div>
-            <div style="margin-top: 15px;"><h4>CRM (Opcional)</h4><input type="text" name="crm"></div>
+            <div style="margin-top: 15px;"><h4><label for="crm">CRM (Opcional)</label></h4><input type="text" name="crm" id="crm"></div>
 
             <div class="lgpd-box">
-                <input type="checkbox" required>
-                <span>Autorizo o uso dos meus dados para fins de teleconsultoria e o envio de notificações com links de acesso para o meu WhatsApp e e-mail, conforme a LGPD. <span class="required-mark">*</span></span>
+                <input type="checkbox" id="lgpd_check" required>
+                <label for="lgpd_check">Autorizo o uso dos meus dados para fins de teleconsultoria e o envio de notificações com links de acesso para o meu WhatsApp e e-mail, conforme a LGPD. <span class="required-mark">*</span></label>
             </div>
         </div>
 
         <div class="campo-box">
-            <label><strong>O que você deseja discutir? <span class="required-mark">*</span></strong></label>
+            <label for="tipo_caso"><strong>O que você deseja discutir? <span class="required-mark">*</span></strong></label>
             <select name="tipo_caso" id="tipo_caso" onchange="alternarCampos()" required>
                 <option value="">Selecione...</option>
                 <option value="GERAL">Dúvida Geral</option>
@@ -430,7 +447,7 @@
         </div>
 
         <div class="campo-box">
-            <label><strong>Modalidade de Atendimento: <span class="required-mark">*</span></strong></label>
+            <label for="tipo_atendimento"><strong>Modalidade de Atendimento: <span class="required-mark">*</span></strong></label>
             <select name="tipo_atendimento" id="tipo_atendimento" onchange="alternarSincrono()" required>
                 <option value="ASSINCRONO">Resposta Assíncrona (Texto)</option>
                 <option value="SINCRONO">Reunião por Vídeo (via Teams)</option>
@@ -469,13 +486,13 @@
         <div id="secao_especifica" class="hidden">
             <div class="campo-box">
                 <h3>Dados do Paciente</h3>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:12px;">
+                <div class="grid-2col" style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:12px;">
                     <div>
-                        <h4>Idade <span class="required-mark">*</span></h4>
+                        <h4><label for="idade_pac">Idade <span class="required-mark">*</span></label></h4>
                         <input type="number" name="idade_pac" id="idade_pac" placeholder="Idade aproximada" min="0" max="130">
                     </div>
                     <div>
-                        <h4>Identidade de Gênero <span class="required-mark">*</span></h4>
+                        <h4><label for="genero_pac">Identidade de Gênero <span class="required-mark">*</span></label></h4>
                         <select name="sexo_pac" id="genero_pac" onchange="verificarSexoBiologico()">
                             <option value="M">Masculino</option>
                             <option value="F">Feminino</option>
@@ -485,9 +502,9 @@
                     </div>
                 </div>
 
-                <div id="campo_sexo_bio" style="margin-bottom:15px; background: var(--hulw-green-50); padding: 12px; border-radius: 10px; border: 1px solid var(--hulw-green-100);">
-                    <h4 style="color: var(--hulw-green-900);">Sexo atribuído no nascimento <span class="required-mark">*</span></h4>
-                    <p style="font-size: 0.75rem; margin-top: -4px; color: var(--ink-500);">Informação necessária para fins estritamente clínicos (exames e dosagens).</p>
+                <div id="campo_sexo_bio" style="margin-bottom:15px; background: var(--hulw-green-50); padding: 12px; border-radius: 10px; border: 1px solid var(--line);">
+                    <h4><label for="sexo_biologico_pac" style="color: var(--hulw-green-700); margin-bottom: 0;">Sexo atribuído no nascimento <span class="required-mark">*</span></label></h4>
+                    <p style="font-size: 0.75rem; margin: 2px 0 6px 0; color: var(--ink-500);">Informação necessária para fins estritamente clínicos (exames e dosagens).</p>
                     <select name="sexo_biologico_pac" id="sexo_biologico_pac">
                         <option value="">Selecione o sexo biológico...</option>
                         <option value="M">Masculino</option>
@@ -495,31 +512,34 @@
                     </select>
                 </div>
 
-                <h4>Queixas do paciente <span class="required-mark">*</span></h4>
-                <textarea name="queixas_especificas" id="queixas_especificas" placeholder="Descreva os sintomas principais, tempo de evolução e intensidade das queixas atuais..." style="margin-top:10px;"></textarea>
+                <h4><label for="queixas_especificas">Queixas do paciente <span class="required-mark">*</span></label></h4>
+                <textarea name="queixas_especificas" id="queixas_especificas" placeholder="Descreva os sintomas principais, tempo de evolução e intensidade das queixas atuais..."></textarea>
                 
-                <h4>Diagnóstico Principal</h4>
-                <textarea name="diagnostico_princ" placeholder="Informe a patologia base ou a hipótese diagnóstica principal..."></textarea>
+                <h4><label for="diagnostico_princ">Diagnóstico Principal</label></h4>
+                <textarea name="diagnostico_princ" id="diagnostico_princ" placeholder="Informe a patologia base ou a hipótese diagnóstica principal..."></textarea>
                 
-                <h4>Diagnóstico secundário</h4>
-                <textarea name="diagnostico_sec" placeholder="Liste comorbidades associadas ou condições secundárias relevantes para o caso, caso haja..."></textarea>
+                <h4><label for="diagnostico_sec">Diagnóstico secundário</label></h4>
+                <textarea name="diagnostico_sec" id="diagnostico_sec" placeholder="Liste comorbidades associadas ou condições secundárias relevantes para o caso, caso haja..."></textarea>
                 
-                <h4>Medicamentos</h4>
-                <textarea name="medicamentos" placeholder="Liste fármacos em uso, dosagens e frequência..." style="margin-top:10px;"></textarea>
+                <h4><label for="medicamentos">Medicamentos</label></h4>
+                <textarea name="medicamentos" id="medicamentos" placeholder="Liste fármacos em uso, dosagens e frequência..."></textarea>
                 
-                <h4>Exames recentes</h4>
-                <textarea name="exames_recentes" placeholder="Resuma os resultados de exames laboratoriais ou de imagem realizados nos últimos meses..." style="margin-top:10px;"></textarea>
+                <h4><label for="exames_recentes">Exames recentes</label></h4>
+                <textarea name="exames_recentes" id="exames_recentes" placeholder="Resuma os resultados de exames laboratoriais ou de imagem realizados nos últimos meses..."></textarea>
                 
-                <h4>Histórico médico</h4>
-                <textarea name="historico_med" placeholder="Antecedentes familiares, cirurgias prévias, internações anteriores e alergias conhecidas..." style="margin-top:10px;"></textarea>
+                <h4><label for="historico_med">Histórico médico</label></h4>
+                <textarea name="historico_med" id="historico_med" placeholder="Antecedentes familiares, cirurgias prévias, internações anteriores e alergias conhecidas..."></textarea>
             </div>
         </div>
 
         <div class="campo-box">
-            <h3>Sua Dúvida Clínica <span class="required-mark">*</span></h3>
-            <textarea name="duvida_clinica" rows="6" required placeholder="Descreva a dúvida com o máximo de detalhes possível..."></textarea>
-            <h4 style="margin-top:16px;">Anexos (opcional)</h4>
-            <input type="file" id="input-anexos" onchange="adicionarArquivos()">
+            <h3><label for="duvida_clinica" style="color:inherit; font-size:inherit; font-weight:inherit; margin:0;">Sua Dúvida Clínica <span class="required-mark">*</span></label></h3>
+            <textarea name="duvida_clinica" id="duvida_clinica" rows="6" required placeholder="Descreva a dúvida com o máximo de detalhes possível..."></textarea>
+            
+            <h4 style="margin-top:16px;"><label for="input-anexos">Anexos (opcional)</label></h4>
+            <div class="file-input-wrapper">
+                <input type="file" id="input-anexos" onchange="adicionarArquivos()">
+            </div>
             <div id="lista-arquivos"></div>
         </div>
 
@@ -613,30 +633,75 @@
     }
 
     function verificarSexoBiologico() {
-        // Mantém a lógica nativa do seu formulário caso utilize alguma condicional de exibição.
+        // Mantém a lógica nativa do formulário caso precise interceptar mudanças de gênero.
     }
 
+    // CORREÇÃO LOGÍSTICA PARA MULTI-ANEXOS NO DJANGO backend
     let arquivosArray = [];
     function adicionarArquivos() {
         const input = document.getElementById('input-anexos');
         const lista = document.getElementById('lista-arquivos');
         if (input.files.length > 0) {
             arquivosArray.push(input.files[0]);
-            lista.innerHTML = '';
-            arquivosArray.forEach((arq, index) => {
-                lista.innerHTML += `<div>${arq.name} <span onclick="removerArquivo(${index})">Remover</span></div>`;
-            });
+            atualizarListaArquivos();
+            input.value = ""; // Reseta o input nativo para permitir re-upload do mesmo arquivo se necessário
         }
     }
 
     function removerArquivo(index) {
         arquivosArray.splice(index, 1);
+        atualizarListaArquivos();
+    }
+
+    function atualizarListaArquivos() {
         const lista = document.getElementById('lista-arquivos');
         lista.innerHTML = '';
         arquivosArray.forEach((arq, index) => {
             lista.innerHTML += `<div>${arq.name} <span onclick="removerArquivo(${index})">Remover</span></div>`;
         });
     }
+
+    // Intercepta o envio para anexar os arquivos reais do array ao FormData do Django
+    document.getElementById('form-solicitacao').addEventListener('submit', function(e) {
+        if(arquivosArray.length > 0) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            // Remove o input de arquivo vazio do ciclo padrão
+            formData.delete('agenda_id'); // Garante envio limpo se houver lógica adicional
+            
+            // Re-injeta todos os itens da lista virtual no pacote HTTP
+            arquivosArray.forEach((file) => {
+                formData.append('arquivos_anexos', file);
+            });
+
+            // Seletor de rádio manual para garantir o ID selecionado
+            const radioSelecionado = document.querySelector('input[name="agenda_id"]:checked');
+            if (radioSelecionado) {
+                formData.set('agenda_id', radioSelecionado.value);
+            }
+
+            fetch(this.action || window.location.href, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            }).then(response => {
+                if(response.redirected) {
+                    window.location.href = response.url;
+                } else if(response.ok) {
+                    alert('Solicitação enviada com sucesso!');
+                    window.location.reload();
+                } else {
+                    alert('Erro ao enviar o formulário. Verifique os dados.');
+                }
+            }).catch(err => {
+                console.error(err);
+                alert('Erro na comunicação com o servidor.');
+            });
+        }
+    });
 </script>
 </body>
 </html>

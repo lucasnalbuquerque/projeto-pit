@@ -2,6 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acompanhar Solicitação | Teleconsultoria HULW</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -154,6 +155,7 @@
             gap: 10px;
             font-weight: 500;
             box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
         }
         .tempo-restante { font-weight: 700; color: #d9534f; font-family: monospace; font-size: 1.05rem; }
 
@@ -164,7 +166,7 @@
             padding: 24px 26px;
             margin-bottom: 20px;
             box-shadow: var(--shadow-sm);
-            transition: box-shadow .2s ease, background 0.3s ease;
+            transition: box-shadow .2s ease, background 0.3s ease, border-color 0.3s ease;
         }
         .campo-box:hover { box-shadow: var(--shadow-md); }
 
@@ -177,22 +179,22 @@
             margin-bottom: 18px;
         }
 
-        .campo-box h3 {
-            margin: 0;
-            font-size: 1.1rem;
-            color: var(--hulw-green-900);
+        .titulo-secao {
+            margin: 0; 
+            font-size: 1.25rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            color: var(--hulw-green-900); 
             font-weight: 700;
-            display: flex; align-items: center; gap: 10px;
         }
-        .campo-box h3::before {
-            content: "";
-            width: 4px; height: 18px;
-            background: linear-gradient(180deg, var(--hulw-green-500), var(--hulw-green-700));
-            border-radius: 4px;
-        }
-
-        .campo-box h3.no-indicator::before {
-            content: none !important;
+        .titulo-indicador {
+            width: 4px; 
+            height: 18px; 
+            background: linear-gradient(180deg, var(--hulw-green-600), var(--hulw-green-700)); 
+            border-radius: 4px; 
+            display: inline-block; 
+            flex-shrink: 0;
         }
 
         .campo-box p {
@@ -203,10 +205,11 @@
             padding: 10px 14px;
             border-radius: 8px;
             border: 1px solid var(--line);
+            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
         .badge { padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.02em; }
-        .status-PENDENTE { background: var(--warn-bg); color: var(--warn-tx); }
+        .status-PENDENTE { background: var(--warn-bg); color: var(--warn-tx); border: 1px solid var(--warn-bd); }
         .status-ANALISE { background: var(--info-bg); color: var(--info-tx); }
         .status-AGENDADO { background: var(--agendado-bg); color: var(--agendado-tx); }
         .status-CONCLUIDA { background: var(--success-bg); color: var(--success-tx); }
@@ -223,6 +226,7 @@
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 15px;
+            transition: background 0.3s ease;
         }
         .btn-entrar-teams {
             background: #464eb8;
@@ -236,7 +240,7 @@
             box-shadow: 0 4px 12px rgba(70, 78, 184, 0.25);
         }
         .btn-entrar-teams:hover { background: #353a8d; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(70, 78, 184, 0.35); }
-        .aguardando-link { color: var(--ink-500); font-style: italic; background: var(--white); padding: 10px 16px; border-radius: 8px; font-size: 0.9rem; border: 1px dashed var(--line); }
+        .aguardando-link { color: var(--ink-500); font-style: italic; background: var(--white); padding: 10px 16px; border-radius: 8px; font-size: 0.9rem; border: 1px dashed var(--line); transition: all 0.3s ease; }
 
         .btn-toggle {
             background: var(--bg);
@@ -255,9 +259,10 @@
             transition: all 0.2s;
         }
         .btn-toggle:hover { background: var(--hulw-green-50); border-color: var(--hulw-green-500); }
-        .conteudo-detalhes { display: none; padding: 24px; background: var(--white); border: 1px solid var(--line); border-top: none; border-radius: 0 0 var(--radius) var(--radius); margin-top: -10px; margin-bottom: 20px; }
+        .conteudo-detalhes { display: none; padding: 24px; background: var(--white); border: 1px solid var(--line); border-top: none; border-radius: 0 0 var(--radius) var(--radius); margin-top: -10px; margin-bottom: 20px; transition: background 0.3s ease; }
 
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 14px; }
+        .detalhe-item { margin-bottom: 12px; }
         .detalhe-item strong { display: block; color: var(--ink-500); font-size: 0.82rem; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.02em; }
 
         .anexo-lista { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
@@ -275,9 +280,9 @@
             font-size: 0.88rem;
             transition: all 0.15s;
         }
-        .btn-anexo:hover { background: var(--hulw-green-600); color: #fff; }
+        .btn-anexo:hover { background: var(--hulw-green-600); color: #fff; border-color: var(--hulw-green-600); }
 
-        .resposta-box { background: var(--hulw-green-50); border: 1px solid var(--hulw-green-100); border-radius: var(--radius); padding: 24px; margin-top: 12px; }
+        .resposta-box { background: var(--hulw-green-50); border: 1px solid var(--hulw-green-100); border-radius: var(--radius); padding: 24px; margin-top: 12px; transition: all 0.3s ease; }
         .footer-info { text-align: center; color: var(--ink-500); font-size: 0.82rem; margin-top: 40px; font-weight: 500; }
 
         @media (max-width: 768px) {
@@ -315,8 +320,8 @@
     <div class="campo-box">
         <div class="box-titulo-flex">
             <div>
-                <h3 class="no-indicator" style="margin: 0; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; color: var(--hulw-green-900); font-weight: 700;" data-content-override>
-                    <span style="width: 4px; height: 18px; background: linear-gradient(180deg, var(--hulw-green-600), var(--hulw-green-700)); border-radius: 4px; display: inline-block; flex-shrink: 0;"></span>
+                <h3 class="titulo-secao">
+                    <span class="titulo-indicador"></span>
                     Acompanhamento
                 </h3>
                 <small style="color: var(--ink-500); font-weight: 500; display: block; margin-top: 4px; margin-left: 14px;">
@@ -331,7 +336,7 @@
         {% if sol.tipo_atendimento == 'SINCRONO' and sol.status != 'CONCLUIDA' and sol.status != 'CANCELADA' %}
         <div class="teams-card">
             <div>
-                <h3 style="color: #464eb8; margin: 0 0 6px 0; border: none; padding: 0;">📅 Teleconsultoria Agendada</h3>
+                <h3 style="color: #464eb8; margin: 0 0 6px 0; border: none; padding: 0; font-size: 1.1rem; font-weight: 700;">📅 Teleconsultoria Agendada</h3>
                 <p style="margin: 0; font-size: 1rem; color: var(--ink-900);">
                     Sua reunião será em: <strong>{{ sol.data_marcada|date:"d/m/Y" }} às {{ sol.horario_marcado|time:"H:i" }}</strong>
                 </p>
@@ -359,11 +364,11 @@
                 <div class="info-grid">
                     <div class="detalhe-item">
                         <strong>Tipo da Teleconsultoria</strong>
-                        {% if sol.idade_pac > 0 %}Paciente Específico{% else %}Dúvida Geral{% endif %}
+                        <div>{% if sol.idade_pac > 0 %}Paciente Específico{% else %}Dúvida Geral{% endif %}</div>
                     </div>
                     <div class="detalhe-item">
                         <strong>Modalidade</strong>
-                        {{ sol.get_tipo_atendimento_display }}
+                        <div>{{ sol.get_tipo_atendimento_display }}</div>
                     </div>
                 </div>
 
@@ -371,8 +376,8 @@
 
                 {% if sol.idade_pac > 0 %}
                     <div class="info-grid">
-                        <div class="detalhe-item"><strong>Sexo</strong>{{ sol.get_sexo_pac_display }}</div>
-                        <div class="detalhe-item"><strong>Idade</strong>{{ sol.idade_pac }} anos</div>
+                        <div class="detalhe-item"><strong>Sexo</strong><div>{{ sol.get_sexo_pac_display }}</div></div>
+                        <div class="detalhe-item"><strong>Idade</strong><div>{{ sol.idade_pac }} anos</div></div>
                     </div>
                     <div class="detalhe-item"><strong>Diagnóstico Principal</strong><p>{{ sol.diagnostico_princ|default:"Não informado" }}</p></div>
                     <div class="detalhe-item"><strong>Diagnóstico Secundário</strong><p>{{ sol.diagnostico_sec|default:"Não informado" }}</p></div>
@@ -404,7 +409,7 @@
         {% if sol.respostas.all %}
             {% for resposta in sol.respostas.all %}
             <div style="margin-top: 30px;">
-                <h3 style="color: var(--hulw-green-900); font-weight: 700; display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                <h3 style="color: var(--hulw-green-900); font-weight: 700; display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 1.15rem;">
                     <span style="width: 4px; height: 18px; background: var(--hulw-green-500); border-radius: 4px;"></span>
                     Resposta da Consultoria
                 </h3>
@@ -413,12 +418,12 @@
                         Dra. {{ resposta.medica.user.get_full_name }} — <span style="font-weight: 500; font-size: 0.95rem; color: var(--ink-700);">{{ resposta.medica.especialidade }}</span>
                     </div>
                     
-                    <div style="font-size: 1rem; color: var(--ink-900); background: var(--white); padding: 16px; border-radius: 10px; border: 1px solid var(--line); line-height: 1.6;">
+                    <div style="font-size: 1rem; color: var(--ink-900); background: var(--white); padding: 16px; border-radius: 10px; border: 1px solid var(--line); line-height: 1.6; transition: background 0.3s ease;">
                         {{ resposta.conteudo|linebreaksbr }}
                     </div>
                     
                     {% if resposta.anexos.all %}
-                    <div style="margin-top: 20px; border-top: 1px solid var(--hulw-green-100); padding-top: 15px;">
+                    <div style="margin-top: 20px; border-top: 1px solid var(--line); padding-top: 15px;">
                         <strong style="font-size: 0.85rem; color: var(--ink-500); text-transform: uppercase; letter-spacing: 0.02em;">Materiais de Apoio e Condutas Anexadas:</strong>
                         <div class="anexo-lista">
                             {% for anexo in resposta.anexos.all %}
@@ -436,7 +441,7 @@
         {% else %}
             {% if sol.status != 'CANCELADA' %}
             <div class="resposta-box" style="text-align: center; border: 2px dashed var(--ink-300); background: transparent;">
-                <p style="font-size: 1rem; color: var(--ink-700); margin: 0; padding: 10px 0;">
+                <p style="font-size: 1rem; color: var(--ink-700); margin: 0; padding: 10px 0; border: none; background: transparent;">
                     {% if sol.status == 'PENDENTE' %}
                         Sua solicitação está na fila de processamento e aguarda a triagem.<br>
                     {% elif sol.status == 'ANALISE' %}
@@ -450,7 +455,7 @@
             {% else %}
             <div class="resposta-box" style="border: 1px solid var(--danger-tx); background: var(--danger-bg); color: var(--danger-tx);">
                 <p style="margin: 0 0 6px 0; font-weight: 700; font-size: 1.05rem;">Esta solicitação foi cancelada.</p>
-                <p style="margin: 0; font-size: 0.95rem; opacity: 0.9;"><strong>Justificativa:</strong> {{ sol.justificativa_cancelamento|default:"Não informada." }}</p>
+                <p style="margin: 0; font-size: 0.95rem; opacity: 0.9; background: transparent; border: none; padding: 0; color: inherit;"><strong>Justificativa:</strong> {{ sol.justificativa_cancelamento|default:"Não informada." }}</p>
             </div>
             {% endif %}
         {% endif %}
@@ -462,6 +467,7 @@
 </div>
 
 <script>
+    // Gerenciador do Dark Mode unificado
     function toggleTheme() {
         const body = document.body;
         const btn = document.getElementById('themeBtn');
@@ -473,6 +479,7 @@
         }
     }
 
+    // Toggle da seção de detalhes da solicitação
     function toggleDetalhes() {
         var content = document.getElementById("detalhes");
         var seta = document.getElementById("seta");
@@ -485,15 +492,16 @@
         }
     }
 
+    // Contador regressivo de expiração do link com fallback seguro
     let segundosRestantes = parseInt("{{ segundos_restantes|default:0 }}");
-    
     if (segundosRestantes <= 0) {
-        segundosRestantes = 7200; 
+        segundosRestantes = 7200; // Fallback de 2 horas caso o contexto venha vazio
     }
 
     function atualizarContador() {
+        const banner = document.getElementById("banner-expiracao");
+        
         if (segundosRestantes <= 0) {
-            const banner = document.getElementById("banner-expiracao");
             banner.innerHTML = "❌ Este link seguro de acesso expirou.";
             banner.style.backgroundColor = "var(--danger-bg)";
             banner.style.color = "var(--danger-tx)";
@@ -513,7 +521,6 @@
                    segundos.toString().padStart(2, '0') + "s";
 
         document.getElementById("contador").innerHTML = display;
-        
         segundosRestantes--;
     }
 
