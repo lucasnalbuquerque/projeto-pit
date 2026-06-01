@@ -14,12 +14,12 @@
         }
 
         body.dark-mode {
-            --bg: #020617;
-            --white: #0f172a;
+            --bg: #071a14;
+            --white: #0b241b;
             --ink-900: #f8fafc;
-            --p-color: #94a3b8;
-            --input-border: #334155;
-            --shadow: rgba(0,0,0,0.5);
+            --p-color: #64748b;
+            --input-border: #16352b;
+            --shadow: rgba(11,61,46,0.4);
         }
 
         body { font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; line-height: 1.5; background-color: var(--bg); color: var(--ink-900); transition: background-color 0.3s ease, color 0.3s ease; position: relative; }
@@ -73,6 +73,22 @@
     </div>
 
     <script>
+        // Carrega o tema salvo ao renderizar a página
+        document.addEventListener("DOMContentLoaded", function() {
+            const currentTheme = localStorage.getItem("theme");
+            const body = document.body;
+            const btn = document.getElementById('themeBtn');
+            
+            if (currentTheme === "dark") {
+                body.classList.add("dark-mode");
+                btn.innerHTML = "☀️ Modo Claro";
+            } else {
+                body.classList.remove("dark-mode");
+                btn.innerHTML = "🌙 Modo Escuro";
+            }
+        });
+
+        // Alterna o tema e salva o estado no localStorage
         function toggleTheme() {
             const body = document.body;
             const btn = document.getElementById('themeBtn');
@@ -80,8 +96,10 @@
             
             if (body.classList.contains('dark-mode')) {
                 btn.innerHTML = "☀️ Modo Claro";
+                localStorage.setItem("theme", "dark");
             } else {
                 btn.innerHTML = "🌙 Modo Escuro";
+                localStorage.setItem("theme", "light");
             }
         }
     </script>

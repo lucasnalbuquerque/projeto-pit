@@ -39,30 +39,30 @@
         }
 
         body.dark-mode {
-            --hulw-green-900: #d1f7e8;
-            --hulw-green-700: #4ade80;
-            --hulw-green-600: #22c55e;
-            --hulw-green-500: #16a34a;
-            --hulw-green-100: #064e3b;
-            --hulw-green-50:  #022c22;
+            --hulw-green-900: #e6f5ee;
+            --hulw-green-700: #22a06b;
+            --hulw-green-600: #1a8a5f;
+            --hulw-green-500: #15724f;
+            --hulw-green-100: #0f2c22;
+            --hulw-green-50:  #0b1f18;
             --ink-900: #f8fafc;
-            --ink-700: #e2e8f0;
-            --ink-500: #94a3b8;
+            --ink-700: #cbd5e1;
+            --ink-500: #64748b;
             --ink-300: #334155;
-            --line:    #1e293b;
-            --bg:      #020617;
-            --white:   #0f172a;
-            --warn-bg: #422006;
-            --warn-bd: #d97706;
-            --warn-tx: #fef3c7;
+            --line:    #16352b;
+            --bg:      #071a14;
+            --white:   #0b241b;
+            --warn-bg: #2d2105;
+            --warn-bd: #f5b301;
+            --warn-tx: #fff8e1;
 
-            /* Ajustes do Header e Botões para o Modo Escuro */
-            --header-bg: linear-gradient(135deg, #064e3b, #022c22);
-            --header-tx: #f8fafc;
-            --btn-submit-bg: linear-gradient(135deg, var(--hulw-green-600), var(--hulw-green-500));
-            --btn-submit-tx: #022c22;
-            --btn-submit-shadow: rgba(34,160,107,.15);
-            --btn-submit-shadow-hover: rgba(34,160,107,.25);
+            /* Ajustes do Header e Botões para o Modo Escuro Reutilizando a Paleta */
+            --header-bg: linear-gradient(135deg, #0b3d2e, #15724f);
+            --header-tx: #ffffff;
+            --btn-submit-bg: linear-gradient(135deg, var(--hulw-green-700), var(--hulw-green-600));
+            --btn-submit-tx: #ffffff;
+            --btn-submit-shadow: rgba(11,61,46,.4);
+            --btn-submit-shadow-hover: rgba(21,114,79,.4);
         }
 
         * { box-sizing: border-box; }
@@ -426,7 +426,6 @@
 </div>
 
 <script>
-    // Inicialização do tema baseado no localStorage ao carregar a página
     document.addEventListener("DOMContentLoaded", function() {
         const currentTheme = localStorage.getItem("theme");
         const body = document.body;
@@ -455,7 +454,6 @@
         }
     }
 
-    // LISTA GLOBAL DE ARQUIVOS ACUMULADOS
     let arquivosAcumulados = [];
 
     function adicionarArquivos() {
@@ -465,7 +463,6 @@
             arquivosAcumulados.push(file);
         }
         
-        // Limpa o input temporário para permitir re-seleção do mesmo arquivo se necessário
         inputVisual.value = "";
         atualizarListaExibicao();
     }
@@ -490,7 +487,6 @@
         atualizarListaExibicao();
     }
 
-    // CORREÇÃO DO ENVIO: Vincula os arquivos acumulados de forma segura antes do submit
     document.getElementById('form-resposta').onsubmit = function(e) {
         const dataTransfer = new DataTransfer();
         arquivosAcumulados.forEach(file => dataTransfer.items.add(file));

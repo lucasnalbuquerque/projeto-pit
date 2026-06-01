@@ -4,23 +4,46 @@
     <meta charset="UTF-8">
     <title>Acesso Expirado</title>
     <style>
+        :root {
+            --bg: #f8f9fa;
+            --white: #ffffff;
+            --ink-900: #333333;
+            --h1-color: #212529;
+            --p-color: #6c757d;
+            --footer-color: #adb5bd;
+            --shadow: rgba(0,0,0,0.08);
+        }
+
+        body.dark-mode {
+            --bg: #071a14;
+            --white: #0b241b;
+            --ink-900: #f8fafc;
+            --h1-color: #22a06b;
+            --p-color: #94a3b8;
+            --footer-color: #475569;
+            --shadow: rgba(11,61,46,0.4);
+        }
+
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f8f9fa; 
+            background-color: var(--bg); 
             display: flex; 
             justify-content: center; 
             align-items: center; 
             height: 100vh; 
             margin: 0; 
-            color: #333;
+            color: var(--ink-900);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            position: relative;
         }
         .container { 
             text-align: center; 
-            background: white; 
+            background: var(--white); 
             padding: 40px; 
             border-radius: 12px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+            box-shadow: 0 4px 20px var(--shadow); 
             max-width: 450px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
         .icon { 
             font-size: 60px; 
@@ -30,13 +53,15 @@
         h1 { 
             font-size: 24px; 
             margin-bottom: 10px; 
-            color: #212529;
+            color: var(--h1-color);
+            transition: color 0.3s ease;
         }
         p { 
             font-size: 16px; 
-            color: #6c757d; 
+            color: var(--p-color); 
             line-height: 1.5;
             margin-bottom: 25px;
+            transition: color 0.3s ease;
         }
         .btn-renovar {
             display: inline-block;
@@ -57,11 +82,33 @@
         .footer-obs {
             margin-top: 30px;
             font-size: 0.85em;
-            color: #adb5bd;
+            color: var(--footer-color);
+            transition: color 0.3s ease;
+        }
+
+        /* Botão de alternar tema */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            color: inherit;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        body.dark-mode .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
     </style>
 </head>
 <body>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Modo Escuro</button>
 
     <div class="container">
         <div class="icon">⚠️</div>
@@ -82,5 +129,36 @@
         </div>
     </div>
 
+    <script>
+        // Carrega o tema salvo ao renderizar a página
+        document.addEventListener("DOMContentLoaded", function() {
+            const currentTheme = localStorage.getItem("theme");
+            const body = document.body;
+            const btn = document.getElementById('themeBtn');
+            
+            if (currentTheme === "dark") {
+                body.classList.add("dark-mode");
+                btn.innerHTML = "☀️ Modo Claro";
+            } else {
+                body.classList.remove("dark-mode");
+                btn.innerHTML = "🌙 Modo Escuro";
+            }
+        });
+
+        // Alterna o tema e salva o estado no localStorage
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.getElementById('themeBtn');
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                btn.innerHTML = "☀️ Modo Claro";
+                localStorage.setItem("theme", "dark");
+            } else {
+                btn.innerHTML = "🌙 Modo Escuro";
+                localStorage.setItem("theme", "light");
+            }
+        }
+    </script>
 </body>
 </html>

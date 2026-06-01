@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
+            /* PALETA PRINCIPAL (Modo Claro) */
             --hulw-green-900: #0b3d2e;
             --hulw-green-700: #15724f;
             --hulw-green-600: #1a8a5f;
@@ -42,48 +43,58 @@
             --radius: 14px;
         }
 
+        /* PALETA DO MODO ESCURO INSTITUCIONAL (Substituído conforme padrão fornecido) */
         body.dark-mode {
-            --hulw-green-900: #d1f7e8;
-            --hulw-green-700: #4ade80;
-            --hulw-green-600: #22c55e;
-            --hulw-green-500: #16a34a;
-            --hulw-green-100: #064e3b;
-            --hulw-green-50:  #022c22;
-            --ink-900: #f8fafc;
-            --ink-700: #e2e8f0;
-            --ink-500: #94a3b8;
-            --ink-300: #334155;
-            --line:    #1e293b;
-            --bg:      #020617;
-            --white:   #0f172a;
+            --bg: #03140f;              /* Fundo escuro baseado no verde institucional */
+            --white: #08221a;           /* Superfícies e boxes integrados à paleta verde */
+            --ink-900: #e1e7e4;         /* Alto contraste confortável */
+            --ink-700: #b0beb6;         /* Textos secundários suavizados */
+            --ink-500: #718278;         /* Textos auxiliares e descrições */
+            --ink-300: #164e3f;         /* Fallbacks de bordas internas */
+            --line: #164e3f;            /* Linhas divisórias em tom esverdeado sutil */
             
-            --warn-bg: #422006;
-            --warn-bd: #d97706;
-            --warn-tx: #fef3c7;
-            --info-bg: #032845;
-            --info-tx: #93c5fd;
-            --success-bg: #052e16;
-            --success-tx: #86efac;
-            --danger-bg: #450a0a;
-            --danger-tx: #fca5a5;
+            --hulw-green-900: #34d399;   /* Verde clínico suavizado para títulos principais */
+            --hulw-green-700: #10b981;   /* Verde principal de destaque */
+            --hulw-green-600: #15724f;   
+            --hulw-green-500: #10b981;   
+            --hulw-green-100: #0b3d2e;   
+            --hulw-green-50: #06241b;    /* Fundos de hover e áreas de destaque secundárias */
+            
+            --warn-bg: #2d2613;
+            --warn-bd: #5e4d1d;
+            --warn-tx: #f1c40f;
+            
+            --info-bg: #17243a;
+            --info-tx: #60a5fa;
+            
+            --success-bg: #0b3d2e;
+            --success-tx: #34d399;
+            
+            --danger-bg: #2d1919;
+            --danger-tx: #f87171;
 
-            --agendado-bg: #1e1b4b;
-            --agendado-tx: #a5b4fc;
+            --agendado-bg: #241931;
+            --agendado-tx: #c084fc;
+            --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease; }
         html, body { margin: 0; padding: 0; }
         body {
             font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-            background:
-                radial-gradient(1200px 600px at -10% -20%, var(--hulw-green-100), transparent 60%),
-                radial-gradient(900px 500px at 110% 0%, rgba(26,138,95,0.05), transparent 60%),
-                var(--bg);
+            background: var(--bg);
             color: var(--ink-900);
             line-height: 1.55;
             min-height: 100vh;
             padding: 32px 16px 64px;
-            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* Ajuste do background no modo claro para manter o radial-gradient sem quebrar o modo escuro */
+        body:not(.dark-mode) {
+            background:
+                radial-gradient(1200px 600px at -10% -20%, var(--hulw-green-100), transparent 60%),
+                radial-gradient(900px 500px at 110% 0%, rgba(26,138,95,0.05), transparent 60%),
+                var(--bg);
         }
 
         .container { max-width: 900px; margin: 0 auto; }
@@ -101,6 +112,9 @@
             margin-bottom: 24px;
             position: relative;
             overflow: hidden;
+        }
+        body.dark-mode .hulw-header {
+            background: linear-gradient(135deg, #0b3d2e, #15724f);
         }
         .hulw-header::after {
             content: "";
@@ -155,9 +169,9 @@
             gap: 10px;
             font-weight: 500;
             box-shadow: var(--shadow-sm);
-            transition: all 0.3s ease;
         }
         .tempo-restante { font-weight: 700; color: #d9534f; font-family: monospace; font-size: 1.05rem; }
+        body.dark-mode .tempo-restante { color: var(--warn-tx); }
 
         .campo-box {
             background: var(--white);
@@ -166,7 +180,6 @@
             padding: 24px 26px;
             margin-bottom: 20px;
             box-shadow: var(--shadow-sm);
-            transition: box-shadow .2s ease, background 0.3s ease, border-color 0.3s ease;
         }
         .campo-box:hover { box-shadow: var(--shadow-md); }
 
@@ -205,15 +218,14 @@
             padding: 10px 14px;
             border-radius: 8px;
             border: 1px solid var(--line);
-            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
         .badge { padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.02em; }
         .status-PENDENTE { background: var(--warn-bg); color: var(--warn-tx); border: 1px solid var(--warn-bd); }
-        .status-ANALISE { background: var(--info-bg); color: var(--info-tx); }
-        .status-AGENDADO { background: var(--agendado-bg); color: var(--agendado-tx); }
-        .status-CONCLUIDA { background: var(--success-bg); color: var(--success-tx); }
-        .status-CANCELADA { background: var(--danger-bg); color: var(--danger-tx); }
+        .status-ANALISE { background: var(--info-bg); color: var(--info-tx); border: 1px solid var(--line); }
+        .status-AGENDADO { background: var(--agendado-bg); color: var(--agendado-tx); border: 1px solid var(--line); }
+        .status-CONCLUIDA { background: var(--success-bg); color: var(--success-tx); border: 1px solid var(--line); }
+        .status-CANCELADA { background: var(--danger-bg); color: var(--danger-tx); border: 1px solid var(--line); }
 
         .teams-card {
             background: var(--bg);
@@ -226,8 +238,9 @@
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 15px;
-            transition: background 0.3s ease;
         }
+        body.dark-mode .teams-card { border-color: var(--agendado-tx); }
+        
         .btn-entrar-teams {
             background: #464eb8;
             color: white;
@@ -240,7 +253,10 @@
             box-shadow: 0 4px 12px rgba(70, 78, 184, 0.25);
         }
         .btn-entrar-teams:hover { background: #353a8d; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(70, 78, 184, 0.35); }
-        .aguardando-link { color: var(--ink-500); font-style: italic; background: var(--white); padding: 10px 16px; border-radius: 8px; font-size: 0.9rem; border: 1px dashed var(--line); transition: all 0.3s ease; }
+        body.dark-mode .btn-entrar-teams { background: var(--agendado-tx); color: var(--bg); box-shadow: none; }
+        body.dark-mode .btn-entrar-teams:hover { background: #c084fc; }
+
+        .aguardando-link { color: var(--ink-500); font-style: italic; background: var(--white); padding: 10px 16px; border-radius: 8px; font-size: 0.9rem; border: 1px dashed var(--line); }
 
         .btn-toggle {
             background: var(--bg);
@@ -258,8 +274,8 @@
             align-items: center;
             transition: all 0.2s;
         }
-        .btn-toggle:hover { background: var(--hulw-green-50); border-color: var(--hulw-green-500); }
-        .conteudo-detalhes { display: none; padding: 24px; background: var(--white); border: 1px solid var(--line); border-top: none; border-radius: 0 0 var(--radius) var(--radius); margin-top: -10px; margin-bottom: 20px; transition: background 0.3s ease; }
+        .btn-toggle:hover { background: var(--hulw-green-50); border-color: var(--hulw-green-700); }
+        .conteudo-detalhes { display: none; padding: 24px; background: var(--white); border: 1px solid var(--line); border-top: none; border-radius: 0 0 var(--radius) var(--radius); margin-top: -10px; margin-bottom: 20px; }
 
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 14px; }
         .detalhe-item { margin-bottom: 12px; }
@@ -272,17 +288,17 @@
             gap: 6px;
             padding: 8px 14px;
             background: var(--hulw-green-50);
-            border: 1px solid var(--hulw-green-500);
-            color: var(--hulw-green-700);
+            border: 1px solid var(--line);
+            color: var(--hulw-green-900);
             text-decoration: none;
             border-radius: 8px;
             font-weight: 600;
             font-size: 0.88rem;
             transition: all 0.15s;
         }
-        .btn-anexo:hover { background: var(--hulw-green-600); color: #fff; border-color: var(--hulw-green-600); }
+        .btn-anexo:hover { background: var(--hulw-green-700); color: #fff; border-color: var(--hulw-green-700); }
 
-        .resposta-box { background: var(--hulw-green-50); border: 1px solid var(--hulw-green-100); border-radius: var(--radius); padding: 24px; margin-top: 12px; transition: all 0.3s ease; }
+        .resposta-box { background: var(--hulw-green-50); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; margin-top: 12px; }
         .footer-info { text-align: center; color: var(--ink-500); font-size: 0.82rem; margin-top: 40px; font-weight: 500; }
 
         @media (max-width: 768px) {
@@ -410,15 +426,15 @@
             {% for resposta in sol.respostas.all %}
             <div style="margin-top: 30px;">
                 <h3 style="color: var(--hulw-green-900); font-weight: 700; display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 1.15rem;">
-                    <span style="width: 4px; height: 18px; background: var(--hulw-green-500); border-radius: 4px;"></span>
+                    <span style="width: 4px; height: 18px; background: var(--hulw-green-700); border-radius: 4px;"></span>
                     Resposta da Consultoria
                 </h3>
                 <div class="resposta-box">
-                    <div style="margin-bottom: 14px; font-weight: 700; color: var(--hulw-green-700); font-size: 1.05rem;">
+                    <div style="margin-bottom: 14px; font-weight: 700; color: var(--hulw-green-900); font-size: 1.05rem;">
                         Dra. {{ resposta.medica.user.get_full_name }} — <span style="font-weight: 500; font-size: 0.95rem; color: var(--ink-700);">{{ resposta.medica.especialidade }}</span>
                     </div>
                     
-                    <div style="font-size: 1rem; color: var(--ink-900); background: var(--white); padding: 16px; border-radius: 10px; border: 1px solid var(--line); line-height: 1.6; transition: background 0.3s ease;">
+                    <div style="font-size: 1rem; color: var(--ink-900); background: var(--white); padding: 16px; border-radius: 10px; border: 1px solid var(--line); line-height: 1.6;">
                         {{ resposta.conteudo|linebreaksbr }}
                     </div>
                     
@@ -440,16 +456,16 @@
             {% endfor %}
         {% else %}
             {% if sol.status != 'CANCELADA' %}
-            <div class="resposta-box" style="text-align: center; border: 2px dashed var(--ink-300); background: transparent;">
+            <div class="resposta-box" style="text-align: center; border: 2px dashed var(--line); background: transparent;">
                 <p style="font-size: 1rem; color: var(--ink-700); margin: 0; padding: 10px 0; border: none; background: transparent;">
                     {% if sol.status == 'PENDENTE' %}
                         Sua solicitação está na fila de processamento e aguarda a triagem.<br>
-                    {% elif sol.status == 'ANALISE' %}
+                    {%     elif sol.status == 'ANALISE' %}
                         Sua solicitação está em andamento, sendo revisada por nossa equipe médica especializada.<br>
-                    {% elif sol.status == 'AGENDADO' %}
+                    {%     elif sol.status == 'AGENDADO' %}
                         Sua teleconsultoria está agendada. No horário marcado, utilize o botão de acesso Teams exibido acima.<br>
-                    {% endif %}
-                    <strong style="display:block; margin-top: 10px; color: var(--hulw-green-700);">Mantenha este link salvo. A resposta oficial será disponibilizada automaticamente aqui.</strong>
+                    {%     endif %}
+                    <strong style="display:block; margin-top: 10px; color: var(--hulw-green-900);">Mantenha este link salvo. A resposta oficial será disponibilizada automaticamente aqui.</strong>
                 </p>
             </div>
             {% else %}
@@ -467,15 +483,17 @@
 </div>
 
 <script>
-    // Gerenciador do Dark Mode unificado
+    // Gerenciador do Dark Mode unificado com suporte ao localStorage
     function toggleTheme() {
         const body = document.body;
         const btn = document.getElementById('themeBtn');
         body.classList.toggle('dark-mode');
         if (body.classList.contains('dark-mode')) {
             btn.innerHTML = "☀️ Modo Claro";
+            localStorage.setItem('theme', 'dark');
         } else {
             btn.innerHTML = "🌙 Modo Escuro";
+            localStorage.setItem('theme', 'light');
         }
     }
 
@@ -524,8 +542,16 @@
         segundosRestantes--;
     }
 
-    atualizarContador();
-    setInterval(atualizarContador, 1000);
+    // Evento carregado para persistir o tema selecionado
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeBtn').innerHTML = "☀️ Modo Claro";
+        }
+        atualizarContador();
+        setInterval(atualizarContador, 1000);
+    });
 </script>
 </body>
 </html>

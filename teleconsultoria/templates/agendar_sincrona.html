@@ -15,13 +15,13 @@
         }
 
         body.dark-mode {
-            --bg: #020617;
-            --white: #0f172a;
+            --bg: #071a14;
+            --white: #0b241b;
             --ink-900: #f8fafc;
-            --h2-color: #4ade80;
-            --input-border: #334155;
-            --cancel-color: #94a3b8;
-            --shadow: rgba(0,0,0,0.5);
+            --h2-color: #22a06b;
+            --input-border: #16352b;
+            --cancel-color: #64748b;
+            --shadow: rgba(11,61,46,0.4);
         }
 
         body { font-family: sans-serif; background: var(--bg); color: var(--ink-900); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; transition: background 0.3s ease, color 0.3s ease; position: relative; }
@@ -65,6 +65,21 @@
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const currentTheme = localStorage.getItem("theme");
+            const body = document.body;
+            const btn = document.getElementById('themeBtn');
+            
+            if (currentTheme === "dark") {
+                body.classList.add("dark-mode");
+                btn.innerHTML = "☀️ Modo Claro";
+            } else {
+                body.classList.remove("dark-mode");
+                btn.innerHTML = "🌙 Modo Escuro";
+            }
+        });
+
+        // Alterna o tema e salva o estado no localStorage
         function toggleTheme() {
             const body = document.body;
             const btn = document.getElementById('themeBtn');
@@ -72,8 +87,10 @@
             
             if (body.classList.contains('dark-mode')) {
                 btn.innerHTML = "☀️ Modo Claro";
+                localStorage.setItem("theme", "dark");
             } else {
                 btn.innerHTML = "🌙 Modo Escuro";
+                localStorage.setItem("theme", "light");
             }
         }
     </script>
