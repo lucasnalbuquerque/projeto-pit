@@ -663,6 +663,36 @@
 
     // Intercepta o envio para anexar os arquivos reais do array ao FormData do Django
     document.getElementById('form-solicitacao').addEventListener('submit', function(e) {
+        // Função auxiliar para capturar o cookie do CSRF de forma atualizada e segura
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrfToken = getCookie('csrftoken');
+        let csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        
+        // Sincroniza o token do cookie com o formulário para evitar erros de rotação de sessão (Tanto nativo quanto AJAX)
+        if (!csrfInput && csrfToken) {
+            csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            this.appendChild(csrfInput);
+        }
+        if (csrfToken && csrfInput) {
+            csrfInput.value = csrfToken;
+        }
+
         if(arquivosArray.length > 0) {
             e.preventDefault();
             const formData = new FormData(this);
@@ -685,7 +715,7 @@
                 method: 'POST',
                 body: formData,
                 headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    'X-CSRFToken': csrfToken || (csrfInput ? csrfInput.value : '')
                 }
             }).then(response => {
                 if(response.redirected) {
