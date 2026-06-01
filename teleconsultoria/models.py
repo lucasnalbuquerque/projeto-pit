@@ -85,7 +85,6 @@ class Solicitacao(models.Model):
     horario_marcado = models.TimeField(null=True, blank=True)
     duracao_estimada = models.PositiveIntegerField(null=True, blank=True, help_text="Duração em minutos")
     link_teams = models.URLField(max_length=500, null=True, blank=True)
-    resumo_sincrono = models.TextField(null=True, blank=True)
     justificativa_cancelamento = models.TextField(null=True, blank=True)
     
     data_limite = models.DateField(null=True, blank=True)
@@ -111,11 +110,10 @@ class Solicitacao(models.Model):
         self.status = StatusSolicitacao.EM_ANALISE
         self.save()
 
-    def agendar_reuniao(self, data, horario, link, duracao=30):
+    def agendar_reuniao(self, data, horario, link):
         self.data_marcada = data
         self.horario_marcado = horario
         self.link_teams = link
-        self.duracao_estimada = duracao
         self.tipo_atendimento = TipoAtendimento.SINCRONO
         self.status = StatusSolicitacao.AGENDADO
         self.save()

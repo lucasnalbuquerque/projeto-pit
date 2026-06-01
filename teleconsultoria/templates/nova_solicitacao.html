@@ -30,6 +30,10 @@
             --shadow-md: 0 6px 18px rgba(11,61,46,.08);
             --shadow-lg: 0 14px 40px rgba(11,61,46,.12);
             --radius: 14px;
+
+            /* Cores para erro de validação do e-mail */
+            --error-color: #e74c3c;
+            --error-bg: #fdf2f2;
         }
 
         /* CORREÇÃO DA PALETA: MODO ESCURO INSTITUCIONAL (Sem tons azulados/fluorescentes) */
@@ -53,6 +57,8 @@
             --shadow-sm: 0 1px 2px rgba(0,0,0,.3);
             --shadow-md: 0 6px 18px rgba(0,0,0,.4);
             --shadow-lg: 0 14px 40px rgba(0,0,0,.5);
+
+            --error-bg: #2c1a1a;
         }
 
         /* CORREÇÃO DO BUG VISUAL NO MODO ESCURO */
@@ -253,6 +259,22 @@
         }
         textarea { resize: vertical; min-height: 90px; }
 
+        /* Estilos de erro do e-mail profissional */
+        input[type="email"].input-erro {
+            border-color: var(--error-color) !important;
+            background-color: var(--error-bg) !important;
+        }
+        input[type="email"].input-erro:focus {
+            box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.15) !important;
+        }
+        .msg-erro-email {
+            color: var(--error-color);
+            font-size: 0.82rem;
+            margin-top: 5px;
+            display: none;
+            font-weight: 500;
+        }
+
         /* ===== LGPD ===== */
         .lgpd-box {
             font-size: 0.85rem; color: var(--ink-700);
@@ -422,6 +444,7 @@
                 <div>
                     <h4><label for="email">E-mail <span class="required-mark">*</span></label></h4>
                     <input type="email" name="email" id="email" required>
+                    <div id="erro-email" class="msg-erro-email">Por favor, insira um e-mail institucional/profissional.</div>
                 </div>
             </div>
 
@@ -534,7 +557,7 @@
 
         <div class="campo-box">
             <h3><label for="duvida_clinica" style="color:inherit; font-size:inherit; font-weight:inherit; margin:0;">Sua Dúvida Clínica <span class="required-mark">*</span></label></h3>
-            <textarea name="duvida_clinica" id="duvida_clinica" rows="6" required placeholder="Descreva a dúvida com o máximo de detalhes possível..."></textarea>
+            <textarea name="duvida_clinica" id="duvida_clinica" rows="6" required placeholder="Descreva a dúvida com o máximo de detalhes possible..."></textarea>
             
             <h4 style="margin-top:16px;"><label for="input-anexos">Anexos (opcional)</label></h4>
             <div class="file-input-wrapper">
@@ -549,7 +572,7 @@
 </div>
 
 <script>
-    // LÓGICA DE TEMA
+    // LÓGICA DE TEMA COM SUPORTE A LOCALSTORAGE
     function toggleTheme() {
         const body = document.body;
         const btn = document.getElementById('themeBtn');
@@ -557,8 +580,94 @@
         
         if (body.classList.contains('dark-mode')) {
             btn.innerHTML = "☀️ Modo Claro";
+            localStorage.setItem('theme', 'dark');
         } else {
             btn.innerHTML = "🌙 Modo Escuro";
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    // FUNÇÕES DE PERSISTÊNCIA DOS DADOS DO FORMULÁRIO (LOCALSTORAGE)
+    function salvarDadosFormulario() {
+        const form = document.getElementById('form-solicitacao');
+        if (!form) return;
+        const elements = form.querySelectorAll('input, select, textarea');
+        const dados = {};
+
+        elements.forEach(el => {
+            // Ignora arquivos e token csrf do Django
+            if (el.type === 'file' || el.name === 'csrfmiddlewaretoken') return;
+
+            if (el.type === 'checkbox') {
+                const chave = el.id || el.name;
+                if (chave) dados[chave] = el.checked;
+            } else if (el.type === 'radio') {
+                if (el.checked && el.name) {
+                    dados['radio_' + el.name] = el.value;
+                }
+            } else {
+                const chave = el.id || el.name;
+                if (chave) dados[chave] = el.value;
+            }
+        });
+
+        localStorage.setItem('form_solicitacao_dados', JSON.stringify(dados));
+    }
+
+    function carregarDadosFormulario() {
+        const dadosSalvos = localStorage.getItem('form_solicitacao_dados');
+        if (!dadosSalvos) return;
+
+        try {
+            const dados = JSON.parse(dadosSalvos);
+            
+            Object.keys(dados).forEach(chave => {
+                if (chave.startsWith('radio_')) {
+                    const name = chave.replace('radio_', '');
+                    const radio = document.querySelector(`input[type="radio"][name="${name}"][value="${dados[chave]}"]`);
+                    if (radio) {
+                        radio.checked = true;
+                        const label = radio.parentElement;
+                        if (label && label.classList.contains('horario-chip')) {
+                            label.classList.add('selecionado');
+                        }
+                    }
+                } else {
+                    const el = document.getElementById(chave) || document.querySelector(`[name="${chave}"]`);
+                    if (!el) return;
+
+                    if (el.type === 'checkbox') {
+                        el.checked = dados[chave];
+                    } else {
+                        el.value = dados[chave];
+                    }
+                }
+            });
+
+            // Atualiza a visibilidade e obrigatoriedade condicional das seções
+            alternarCampos();
+            alternarSincrono();
+            if (typeof validarEmailEmTempoReal === 'function') {
+                validarEmailEmTempoReal();
+            }
+            
+            const radioMarcado = document.querySelector('input[type="radio"][name="agenda_id"]:checked');
+            if (radioMarcado) {
+                const wrapperDia = radioMarcado.closest('.horario-lista-wrapper');
+                if (wrapperDia) {
+                    wrapperDia.classList.remove('hidden');
+                    document.getElementById('container_horarios_pai').classList.remove('hidden');
+                    const diaId = wrapperDia.id;
+                    const cards = document.querySelectorAll('.data-card');
+                    cards.forEach(card => {
+                        if (card.getAttribute('onclick') && card.getAttribute('onclick').includes(diaId)) {
+                            card.classList.add('active');
+                        }
+                    });
+                }
+            }
+        } catch (e) {
+            console.error("Erro ao restaurar dados do formulário", e);
         }
     }
 
@@ -583,6 +692,45 @@
         }
         e.target.value = v;
     });
+
+    // VALIDAÇÃO DE E-MAIL PROFISSIONAL
+    const inputEmail = document.getElementById('email');
+    const provedoresPublicos = [
+        'gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 
+        'yahoo.com.br', 'uol.com.br', 'bol.com.br', 'icloud.com', 
+        'live.com', 'ig.com.br', 'terra.com.br'
+    ];
+
+    function verificarEmailProfissional(email) {
+        const dominio = email.split('@')[1]?.toLowerCase().trim();
+        if (!dominio) return false;
+        return !provedoresPublicos.includes(dominio);
+    }
+
+    function validarEmailEmTempoReal() {
+        const emailValue = inputEmail.value.trim();
+        const erroDiv = document.getElementById('erro-email');
+        
+        if (emailValue === "") {
+            inputEmail.classList.remove('input-erro');
+            erroDiv.style.display = 'none';
+            return true;
+        }
+
+        if (!verificarEmailProfissional(emailValue)) {
+            inputEmail.classList.add('input-erro');
+            erroDiv.style.display = 'block';
+            return false;
+        } else {
+            inputEmail.classList.remove('input-erro');
+            erroDiv.style.display = 'none';
+            return true;
+        }
+    }
+
+    if (inputEmail) {
+        inputEmail.addEventListener('input', validarEmailEmTempoReal);
+    }
 
     // VALIDAÇÃO E RESTRIÇÃO DA IDADE DO PACIENTE
     const idadeInput = document.getElementById('idade_pac');
@@ -631,6 +779,7 @@
     function marcarSelecao(radio) {
         document.querySelectorAll('.horario-chip').forEach(chip => chip.classList.remove('selecionado'));
         radio.parentElement.classList.add('selecionado');
+        salvarDadosFormulario(); // Salva alteração de horário imediatamente
     }
 
     function verificarSexoBiologico() {
@@ -669,6 +818,15 @@
 
     // Sincroniza cookies CSRF e garante consistência final no envio nativo multipart/form-data
     document.getElementById('form-solicitacao').addEventListener('submit', function(e) {
+        if (typeof validarEmailEmTempoReal === 'function') {
+            const emailValido = validarEmailEmTempoReal();
+            if (!emailValido) {
+                e.preventDefault(); // Impede o envio do formulário
+                if (inputEmail) inputEmail.focus();
+                return false;
+            }
+        }
+
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -702,8 +860,31 @@
         arquivosArray.forEach(file => dataTransfer.items.add(file));
         document.getElementById('arquivos_finais').files = dataTransfer.files;
         
+        // Limpa o localStorage ao enviar com sucesso para evitar repetição do formulário antigo
+        localStorage.removeItem('form_solicitacao_dados');
+        
         // O formulário agora segue o fluxo nativo padrão do navegador, processando
         // corretamente redirecionamentos e mensagens de validação vindos de views.py.
+    });
+
+    // INICIALIZAÇÃO DE EVENTOS E RESTAURAÇÃO (ON LOAD)
+    window.addEventListener('DOMContentLoaded', () => {
+        // 1. Restaura o tema salvo
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeBtn').innerHTML = "☀️ Modo Claro";
+        }
+        
+        // 2. Restaura dados salvos do formulário
+        carregarDadosFormulario();
+
+        // 3. Monitora alterações nos campos para salvar os dados automaticamente
+        const form = document.getElementById('form-solicitacao');
+        if (form) {
+            form.addEventListener('input', salvarDadosFormulario);
+            form.addEventListener('change', salvarDadosFormulario);
+        }
     });
 </script>
 </body>
