@@ -1,9 +1,15 @@
 from django.urls import path
+from django.contrib.auth import views as auth_views
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    # --- TELA DE LOGIN E LOGOUT NATIVOS ---
+    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
+
+    # --- ROTAS EXISTENTES ---
     path('nova/', views.nova_solicitacao, name='nova_solicitacao'),
     path('acompanhar/<uuid:token>/', views.acompanhar_caso, name='acompanhar_caso'),
     
@@ -13,7 +19,6 @@ urlpatterns = [
     path('detalhe/<int:sol_id>/', views.detalhe_caso, name='detalhe_caso'),
     path('responder/<int:sol_id>/', views.responder_solicitacao, name='responder_solicitacao'),
 
-  
     path('agendar-sincrona/<int:sol_id>/', views.agendar_sincrona, name='agendar_sincrona'),
     
     path('ausencia/<int:sol_id>/', views.registrar_ausencia, name='registrar_ausencia'),

@@ -116,8 +116,7 @@
             background: linear-gradient(135deg, #0b3d2e, #15724f);
         }
         .hulw-header::after {
-            content: "";
-            position: absolute; inset: 0;
+            content: absolute; inset: 0;
             background: radial-gradient(400px 200px at 90% 120%, rgba(255,255,255,.18), transparent 60%);
             pointer-events: none;
         }
@@ -455,7 +454,8 @@
                 </h3>
                 <div class="resposta-box">
                     <div style="margin-bottom: 14px; font-weight: 700; color: var(--hulw-green-900); font-size: 1.05rem;">
-                        Dra. {{ resposta.medica.user.get_full_name }} — <span style="font-weight: 500; font-size: 0.95rem; color: var(--ink-700);">{{ resposta.medica.especialidade }}</span>
+                        <!-- CORREÇÃO AQUI: Mudado para resposta.medica.nome_completo -->
+                        Dra. {{ resposta.medica.nome_completo }} — <span style="font-weight: 500; font-size: 0.95rem; color: var(--ink-700);">{{ resposta.medica.especialidade }}</span>
                     </div>
                     
                     <div style="font-size: 1rem; color: var(--ink-900); background: var(--white); padding: 16px; border-radius: 10px; border: 1px solid var(--line); line-height: 1.6;">

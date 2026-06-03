@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Login da Equipe Médica - Teleconsultoria HULW</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* PALETA PRINCIPAL (Modo Claro) */
+            --hulw-green: #137a4d;
+            --hulw-green-dark: #0e5a39;
+            --hulw-green-light: #e8f5ee;
+            --hulw-green-soft: #f3faf6;
+            --ink: #1f2a25;
+            --ink-soft: #4b5a52;
+            --muted: #7a8a82;
+            --line: #dde7e1;
+            --bg: #f5f8f6;
+            --white: #ffffff;
+            --danger: #c0392b;
+            --danger-bg: #fef2f2;
+            --danger-border: #fecaca;
+            --radius: 10px;
+            --shadow: 0 4px 24px rgba(16, 60, 40, 0.08);
+        }
+
+        /* MODO ESCURO INSTITUCIONAL */
+        body.dark-mode {
+            --bg: #03140f;              
+            --white: #08221a;           
+            --ink: #e1e7e4;
+            --ink-soft: #b0beb6;
+            --muted: #718278;
+            --line: #164e3f;            
+            --hulw-green: #10b981;
+            --hulw-green-dark: #34d399; 
+            --hulw-green-soft: #06241b; 
+            --danger: #f87171;
+            --danger-bg: #2d1919;
+            --danger-border: #422222;
+            --shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        * { box-sizing: border-box; transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--ink);
+            line-height: 1.55;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* HEADER SIMPLIFICADO */
+        .header {
+            background: linear-gradient(135deg, var(--hulw-green-dark) 0%, var(--hulw-green) 100%);
+            padding: 16px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        body.dark-mode .header {
+            background: linear-gradient(135deg, #0b3d2e, #15724f);
+        }
+
+        .header-left { display: flex; align-items: center; gap: 14px; }
+
+        .header .logo-container {
+            width: 42px; height: 42px;
+            background: white;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .header .logo-container img { width: 80%; height: 80%; object-fit: contain; }
+        .header h1 { margin: 0; font-size: 1.1rem; font-weight: 700; color: white; }
+        
+        .theme-toggle-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .theme-toggle-btn:hover { background: rgba(255, 255, 255, 0.25); }
+
+        /* ÁREA DE LOGIN */
+        .login-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--white);
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--line);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .login-header h2 {
+            margin: 0 0 8px 0;
+            color: var(--hulw-green-dark);
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .login-header p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        /* FORMULÁRIO */
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--ink-soft);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            background: var(--bg);
+            color: var(--ink);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--hulw-green);
+            background: var(--white);
+            box-shadow: 0 0 0 3px var(--hulw-green-light);
+        }
+        
+        body.dark-mode .form-control:focus {
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--hulw-green);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .btn-submit:hover {
+            background: var(--hulw-green-dark);
+        }
+
+        .btn-submit:active {
+            transform: scale(0.98);
+        }
+
+        /* ERROS DO DJANGO */
+        .alert-error {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: 1px solid var(--danger-border);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <div class="logo-container">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQryXQkqFL8UMlNXtInfmWSQhSp1ZcKgreHmw&s" alt="Logo HULW">
+            </div>
+            <h1>Acesso Restrito</h1>
+        </div>
+        <button id="themeBtn" class="theme-toggle-btn" onclick="toggleTheme()">🌙 Modo Escuro</button>
+    </header>
+
+    <main class="login-wrapper">
+        <div class="login-card">
+            <div class="login-header">
+                <h2>Portal da Médica</h2>
+                <p>Insira suas credenciais para acessar a fila</p>
+            </div>
+
+            <!-- O action method POST enviará os dados para a view de login do Django -->
+            <form method="POST" action="">
+                {% csrf_token %}
+                
+                <!-- Exibe mensagem de erro se o usuário/senha estiverem incorretos -->
+                {% if form.errors %}
+                <div class="alert-error">
+                    Usuário ou senha incorretos. Tente novamente.
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="id_username">Nome de Usuário</label>
+                    <input type="text" name="username" id="id_username" class="form-control" required autofocus placeholder="Digite seu usuário">
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password">Senha</label>
+                    <input type="password" name="password" id="id_password" class="form-control" required placeholder="Digite sua senha">
+                </div>
+
+                <!-- O next redireciona a usuária para a fila após o login com sucesso -->
+                <input type="hidden" name="next" value="{% url 'fila_medica' %}">
+
+                <button type="submit" class="btn-submit">Entrar no Sistema</button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Lógica idêntica ao fila_medica.html para manter consistência do tema
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.getElementById('themeBtn');
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                btn.innerHTML = "☀️ Modo Claro";
+                localStorage.setItem('theme', 'dark');
+            } else {
+                btn.innerHTML = "🌙 Modo Escuro";
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeBtn').innerHTML = "☀️ Modo Claro";
+            }
+        });
+    </script>
+</body>
+</html>

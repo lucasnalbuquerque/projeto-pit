@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Solicitacao, Resposta, Profissional, Medica, AnexoSolicitacao, AnexoResposta, LinkAcesso, HorarioFixoDisponivel
 from datetime import datetime, timedelta, date
 from django.db import transaction
@@ -36,7 +37,12 @@ def exportar_para_whatsapp_excel(solicitacao):
         
     df_final.to_excel(caminho_excel, index=False)
 
-# view: nova solicitação
+# --- FUNÇÃO DE VERIFICAÇÃO DE ACESSO ---
+# Permite o acesso de qualquer usuário criado por você (Staff) no painel administrativo
+def is_medica(user):
+    return user.is_authenticated and user.is_staff
+
+# view: nova solicitação (Pública, qualquer um pode acessar)
 def nova_solicitacao(request):
     if request.method == 'POST':
         cpf_solicitante = request.POST.get('cpf')
@@ -132,7 +138,7 @@ def nova_solicitacao(request):
             
             LinkAcesso.objects.create(solicitacao=nova_sol)
             
-            # CORREÇÃO AQUI: Mudado de 'anexos' para 'arquivos_anexos' para sincronizar com o HTML
+            # Mudado de 'anexos' para 'arquivos_anexos' para sincronizar com o HTML
             arquivos = request.FILES.getlist('arquivos_anexos')
             for f in arquivos:
                 AnexoSolicitacao.objects.create(solicitacao=nova_sol, arquivo=f)
@@ -166,14 +172,29 @@ def gerar_lista_disponibilidade():
                 })
     return horarios_livres
 
+
+# --- VIEWS RESTRITAS APENAS PARA A MÉDICA ---
+
+@login_required(login_url='login')
+@user_passes_test(is_medica, login_url='login')
 def fila_medica(request):
     solicitacoes = Solicitacao.objects.all().order_by('-data_sol')
     return render(request, 'fila_medica.html', {'solicitacoes': solicitacoes})
 
+@login_required(login_url='login')
+@user_passes_test(is_medica, login_url='login')
 def detalhe_caso(request, sol_id):
     solicitacao = get_object_or_404(Solicitacao, id=sol_id)
     if solicitacao.status == 'PENDENTE':
         solicitacao.iniciar_analise()
+        
+        # CORREÇÃO CONTRA QUEDAS: Verifica se o usuário tem o perfil médica, senão usa a primeira cadastrada
+        if hasattr(request.user, 'medica'):
+            solicitacao.medica_designada = request.user.medica
+        else:
+            solicitacao.medica_designada = Medica.objects.first()
+            
+        solicitacao.save()
     
     link_obj = LinkAcesso.objects.filter(solicitacao=solicitacao).first()
     token = link_obj.token if link_obj else "token-nao-gerado"
@@ -185,6 +206,8 @@ def detalhe_caso(request, sol_id):
     
     return render(request, 'detalhe_caso.html', {'sol': solicitacao})
 
+@login_required(login_url='login')
+@user_passes_test(is_medica, login_url='login')
 def agendar_sincrona(request, sol_id):
     solicitacao = get_object_or_404(Solicitacao, id=sol_id)
     if request.method == 'POST':
@@ -195,14 +218,21 @@ def agendar_sincrona(request, sol_id):
         return redirect('detalhe_caso', sol_id=solicitacao.id)
     return render(request, 'agendar_sincrona.html', {'sol': solicitacao})
 
+@login_required(login_url='login')
+@user_passes_test(is_medica, login_url='login')
 def responder_solicitacao(request, sol_id):
     solicitacao = get_object_or_404(Solicitacao, id=sol_id)
     if request.method == 'POST':
         texto_resposta = request.POST.get('resposta')
-        medica_teste = Medica.objects.first()
+        
+        # CORREÇÃO CONTRA QUEDAS: Se o Admin puro responder, o sistema usa a primeira médica do banco como autora
+        if hasattr(request.user, 'medica'):
+            medica_logada = request.user.medica
+        else:
+            medica_logada = Medica.objects.first()
         
         with transaction.atomic():
-            nova_resposta = Resposta.objects.create(solicitacao=solicitacao, medica=medica_teste, conteudo=texto_resposta)
+            nova_resposta = Resposta.objects.create(solicitacao=solicitacao, medica=medica_logada, conteudo=texto_resposta)
             solicitacao.status = 'CONCLUIDA' 
             solicitacao.save()
             for f in request.FILES.getlist('anexos'):
@@ -217,6 +247,8 @@ def responder_solicitacao(request, sol_id):
         return redirect('fila_medica')
     return render(request, 'responder.html', {'sol': solicitacao})
 
+@login_required(login_url='login')
+@user_passes_test(is_medica, login_url='login')
 def concluir_sincrona(request, sol_id):
     solicitacao = get_object_or_404(Solicitacao, id=sol_id)
     if solicitacao.tipo_atendimento == 'SINCRONO':
@@ -224,11 +256,15 @@ def concluir_sincrona(request, sol_id):
         solicitacao.save()
     return redirect('fila_medica')
 
+@login_required(login_url='login')
+@user_passes_test(is_medica, login_url='login')
 def registrar_ausencia(request, sol_id):
     solicitacao = get_object_or_404(Solicitacao, id=sol_id)
     solicitacao.registrar_ausencia()
     return redirect('fila_medica')
 
+@login_required(login_url='login')
+@user_passes_test(is_medica, login_url='login')
 def cancelar_solicitacao(request, sol_id):
     solicitacao = get_object_or_404(Solicitacao, id=sol_id)
     if request.method == 'POST':
@@ -236,6 +272,9 @@ def cancelar_solicitacao(request, sol_id):
         solicitacao.cancelar(justificativa)
         return redirect('fila_medica')
     return render(request, 'cancelar_caso.html', {'sol': solicitacao})
+
+
+# --- VIEWS PÚBLICAS (Acesso pelo solicitante) ---
 
 def acompanhar_caso(request, token):
     link = get_object_or_404(LinkAcesso, token=token)
