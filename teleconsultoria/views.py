@@ -9,7 +9,7 @@ import uuid
 import os
 import pandas as pd  # Adicionado para a lógica do WhatsApp
 
-# --- NOVA LÓGICA DE NOTIFICAÇÃO (WHATSAPP VIA EXCEL) ---
+# --- LÓGICA DE NOTIFICAÇÃO (WHATSAPP VIA EXCEL) ---
 def exportar_para_whatsapp_excel(solicitacao):
 
     caminho_excel = os.path.join(settings.BASE_DIR, 'log_notificacoes.xlsx')
@@ -36,6 +36,33 @@ def exportar_para_whatsapp_excel(solicitacao):
         df_final = df_novo
         
     df_final.to_excel(caminho_excel, index=False)
+
+
+# --- NOVA LÓGICA DE CANCELAMENTO (EXCEL) ---
+def exportar_cancelamento_excel(solicitacao, justificativa):
+    caminho_excel = os.path.join(settings.BASE_DIR, 'log_cancelamentos.xlsx')
+    
+    novos_dados = {
+        'data_cancelamento': [timezone.now().strftime('%d/%m/%Y %H:%M')],
+        'nome_solicitante': [solicitacao.profissional.nome_completo],
+        'whatsapp': [solicitacao.profissional.telefone],
+        'motivo_cancelamento': [justificativa],
+        'status_envio': ['PENDENTE']
+    }
+    
+    df_novo = pd.DataFrame(novos_dados)
+    
+    if os.path.exists(caminho_excel):
+        try:
+            df_existente = pd.read_excel(caminho_excel)
+            df_final = pd.concat([df_existente, df_novo], ignore_index=True)
+        except Exception:
+            df_final = df_novo
+    else:
+        df_final = df_novo
+        
+    df_final.to_excel(caminho_excel, index=False)
+
 
 # --- FUNÇÃO DE VERIFICAÇÃO DE ACESSO ---
 # Permite o acesso de qualquer usuário criado por você (Staff) no painel administrativo
@@ -269,7 +296,24 @@ def cancelar_solicitacao(request, sol_id):
     solicitacao = get_object_or_404(Solicitacao, id=sol_id)
     if request.method == 'POST':
         justificativa = request.POST.get('justificativa')
+        
+        # CORREÇÃO: Limpa a string de campos de texto livre com espaço para não enviar vazio ao model
+        if justificativa == 'OUTRO':
+            texto_livre = request.POST.get('justificativa_detalhada')
+            
+            # Verifica se o texto não é nulo e se não é apenas espaço em branco (strip)
+            if texto_livre and texto_livre.strip():
+                justificativa = texto_livre.strip()
+            else:
+                justificativa = 'Motivo não especificado.'
+                
         solicitacao.cancelar(justificativa)
+        
+        try:
+            exportar_cancelamento_excel(solicitacao, justificativa)
+        except Exception as e:
+            print(f"Erro ao exportar log cancelamento: {e}")
+            
         return redirect('fila_medica')
     return render(request, 'cancelar_caso.html', {'sol': solicitacao})
 

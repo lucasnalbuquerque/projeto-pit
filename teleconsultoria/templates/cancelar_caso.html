@@ -158,12 +158,12 @@
                     </label>
 
                     <label class="radio-option">
-                        <input type="radio" name="justificativa" value="imprevisto emergencial de horário" onclick="verificarMotivo(this)">
+                        <input type="radio" name="justificativa" value="Imprevisto emergencial de horário" onclick="verificarMotivo(this)">
                         <span class="radio-text">Imprevisto emergencial de horário</span>
                     </label>
 
                     <label class="radio-option">
-                        <input type="radio" name="justificativa" value="Problemas técnicos ou de instabilidade de internet" onclick="verificarMotivo(this)">
+                        <input type="radio" name="justificativa" value="Problemas técnicos na plataforma ou instabilidade de internet" onclick="verificarMotivo(this)">
                         <span class="radio-text">Problemas técnicos na plataforma ou instabilidade de internet</span>
                     </label>
 
@@ -187,7 +187,7 @@
     </div>
 
     <script>
-        // Lógica para mostrar/esconder e validar dinamicamente a área de texto livre
+        // Lógica para mostrar/esconder a área de texto livre
         function verificarMotivo(radioElement) {
             const campoLivre = document.getElementById('campo_justificativa_livre');
             const txtArea = document.getElementById('justificativa_texto');
@@ -202,6 +202,22 @@
                 txtArea.value = ''; // Limpa se o usuário mudar de ideia
             }
         }
+
+        // VALIDAÇÃO EXTRA DE FRONT-END (Trava de segurança)
+        document.getElementById('cancelForm').addEventListener('submit', function(e) {
+            const radioSelecionado = document.querySelector('input[name="justificativa"]:checked');
+            
+            if (radioSelecionado && radioSelecionado.value === 'OUTRO') {
+                const txtArea = document.getElementById('justificativa_texto');
+                
+                // Impede o envio se a médica preencheu apenas espaços vazios
+                if (txtArea.value.trim() === '') {
+                    e.preventDefault(); // Interrompe o envio
+                    alert("Por favor, descreva detalhadamente a justificativa para o cancelamento na caixa de texto.");
+                    txtArea.focus();
+                }
+            }
+        });
 
         // Carrega o tema salvo ao renderizar a página
         document.addEventListener("DOMContentLoaded", function() {
