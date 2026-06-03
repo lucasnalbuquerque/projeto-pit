@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitação Enviada com Sucesso | Teleconsultoria HULW</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* PALETA: MODO CLARO */
+            --hulw-green-900: #0b3d2e;
+            --hulw-green-700: #15724f;
+            --hulw-green-600: #1a8a5f;
+            --hulw-green-500: #22a06b;
+            --hulw-green-100: #e6f5ee;
+            --hulw-green-50:  #f3faf6;
+            --ink-900: #0f172a;
+            --ink-700: #334155;
+            --ink-500: #64748b;
+            --ink-300: #cbd5e1;
+            --ink-100: #f1f5f9;
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        body.dark-mode {
+            /* PALETA: MODO ESCURO */
+            --bg-page: #071410;
+            --bg-card: #0c201a;
+            --border-color: #16382e;
+            --ink-900: #f1f5f9;
+            --ink-700: #cbd5e1;
+            --ink-500: #94a3b8;
+            --ink-300: #475569;
+            --ink-100: #1e293b;
+            --hulw-green-100: #103227;
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--ink-900);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Botão Flutuante de Tema */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--ink-700);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--hulw-green-600);
+            color: var(--hulw-green-600);
+        }
+
+        .container {
+            max-width: 650px;
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: var(--shadow-md);
+            text-align: center;
+        }
+
+        .icon-success {
+            font-size: 3.5rem;
+            color: var(--hulw-green-600);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--ink-900);
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .mensagem-principal {
+            font-size: 1.05rem;
+            color: var(--ink-700);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .alerta-prazo {
+            background-color: var(--hulw-green-100);
+            color: var(--ink-900);
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--hulw-green-600);
+        }
+
+        .secao-link {
+            text-align: left;
+            background-color: var(--ink-100);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .secao-link h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--ink-900);
+        }
+
+        .secao-link p {
+            font-size: 0.875rem;
+            color: var(--ink-500);
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .box-token {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: var(--hulw-green-700);
+            word-break: break-all;
+            user-select: all;
+            font-weight: bold;
+        }
+
+        .btn-acao {
+            display: inline-block;
+            background-color: var(--hulw-green-600);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-acao:hover {
+            background-color: var(--hulw-green-700);
+        }
+    </style>
+</head>
+<body>
+
+    <button type="button" class="theme-toggle" id="themeBtn" onclick="toggleTheme()">🌙 Modo Escuro</button>
+
+    <div class="container">
+        <div class="icon-success">✓</div>
+        <h1>Solicitação Criada com Sucesso!</h1>
+        
+        <p class="mensagem-principal">
+            Sua teleconsultoria foi devidamente registrada e encaminhada para a equipe de triagem do Hospital Universitário Lauro Wanderley.
+        </p>
+
+        <div class="alerta-prazo">
+            A médica revisará o seu caso e irá respondê-lo em um período de no máximo uma semana.
+        </div>
+
+        <div class="secao-link">
+            <h2>Importância do Link de Acesso</h2>
+            <p>
+                Como este é um canal público que preserva o sigilo dos dados do paciente, <strong>não enviamos e-mails abertos com informações médicas</strong>. Salve o endereço abaixo nos seus favoritos ou copie-o para um local seguro: ele é o seu único meio exclusivo para acompanhar o andamento, verificar alterações de status e visualizar a resposta oficial.
+            </p>
+            <div class="box-token">
+                {{ request.scheme }}://{{ request.get_host }}/acompanhar/{{ token }}/
+            </div>
+        </div>
+
+        <a href="{% url 'acompanhar_caso' token %}" class="btn-acao">Ir para Acompanhamento</a>
+    </div>
+
+<script>
+    // Função para alternar o tema com persistência local
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.getElementById('themeBtn');
+        body.classList.toggle('dark-mode');
+        
+        if (body.classList.contains('dark-mode')) {
+            btn.innerHTML = "☀️ Modo Claro";
+            localStorage.setItem('theme', 'dark');
+        } else {
+            btn.innerHTML = "🌙 Modo Escuro";
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    // Inicialização idêntica ao nova_solicitacao.html para herdar o tema ativo
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeBtn').innerHTML = "☀️ Modo Claro";
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Enviado | Teleconsultoria HULW</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* PALETA PRINCIPAL (Modo Claro) */
+            --hulw-green-900: #0b3d2e;
+            --hulw-green-100: #137a4d;
+            --hulw-green-50:  #f3faf6;
+            --ink-900: #0f172a;
+            --ink-700: #334155;
+            --ink-500: #64748b;
+            --line:    #e2e8f0;
+            --bg:      #f8fafc;
+            --white:   #ffffff;
+
+            --whatsapp-green: #25d366;
+            --whatsapp-bg: #e8f9ee;
+            --whatsapp-tx: #075e54;
+
+            --shadow-md: 0 4px 6px -1px rgba(11, 61, 46, 0.05), 0 2px 4px -2px rgba(11, 61, 46, 0.05);
+            --shadow-lg: 0 10px 25px -5px rgba(11, 61, 46, 0.1), 0 8px 10px -6px rgba(11, 61, 46, 0.1);
+            --radius: 16px;
+        }
+
+        /* PALETA DO MODO ESCURO INSTITUCIONAL */
+        body.dark-mode {
+            --bg: #03140f;              
+            --white: #08221a;           
+            --ink-900: #f1f5f9;         
+            --ink-700: #cbd5e1;         
+            --ink-500: #94a3b8;         
+            --line: #164e3f;            
+            
+            --hulw-green-900: #34d399;   
+            --hulw-green-100: #10b981;   
+            --hulw-green-50: #06241b;
+
+            --whatsapp-bg: #0b2e1a;
+            --whatsapp-tx: #34d399;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; 
+        }
+        
+        html, body { 
+            margin: 0; 
+            padding: 0; 
+            height: 100%;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--ink-900);
+            line-height: 1.6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .card-notificacao {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 40px 36px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Ícone animado sutil do WhatsApp */
+        .icon-wrapper {
+            width: 72px;
+            height: 72px;
+            background: var(--whatsapp-bg);
+            color: var(--whatsapp-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+        
+        .icon-wrapper svg {
+            width: 38px;
+            height: 38px;
+            fill: currentColor;
+        }
+
+        .card-notificacao h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--hulw-green-900);
+            margin: 0 0 12px 0;
+            letter-spacing: -0.02em;
+        }
+
+        .card-notificacao p {
+            font-size: 0.98rem;
+            color: var(--ink-700);
+            margin: 0 0 24px 0;
+        }
+
+        /* Alerta de instrução interno */
+        .aviso-whatsapp {
+            background: var(--whatsapp-bg);
+            color: var(--whatsapp-tx);
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 32px;
+            border: 1px solid rgba(37, 211, 102, 0.15);
+        }
+
+        /* Botão estilizado para fechar ou voltar */
+        .btn-entendido {
+            background: var(--hulw-green-100);
+            color: #ffffff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            display: inline-block;
+            text-decoration: none;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-entendido:hover {
+            background: #199b63;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(19, 122, 77, 0.15);
+        }
+
+        .btn-entendido:active {
+            transform: translateY(0);
+        }
+
+        body.dark-mode .btn-entendido {
+            background: var(--hulw-green-100);
+            color: #ffffff;
+        }
+        body.dark-mode .btn-entendido:hover {
+            background: #15724f;
+        }
+
+        .footer-info {
+            text-align: center;
+            color: var(--ink-500);
+            font-size: 0.78rem;
+            margin-top: 24px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card-notificacao">
+    <div class="icon-wrapper">
+        <!-- Ícone SVG Oficial do WhatsApp -->
+        <svg viewBox="0 0 24 24">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.003 5.37.548 0 12.003 0c5.4.002 10.48 2.102 14.293 5.922 3.813 3.819 5.911 8.895 5.91 14.3-.006 6.631-5.4 12.03-12.004 12.03-1.997-.001-3.956-.5-5.699-1.447L0 24zm6.59-4.859c1.72.101 3.44.565 4.95 1.354l.355.209c2.342 1.391 5.023 2.126 7.755 2.127 5.305 0 9.622-4.31 9.628-9.615.003-2.569-1.002-4.987-2.83-6.817-1.828-1.828-4.247-2.831-6.821-2.834-5.304 0-9.623 4.309-9.629 9.613-.002 2.564 1.002 4.969 2.826 6.791l.243.243-1.002 3.657 3.733-.978zM17.54 14.42c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+        </svg>
+    </div>
+
+    <h1>Tudo pronto!</h1>
+    <p>Um novo link de acesso seguro e renovado foi gerado e enviado para o seu WhatsApp cadastrado.</p>
+
+    <div class="aviso-whatsapp">
+        💬 Verifique suas mensagens no whatsapp para acessar o painel.
+    </div>
+
+    <!-- Modifique o comportamento do botão conforme sua regra de negócio (ex: fechar aba, voltar pro início, etc) -->
+    <button class="btn-entendido" onclick="window.close();">
+        Entendido, fechar esta página
+    </button>
+
+    <div class="footer-info">
+        Teleconsultoria HULW · Link válido por mais 24 horas.
+    </div>
+</div>
+
+<script>
+    // Sincroniza o tema escuro automaticamente com a escolha salva no painel principal
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    });
+</script>
+</body>
+</html>

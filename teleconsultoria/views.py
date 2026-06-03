@@ -64,6 +64,31 @@ def exportar_cancelamento_excel(solicitacao, justificativa):
     df_final.to_excel(caminho_excel, index=False)
 
 
+# --- NOVA LÓGICA DE REATIVAMENTO (EXCEL) ---
+def exportar_reativamento_excel(solicitacao, novo_token):
+    caminho_excel = os.path.join(settings.BASE_DIR, 'log_reativamentos.xlsx')
+    link_completo = f"{settings.SITE_URL}/acompanhar/{novo_token}/"
+    
+    novos_dados = {
+        'data': [timezone.now().strftime('%d/%m/%Y %H:%M')],
+        'whatsapp': [solicitacao.profissional.telefone],
+        'novo_link': [link_completo]
+    }
+    
+    df_novo = pd.DataFrame(novos_dados)
+    
+    if os.path.exists(caminho_excel):
+        try:
+            df_existente = pd.read_excel(caminho_excel)
+            df_final = pd.concat([df_existente, df_novo], ignore_index=True)
+        except Exception:
+            df_final = df_novo
+    else:
+        df_final = df_novo
+        
+    df_final.to_excel(caminho_excel, index=False)
+
+
 # --- FUNÇÃO DE VERIFICAÇÃO DE ACESSO ---
 # Permite o acesso de qualquer usuário criado por você (Staff) no painel administrativo
 def is_medica(user):
@@ -73,14 +98,14 @@ def is_medica(user):
 def nova_solicitacao(request):
     if request.method == 'POST':
         cpf_solicitante = request.POST.get('cpf')
-        nome_solicitante = request.POST.get('nome_completo')
+        text_solicitante = request.POST.get('nome_completo')
         email_solicitante = request.POST.get('email')
         telefone_solicitante = request.POST.get('telefone') # CAPTURA DO WHATSAPP
         crm_solicitante = request.POST.get('crm')
         cargo_solicitante = request.POST.get('cargo')
         instituicao_solicitante = request.POST.get('instituicao')
 
-        if not cpf_solicitante or not nome_solicitante:
+        if not cpf_solicitante or not text_solicitante:
             return render(request, 'nova_solicitacao.html', {
                 'erro': 'CPF e Nome Completo são obrigatórios para identificar o profissional.',
                 'horarios_disponiveis': gerar_lista_disponibilidade()
@@ -90,7 +115,7 @@ def nova_solicitacao(request):
         profissional_solicitante, created = Profissional.objects.update_or_create(
             cpf=cpf_solicitante,
             defaults={
-                'nome_completo': nome_solicitante,
+                'nome_completo': text_solicitante,
                 'email': email_solicitante,
                 'telefone': telefone_solicitante,
                 'crm': crm_solicitante,
@@ -152,7 +177,7 @@ def nova_solicitacao(request):
             else:
                 nova_sol = Solicitacao.objects.create(
                     **dados_base,
-                    idade_pac=request.POST.get('idade_pac') or 0,
+                    id_pac=request.POST.get('idade_pac') or 0,
                     sexo_pac=request.POST.get('sexo_pac'),
                     sexo_biologico_pac=request.POST.get('sexo_biologico_pac'), 
                     diagnostico_princ=request.POST.get('diagnostico_princ'),
@@ -163,14 +188,14 @@ def nova_solicitacao(request):
                     exames_recentes=request.POST.get('exames_recentes')
                 )
             
-            LinkAcesso.objects.create(solicitacao=nova_sol)
+            link_obj = LinkAcesso.objects.create(solicitacao=nova_sol)
             
             # Mudado de 'anexos' para 'arquivos_anexos' para sincronizar com o HTML
             arquivos = request.FILES.getlist('arquivos_anexos')
             for f in arquivos:
                 AnexoSolicitacao.objects.create(solicitacao=nova_sol, arquivo=f)
             
-        return redirect('fila_medica')
+        return render(request, 'sucesso.html', {'token': link_obj.token})
     
     return render(request, 'nova_solicitacao.html', {
         'horarios_disponiveis': gerar_lista_disponibilidade()
@@ -184,14 +209,18 @@ def gerar_lista_disponibilidade():
         data_analise = hoje + timedelta(days=i)
         dia_semana_idx = data_analise.weekday() 
         
+        # CORREÇÃO: Formata a lista de horários ocupados como strings para comparação à prova de falhas
         ocupados = Solicitacao.objects.filter(
             data_marcada=data_analise
         ).exclude(status='CANCELADA').values_list('horario_marcado', flat=True)
         
+        ocupados_str = [h.strftime('%H:%M') for h in ocupados if h is not None]
+        
         slots_da_grade = grade_fixa.filter(dia_semana=dia_semana_idx).order_by('horario')
         
         for slot in slots_da_grade:
-            if slot.horario not in ocupados:
+            # CORREÇÃO: Compara a string gerada pelo slot com a lista de strings ocupadas
+            if slot.horario and slot.horario.strftime('%H:%M') not in ocupados_str:
                 horarios_livres.append({
                     'data': data_analise,
                     'horario': slot.horario,
@@ -297,11 +326,9 @@ def cancelar_solicitacao(request, sol_id):
     if request.method == 'POST':
         justificativa = request.POST.get('justificativa')
         
-        # CORREÇÃO: Limpa a string de campos de texto livre com espaço para não enviar vazio ao model
         if justificativa == 'OUTRO':
             texto_livre = request.POST.get('justificativa_detalhada')
             
-            # Verifica se o texto não é nulo e se não é apenas espaço em branco (strip)
             if texto_livre and texto_livre.strip():
                 justificativa = texto_livre.strip()
             else:
@@ -345,7 +372,8 @@ def renovar_acesso(request, token):
     link_antigo = get_object_or_404(LinkAcesso, token=token)
     solicitacao = link_antigo.solicitacao
     
-    link_antigo.token = str(uuid.uuid4())
+    novo_token = str(uuid.uuid4())
+    link_antigo.token = novo_token
     link_antigo.data_criacao = timezone.now()
     link_antigo.save()
     
@@ -353,6 +381,12 @@ def renovar_acesso(request, token):
         exportar_para_whatsapp_excel(solicitacao)
     except Exception as e:
         print(f"Erro ao renovar via WhatsApp: {e}")
+
+    try:
+        # SALVA O LOG DE REATIVAMENTO NO EXCEL (data, whatsapp, novo_link)
+        exportar_reativamento_excel(solicitacao, novo_token)
+    except Exception as e:
+        print(f"Erro ao exportar log de reativamento: {e}")
     
     return render(request, 'notificacao_enviada.html', {
         'email': solicitacao.profissional.telefone if solicitacao.profissional else "Telefone não cadastrado"
