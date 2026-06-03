@@ -90,7 +90,6 @@ def exportar_reativamento_excel(solicitacao, novo_token):
 
 
 # --- FUNÇÃO DE VERIFICAÇÃO DE ACESSO ---
-# Permite o acesso de qualquer usuário criado por você (Staff) no painel administrativo
 def is_medica(user):
     return user.is_authenticated and user.is_staff
 
@@ -100,7 +99,7 @@ def nova_solicitacao(request):
         cpf_solicitante = request.POST.get('cpf')
         text_solicitante = request.POST.get('nome_completo')
         email_solicitante = request.POST.get('email')
-        telefone_solicitante = request.POST.get('telefone') # CAPTURA DO WHATSAPP
+        telefone_solicitante = request.POST.get('telefone') 
         crm_solicitante = request.POST.get('crm')
         cargo_solicitante = request.POST.get('cargo')
         instituicao_solicitante = request.POST.get('instituicao')
@@ -111,7 +110,6 @@ def nova_solicitacao(request):
                 'horarios_disponiveis': gerar_lista_disponibilidade()
             })
 
-        # BUSCA PELO CPF E ATUALIZA TODOS OS DADOS COM OS NOVOS VALORES DO FORMULÁRIO
         profissional_solicitante, created = Profissional.objects.update_or_create(
             cpf=cpf_solicitante,
             defaults={
@@ -172,7 +170,6 @@ def nova_solicitacao(request):
             }
             
             if tipo_caso == 'GERAL':
-                # Se for geral, define valores padrão ou nulos para o sexo biológico se o model permitir
                 nova_sol = Solicitacao.objects.create(**dados_base, idade_pac=0, sexo_pac='O', sexo_biologico_pac='O')
             else:
                 nova_sol = Solicitacao.objects.create(
@@ -190,7 +187,6 @@ def nova_solicitacao(request):
             
             link_obj = LinkAcesso.objects.create(solicitacao=nova_sol)
             
-            # Mudado de 'anexos' para 'arquivos_anexos' para sincronizar com o HTML
             arquivos = request.FILES.getlist('arquivos_anexos')
             for f in arquivos:
                 AnexoSolicitacao.objects.create(solicitacao=nova_sol, arquivo=f)
@@ -209,17 +205,14 @@ def gerar_lista_disponibilidade():
         data_analise = hoje + timedelta(days=i)
         dia_semana_idx = data_analise.weekday() 
         
-        # CORREÇÃO: Formata a lista de horários ocupados como strings para comparação à prova de falhas
         ocupados = Solicitacao.objects.filter(
             data_marcada=data_analise
         ).exclude(status='CANCELADA').values_list('horario_marcado', flat=True)
         
         ocupados_str = [h.strftime('%H:%M') for h in ocupados if h is not None]
-        
         slots_da_grade = grade_fixa.filter(dia_semana=dia_semana_idx).order_by('horario')
         
         for slot in slots_da_grade:
-            # CORREÇÃO: Compara a string gerada pelo slot com a lista de strings ocupadas
             if slot.horario and slot.horario.strftime('%H:%M') not in ocupados_str:
                 horarios_livres.append({
                     'data': data_analise,
@@ -244,7 +237,6 @@ def detalhe_caso(request, sol_id):
     if solicitacao.status == 'PENDENTE':
         solicitacao.iniciar_analise()
         
-        # CORREÇÃO CONTRA QUEDAS: Verifica se o usuário tem o perfil médica, senão usa a primeira cadastrada
         if hasattr(request.user, 'medica'):
             solicitacao.medica_designada = request.user.medica
         else:
@@ -281,7 +273,6 @@ def responder_solicitacao(request, sol_id):
     if request.method == 'POST':
         texto_resposta = request.POST.get('resposta')
         
-        # CORREÇÃO CONTRA QUEDAS: Se o Admin puro responder, o sistema usa a primeira médica do banco como autora
         if hasattr(request.user, 'medica'):
             medica_logada = request.user.medica
         else:
@@ -295,7 +286,6 @@ def responder_solicitacao(request, sol_id):
                 AnexoResposta.objects.create(resposta=nova_resposta, arquivo=f)
             
             try:
-                # DISPARO PARA O WHATSAPP (EXCEL)
                 exportar_para_whatsapp_excel(solicitacao)
             except Exception as e:
                 print(f"Erro ao exportar log WhatsApp: {e}")
@@ -328,7 +318,6 @@ def cancelar_solicitacao(request, sol_id):
         
         if justificativa == 'OUTRO':
             texto_livre = request.POST.get('justificativa_detalhada')
-            
             if texto_livre and texto_livre.strip():
                 justificativa = texto_livre.strip()
             else:
@@ -349,18 +338,25 @@ def cancelar_solicitacao(request, sol_id):
 
 def acompanhar_caso(request, token):
     link = get_object_or_404(LinkAcesso, token=token)
-    if not link.is_valido():
+    agora = timezone.now()
+    
+    # CORREÇÃO DA LOGICA DE VALIDADE DINÂMICA:
+    # Adicionamos uma tolerância de 1 minuto para evitar que desvios de milissegundos na hora da criação 
+    # salvem o token como se ele já tivesse sido reativado. 
+    # Se a diferença de tempo for maior que 1 minuto, o link de fato foi reativado depois.
+    if link.data_criacao > (link.solicitacao.data_sol + timedelta(minutes=1)):
+        horas_validade = 24
+    else:
+        horas_validade = 240
+            
+    data_limite_estimada = link.data_criacao + timedelta(hours=horas_validade)
+    
+    if data_limite_estimada <= agora:
         return render(request, 'link_expirado.html', {'link_obj': link}, status=403)
     
-    agora = timezone.now()
     segundos_restantes = 0
-    
-    if link.data_criacao:
-        horas_validade = 240
-        data_limite_estimada = link.data_criacao + timedelta(hours=horas_validade)
-        
-        if data_limite_estimada > agora:
-            segundos_restantes = int((data_limite_estimada - agora).total_seconds())
+    if data_limite_estimada > agora:
+        segundos_restantes = int((data_limite_estimada - agora).total_seconds())
     
     return render(request, 'acompanhar_caso.html', {
         'sol': link.solicitacao,
@@ -383,7 +379,6 @@ def renovar_acesso(request, token):
         print(f"Erro ao renovar via WhatsApp: {e}")
 
     try:
-        # SALVA O LOG DE REATIVAMENTO NO EXCEL (data, whatsapp, novo_link)
         exportar_reativamento_excel(solicitacao, novo_token)
     except Exception as e:
         print(f"Erro ao exportar log de reativamento: {e}")

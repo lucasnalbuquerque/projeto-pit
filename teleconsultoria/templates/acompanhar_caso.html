@@ -236,6 +236,7 @@
         .status-AGENDADO { background: var(--agendado-bg); color: var(--agendado-tx); border-color: rgba(70, 78, 184, 0.2); }
         .status-CONCLUIDA { background: var(--success-bg); color: var(--success-tx); border-color: rgba(4, 120, 87, 0.15); }
         .status-CANCELADA { background: var(--danger-bg); color: var(--danger-tx); border-color: rgba(185, 28, 28, 0.15); }
+        .status-AUSENTE { background: var(--warn-bg); color: var(--warn-tx); border-color: var(--warn-bd); }
 
         .teams-card {
             background: var(--info-bg);
@@ -395,7 +396,7 @@
             </span>
         </div>
 
-        {% if sol.tipo_atendimento == 'SINCRONO' and sol.status != 'CONCLUIDA' and sol.status != 'CANCELADA' %}
+        {% if sol.tipo_atendimento == 'SINCRONO' and sol.status != 'CONCLUIDA' and sol.status != 'CANCELADA' and sol.status != 'AUSENTE' %}
         <div class="teams-card">
             <div>
                 <h3 style="color: #464eb8; margin: 0 0 6px 0; border: none; padding: 0; font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em;">📅 Teleconsultoria Agendada</h3>
@@ -452,7 +453,7 @@
                 {% endif %}
 
                 <div class="detalhe-item">
-                    <strong>Dúvida Clínica (Pergunta)</strong>
+                    <strong>Dúvida Clinical (Pergunta)</strong>
                     <p style="background: var(--bg); font-weight: 500; border-color: var(--line);">
                         {{ sol.duvida_clinica|linebreaksbr }}
                     </p>
@@ -504,23 +505,30 @@
             </div>
             {% endfor %}
         {% else %}
-            {% if sol.status != 'CANCELADA' %}
+            {% if sol.status == 'CANCELADA' %}
+            <div class="resposta-box" style="border: 1px solid var(--danger-tx); background: var(--danger-bg); color: var(--danger-tx); border-left: 4px solid var(--danger-tx);">
+                <p style="margin: 0 0 8px 0; font-weight: 800; font-size: 1.1rem; letter-spacing: -0.01em;">Esta solicitação foi cancelada.</p>
+                <p style="margin: 0; font-size: 0.95rem; opacity: 0.95; background: transparent; border: none; padding: 0; color: inherit; line-height: 1.5;"><strong>Justificativa:</strong> {{ sol.justificativa_cancelamento|default:"Não informada." }}</p>
+            </div>
+            {% elif sol.status == 'AUSENTE' %}
+            <div class="resposta-box" style="border: 1px solid var(--warn-tx); background: var(--warn-bg); color: var(--warn-tx); border-left: 4px solid var(--warn-tx);">
+                <p style="margin: 0 0 8px 0; font-weight: 800; font-size: 1.1rem; letter-spacing: -0.01em;">Teleconsultoria não realizada por ausência.</p>
+                <p style="margin: 0; font-size: 0.95rem; opacity: 0.95; background: transparent; border: none; padding: 0; color: inherit; line-height: 1.5;">
+                    O médico especialista compareceu à sala de conferência no dia <strong>{{ sol.data_marcada|date:"d/m/Y" }} às {{ sol.horario_marcado|time:"H:i" }}</strong>, porém não houve o comparecimento do profissional solicitante. Caso ainda necessite de suporte, por favor, realize uma nova solicitação no sistema.
+                </p>
+            </div>
+            {% else %}
             <div class="resposta-box" style="text-align: center; border: 2px dashed var(--line); background: transparent; padding: 36px 24px;">
                 <p style="font-size: 0.98rem; color: var(--ink-700); margin: 0; padding: 0; border: none; background: transparent; line-height: 1.6;">
                     {% if sol.status == 'PENDENTE' %}
                         Sua solicitação está na fila de processamento e aguarda a triagem.<br>
-                    {%     elif sol.status == 'ANALISE' %}
+                    {% elif sol.status == 'ANALISE' %}
                         Sua solicitação está em andamento, sendo revisada por nossa equipe médica especializada.<br>
-                    {%     elif sol.status == 'AGENDADO' %}
+                    {% elif sol.status == 'AGENDADO' %}
                         Sua teleconsultoria está agendada. No horário marcado, utilize o botão de acesso Teams exibido acima.<br>
-                    {%     endif %}
+                    {% endif %}
                     <strong style="display:block; margin-top: 14px; color: var(--resposta-destaque); font-weight: 700;">Mantenha este link salvo. A resposta oficial será disponibilizada automaticamente aqui.</strong>
                 </p>
-            </div>
-            {% else %}
-            <div class="resposta-box" style="border: 1px solid var(--danger-tx); background: var(--danger-bg); color: var(--danger-tx); border-left: 4px solid var(--danger-tx);">
-                <p style="margin: 0 0 8px 0; font-weight: 800; font-size: 1.1rem; letter-spacing: -0.01em;">Esta solicitação foi cancelada.</p>
-                <p style="margin: 0; font-size: 0.95rem; opacity: 0.95; background: transparent; border: none; padding: 0; color: inherit; line-height: 1.5;"><strong>Justificativa:</strong> {{ sol.justificativa_cancelamento|default:"Não informada." }}</p>
             </div>
             {% endif %}
         {% endif %}
