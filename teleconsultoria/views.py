@@ -97,6 +97,11 @@ def is_medica(user):
 def nova_solicitacao(request):
     if request.method == 'POST':
         cpf_solicitante = request.POST.get('cpf')
+        
+        # Remove pontos e traços do CPF para evitar erro de limite de tamanho no PostgreSQL
+        if cpf_solicitante:
+            cpf_solicitante = ''.join(filter(str.isdigit, cpf_solicitante))
+
         text_solicitante = request.POST.get('nome_completo')
         email_solicitante = request.POST.get('email')
         telefone_solicitante = request.POST.get('telefone') 

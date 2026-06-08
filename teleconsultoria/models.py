@@ -52,7 +52,7 @@ class HorarioFixoDisponivel(models.Model):
 class Profissional(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     
-    cpf = models.CharField(max_length=11, unique=True) 
+    cpf = models.CharField(max_length=14, unique=True, help_text="CPF com ou sem formatação") 
     nome_completo = models.CharField(max_length=255)
     email = models.EmailField()
     telefone = models.CharField(max_length=15, help_text="WhatsApp com DDD", blank=True, null=True)
