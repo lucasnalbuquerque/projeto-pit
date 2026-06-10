@@ -9,10 +9,10 @@ import uuid
 import os
 import pandas as pd
 
-# --- LÓGICA DE NOTIFICAÇÃO (WHATSAPP VIA EXCEL) ---
-def exportar_para_whatsapp_excel(solicitacao):
+# --- LÓGICA DE NOTIFICAÇÃO (WHATSAPP VIA CSV) ---
+def exportar_para_whatsapp_csv(solicitacao):
 
-    caminho_excel = os.path.join(settings.BASE_DIR, 'log_notificacoes.xlsx')
+    caminho_csv = os.path.join(settings.BASE_DIR, 'log_notificacoes.csv')
     link_obj = LinkAcesso.objects.filter(solicitacao=solicitacao).first()
     token = link_obj.token if link_obj else "token-nao-gerado"
     
@@ -29,18 +29,18 @@ def exportar_para_whatsapp_excel(solicitacao):
     
     df_novo = pd.DataFrame(novos_dados)
     
-    if os.path.exists(caminho_excel):
-        df_antigo = pd.read_excel(caminho_excel)
+    if os.path.exists(caminho_csv):
+        df_antigo = pd.read_csv(caminho_csv)
         df_final = pd.concat([df_antigo, df_novo], ignore_index=True)
     else:
         df_final = df_novo
         
-    df_final.to_excel(caminho_excel, index=False)
+    df_final.to_csv(caminho_csv, index=False, encoding='utf-8-sig')
 
 
-# --- NOVA LÓGICA DE CANCELAMENTO (EXCEL) ---
-def exportar_cancelamento_excel(solicitacao, justificativa):
-    caminho_excel = os.path.join(settings.BASE_DIR, 'log_cancelamentos.xlsx')
+# --- NOVA LÓGICA DE CANCELAMENTO (CSV) ---
+def exportar_cancelamento_csv(solicitacao, justificativa):
+    caminho_csv = os.path.join(settings.BASE_DIR, 'log_cancelamentos.csv')
     
     novos_dados = {
         'data_cancelamento': [timezone.now().strftime('%d/%m/%Y %H:%M')],
@@ -52,21 +52,21 @@ def exportar_cancelamento_excel(solicitacao, justificativa):
     
     df_novo = pd.DataFrame(novos_dados)
     
-    if os.path.exists(caminho_excel):
+    if os.path.exists(caminho_csv):
         try:
-            df_existente = pd.read_excel(caminho_excel)
+            df_existente = pd.read_csv(caminho_csv)
             df_final = pd.concat([df_existente, df_novo], ignore_index=True)
         except Exception:
             df_final = df_novo
     else:
         df_final = df_novo
         
-    df_final.to_excel(caminho_excel, index=False)
+    df_final.to_csv(caminho_csv, index=False, encoding='utf-8-sig')
 
 
-# --- NOVA LÓGICA DE REATIVAMENTO (EXCEL) ---
-def exportar_reativamento_excel(solicitacao, novo_token):
-    caminho_excel = os.path.join(settings.BASE_DIR, 'log_reativamentos.xlsx')
+# --- NOVA LÓGICA DE REATIVAMENTO (CSV) ---
+def exportar_reativamento_csv(solicitacao, novo_token):
+    caminho_csv = os.path.join(settings.BASE_DIR, 'log_reativamentos.csv')
     link_completo = f"{settings.SITE_URL}/acompanhar/{novo_token}/"
     
     novos_dados = {
@@ -77,16 +77,16 @@ def exportar_reativamento_excel(solicitacao, novo_token):
     
     df_novo = pd.DataFrame(novos_dados)
     
-    if os.path.exists(caminho_excel):
+    if os.path.exists(caminho_csv):
         try:
-            df_existente = pd.read_excel(caminho_excel)
+            df_existente = pd.read_csv(caminho_csv)
             df_final = pd.concat([df_existente, df_novo], ignore_index=True)
         except Exception:
             df_final = df_novo
     else:
         df_final = df_novo
         
-    df_final.to_excel(caminho_excel, index=False)
+    df_final.to_csv(caminho_csv, index=False, encoding='utf-8-sig')
 
 
 # --- FUNÇÃO DE VERIFICAÇÃO DE ACESSO ---
@@ -298,7 +298,7 @@ def responder_solicitacao(request, sol_id):
                 AnexoResposta.objects.create(resposta=nova_resposta, arquivo=f)
             
             try:
-                exportar_para_whatsapp_excel(solicitacao)
+                exportar_para_whatsapp_csv(solicitacao)
             except Exception as e:
                 print(f"Erro ao exportar log WhatsApp: {e}")
             
@@ -338,7 +338,7 @@ def cancelar_solicitacao(request, sol_id):
         solicitacao.cancelar(justificativa)
         
         try:
-            exportar_cancelamento_excel(solicitacao, justificativa)
+            exportar_cancelamento_csv(solicitacao, justificativa)
         except Exception as e:
             print(f"Erro ao exportar log cancelamento: {e}")
             
@@ -386,12 +386,12 @@ def renovar_acesso(request, token):
     link_antigo.save()
     
     try:
-        exportar_para_whatsapp_excel(solicitacao)
+        exportar_para_whatsapp_csv(solicitacao)
     except Exception as e:
         print(f"Erro ao renovar via WhatsApp: {e}")
 
     try:
-        exportar_reativamento_excel(solicitacao, novo_token)
+        exportar_reativamento_csv(solicitacao, novo_token)
     except Exception as e:
         print(f"Erro ao exportar log de reativamento: {e}")
     
