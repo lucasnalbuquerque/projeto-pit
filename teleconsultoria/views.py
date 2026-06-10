@@ -179,7 +179,7 @@ def nova_solicitacao(request):
             else:
                 nova_sol = Solicitacao.objects.create(
                     **dados_base,
-                    id_pac=request.POST.get('idade_pac') or 0,
+                    idade_pac=request.POST.get('idade_pac') or 0,
                     sexo_pac=request.POST.get('sexo_pac'),
                     sexo_biologico_pac=request.POST.get('sexo_biologico_pac'), 
                     diagnostico_princ=request.POST.get('diagnostico_princ'),
@@ -282,6 +282,13 @@ def responder_solicitacao(request, sol_id):
             medica_logada = request.user.medica
         else:
             medica_logada = Medica.objects.first()
+        
+        # Validação extra de segurança: impede o salvamento caso nenhuma Médica esteja vinculada ou cadastrada
+        if not medica_logada:
+            return render(request, 'detalhe_caso.html', {
+                'sol': solicitacao,
+                'erro': 'Seu usuário de testes não possui um perfil de Médica vinculado no painel de administração.'
+            })
         
         with transaction.atomic():
             nova_resposta = Resposta.objects.create(solicitacao=solicitacao, medica=medica_logada, conteudo=texto_resposta)
