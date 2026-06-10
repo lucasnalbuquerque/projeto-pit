@@ -335,11 +335,13 @@
                 <div class="alert-agendamento">
                     <p style="margin-top: 0;"><strong>Ação Necessária:</strong> Gere o link no Teams para esta consultoria.</p>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <a href="https://teams.microsoft.com/l/meeting/new?subject=Teleconsultoria%20#{{ sol.id }}&startTime={{ sol.data_marcada|date:'Y-m-d' }}T{{ sol.horario_marcado|time:'H:i' }}:00"
+                        {% with duracao=sol.duracao_estimada|default:30 %}
+                        <a href="https://teams.microsoft.com/l/meeting/new?subject=Teleconsultoria&startTime={{ sol.data_marcada|date:'Y-m-d' }}T{{ sol.horario_marcado|time:'H:i' }}:00&endTime={{ sol.data_marcada|date:'Y-m-d' }}T{% if sol.horario_marcado.minute >= 30 %}{{ sol.horario_marcado.hour|add:1|stringformat:'02d' }}:{% if sol.horario_marcado.minute == 30 %}00{% else %}30{% endif %}{% else %}{{ sol.horario_marcado.hour|stringformat:'02d' }}:{{ sol.horario_marcado.minute|add:30|stringformat:'02d' }}{% endif %}:00"
                            target="_blank"
                            class="btn-teams">
                              1. Gerar Reunião no Teams
                         </a>
+                        {% endwith %}
                         <a href="{% url 'agendar_sincrona' sol.id %}" class="btn-secondary">
                             2. Registrar Link Gerado
                         </a>
