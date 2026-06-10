@@ -38,19 +38,19 @@
 
         /* CORREÇÃO DA PALETA: MODO ESCURO INSTITUCIONAL (Sem tons azulados/fluorescentes) */
         body.dark-mode {
-            --hulw-green-900: #e6f5ee; /* Texto claro principal em tom verde-claro suave */
-            --hulw-green-700: #34d399; /* Destaques intermediários confortáveis */
-            --hulw-green-600: #10b981; /* Verde de ação principal */
-            --hulw-green-500: #059669; /* Verde de foco/borda */
-            --hulw-green-100: #0b3d2e; /* Fundo de badges/avisos escuros */
-            --hulw-green-50:  #06241b; /* Elementos sutis de fundo */
-            --ink-900: #f1f5f9;        /* Textos comuns (quase branco) */
-            --ink-700: #cbd5e1;        /* Subtítulos */
-            --ink-500: #64748b;        /* Placeholders e desabilitados */
+            --hulw-green-900: #e6f5ee;
+            --hulw-green-700: #34d399;
+            --hulw-green-600: #10b981;
+            --hulw-green-500: #059669;
+            --hulw-green-100: #0b3d2e;
+            --hulw-green-50:  #06241b;
+            --ink-900: #f1f5f9;
+            --ink-700: #cbd5e1;
+            --ink-500: #64748b;
             --ink-300: #334155;        
-            --line:    #164e3f;        /* Divisórias integradas ao tom esverdeado */
-            --bg:      #03140f;        /* CORRIGIDO: Fundo escuro baseado na paleta verde HULW */
-            --white:   #08221a;        /* CORRIGIDO: Cor dos cards integrada ao ecossistema esverdeado */
+            --line:    #164e3f;
+            --bg:      #03140f;
+            --white:   #08221a;
             --warn-bg: #3f2006;
             --warn-bd: #b45309;
             --warn-tx: #fef3c7;
@@ -61,7 +61,6 @@
             --error-bg: #2c1a1a;
         }
 
-        /* CORREÇÃO DO BUG VISUAL NO MODO ESCURO */
         body.dark-mode select {
             background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2334d399' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
             background-repeat: no-repeat;
@@ -786,7 +785,7 @@
         // Mantém a lógica nativa do formulário caso precise interceptar mudanças de gênero.
     }
 
-    // CORREÇÃO LOGÍSTICA PARA MULTI-ANEXOS NO DJANGO backend
+    // CORREÇÃO PARA MULTI-ANEXOS NO DJANGO backend
     let arquivosArray = [];
     
     function adicionarArquivos() {

@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.conf import settings
 import uuid 
 import os
-import pandas as pd  # Adicionado para a lógica do WhatsApp
+import pandas as pd
 
 # --- LÓGICA DE NOTIFICAÇÃO (WHATSAPP VIA EXCEL) ---
 def exportar_para_whatsapp_excel(solicitacao):
@@ -352,8 +352,8 @@ def acompanhar_caso(request, token):
     link = get_object_or_404(LinkAcesso, token=token)
     agora = timezone.now()
     
-    # CORREÇÃO DA LOGICA DE VALIDADE DINÂMICA:
-    # Adicionamos uma tolerância de 1 minuto para evitar que desvios de milissegundos na hora da criação 
+    # LOGICA DE VALIDADE DINÂMICA:
+    # tolerância de 1 minuto para evitar que desvios de milissegundos na hora da criação 
     # salvem o token como se ele já tivesse sido reativado. 
     # Se a diferença de tempo for maior que 1 minuto, o link de fato foi reativado depois.
     if link.data_criacao > (link.solicitacao.data_sol + timedelta(minutes=1)):

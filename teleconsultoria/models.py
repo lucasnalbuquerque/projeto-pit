@@ -102,8 +102,6 @@ class Solicitacao(models.Model):
     medicamentos = models.TextField(blank=True, null=True)
     exames_recentes = models.TextField(blank=True, null=True)
     duvida_clinica = models.TextField()
-
-    # Adicionando o campo de token para o detalhe_caso funcionar
     token_acesso = models.UUIDField(default=uuid.uuid4, editable=False)
 
     # métodos de mudança de status
