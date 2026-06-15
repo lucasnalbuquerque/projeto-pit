@@ -29,9 +29,11 @@ class HorarioFixoForm(forms.ModelForm):
         model = HorarioFixoDisponivel
         fields = ['dia_semana', 'horario', 'operacao']
 
-    # Remove a validação de "já existe" para permitir a remoção
+    # Remove a validação de "já existe" apenas para a operação de remoção
     def validate_unique(self):
-        pass
+        operacao = self.cleaned_data.get('operacao')
+        if operacao != 'del':
+            super().validate_unique()
 
 @admin.register(HorarioFixoDisponivel)
 class HorarioFixoAdmin(admin.ModelAdmin):
