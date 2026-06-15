@@ -5,9 +5,12 @@ from datetime import datetime, timedelta, date
 from django.db import transaction
 from django.utils import timezone
 from django.conf import settings
+import logging
 import uuid 
 import os
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 # --- LÓGICA DE NOTIFICAÇÃO (WHATSAPP VIA CSV) ---
 def exportar_para_whatsapp_csv(solicitacao):
@@ -16,7 +19,6 @@ def exportar_para_whatsapp_csv(solicitacao):
     link_obj = LinkAcesso.objects.filter(solicitacao=solicitacao).first()
     token = link_obj.token if link_obj else "token-nao-gerado"
     
-    # Monta o link que o profissional usará para ver a resposta
     link_completo = f"{settings.SITE_URL}/acompanhar/{token}/"
     
     novos_dados = {
@@ -98,7 +100,6 @@ def nova_solicitacao(request):
     if request.method == 'POST':
         cpf_solicitante = request.POST.get('cpf')
         
-        # Remove pontos e traços do CPF para evitar erro de limite de tamanho no PostgreSQL
         if cpf_solicitante:
             cpf_solicitante = ''.join(filter(str.isdigit, cpf_solicitante))
 
@@ -253,9 +254,8 @@ def detalhe_caso(request, sol_id):
     token = link_obj.token if link_obj else "token-nao-gerado"
     link_publico = f"{request.scheme}://{request.get_host()}/acompanhar/{token}/"
     
-    print("\n" + "="*50)
-    print(f"LINK DE ACESSO PÚBLICO (Caso #{solicitacao.id}): {link_publico}")
-    print("="*50 + "\n")
+    # Log seguro: registra apenas o ID do caso, sem expor o link completo
+    logger.info(f"Link de acesso gerado para o Caso #{solicitacao.id}")
     
     return render(request, 'detalhe_caso.html', {'sol': solicitacao})
 
@@ -283,7 +283,6 @@ def responder_solicitacao(request, sol_id):
         else:
             medica_logada = Medica.objects.first()
         
-        # Validação extra de segurança: impede o salvamento caso nenhuma Médica esteja vinculada ou cadastrada
         if not medica_logada:
             return render(request, 'detalhe_caso.html', {
                 'sol': solicitacao,
@@ -300,7 +299,7 @@ def responder_solicitacao(request, sol_id):
             try:
                 exportar_para_whatsapp_csv(solicitacao)
             except Exception as e:
-                print(f"Erro ao exportar log WhatsApp: {e}")
+                logger.error(f"Erro ao exportar log WhatsApp para caso #{solicitacao.id}: {e}")
             
         return redirect('fila_medica')
     return render(request, 'responder.html', {'sol': solicitacao})
@@ -340,7 +339,7 @@ def cancelar_solicitacao(request, sol_id):
         try:
             exportar_cancelamento_csv(solicitacao, justificativa)
         except Exception as e:
-            print(f"Erro ao exportar log cancelamento: {e}")
+            logger.error(f"Erro ao exportar log cancelamento para caso #{solicitacao.id}: {e}")
             
         return redirect('fila_medica')
     return render(request, 'cancelar_caso.html', {'sol': solicitacao})
@@ -352,10 +351,6 @@ def acompanhar_caso(request, token):
     link = get_object_or_404(LinkAcesso, token=token)
     agora = timezone.now()
     
-    # LOGICA DE VALIDADE DINÂMICA:
-    # tolerância de 1 minuto para evitar que desvios de milissegundos na hora da criação 
-    # salvem o token como se ele já tivesse sido reativado. 
-    # Se a diferença de tempo for maior que 1 minuto, o link de fato foi reativado depois.
     if link.data_criacao > (link.solicitacao.data_sol + timedelta(minutes=1)):
         horas_validade = 24
     else:
@@ -376,7 +371,12 @@ def acompanhar_caso(request, token):
         'segundos_restantes': segundos_restantes  
     })
 
+@login_required(login_url='login')
+@user_passes_test(is_medica, login_url='login')
 def renovar_acesso(request, token):
+    if request.method != 'POST':
+        return redirect('fila_medica')
+
     link_antigo = get_object_or_404(LinkAcesso, token=token)
     solicitacao = link_antigo.solicitacao
     
@@ -388,12 +388,12 @@ def renovar_acesso(request, token):
     try:
         exportar_para_whatsapp_csv(solicitacao)
     except Exception as e:
-        print(f"Erro ao renovar via WhatsApp: {e}")
+        logger.error(f"Erro ao renovar via WhatsApp para caso #{solicitacao.id}: {e}")
 
     try:
         exportar_reativamento_csv(solicitacao, novo_token)
     except Exception as e:
-        print(f"Erro ao exportar log de reativamento: {e}")
+        logger.error(f"Erro ao exportar log de reativamento para caso #{solicitacao.id}: {e}")
     
     return render(request, 'notificacao_enviada.html', {
         'email': solicitacao.profissional.telefone if solicitacao.profissional else "Telefone não cadastrado"

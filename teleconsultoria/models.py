@@ -2,6 +2,7 @@ import uuid
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 # --- ENUMS ---
 class StatusSolicitacao(models.TextChoices):
@@ -102,7 +103,6 @@ class Solicitacao(models.Model):
     medicamentos = models.TextField(blank=True, null=True)
     exames_recentes = models.TextField(blank=True, null=True)
     duvida_clinica = models.TextField()
-    token_acesso = models.UUIDField(default=uuid.uuid4, editable=False)
 
     # métodos de mudança de status
     def iniciar_analise(self):
@@ -147,17 +147,42 @@ class Resposta(models.Model):
     data_res = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
+        is_new = self._state.adding  # Só finaliza ao criar, não ao editar
         super().save(*args, **kwargs)
-        self.solicitacao.finalizar()
+        if is_new:
+            status_finalizaveis = [
+                StatusSolicitacao.PENDENTE,
+                StatusSolicitacao.EM_ANALISE,
+                StatusSolicitacao.AGENDADO,
+            ]
+            if self.solicitacao.status in status_finalizaveis:
+                self.solicitacao.finalizar()
 
     def __str__(self):
         return f"Resposta de {self.medica} para Solicitacao #{self.solicitacao.id}"
+
+# --- EXTENSÃO PARA VALIDAÇÃO DE ANEXOS ---
+
+EXTENSOES_PERMITIDAS = ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx']
+TAMANHO_MAXIMO_MB = 50
+
+def validar_arquivo(arquivo):
+    import os
+    ext = os.path.splitext(arquivo.name)[1].lower()
+    if ext not in EXTENSOES_PERMITIDAS:
+        raise ValidationError(
+            f"Tipo de arquivo não permitido. Extensões aceitas: {', '.join(EXTENSOES_PERMITIDAS)}"
+        )
+    if arquivo.size > TAMANHO_MAXIMO_MB * 1024 * 1024:
+        raise ValidationError(
+            f"Arquivo muito grande. Tamanho máximo permitido: {TAMANHO_MAXIMO_MB}MB."
+        )
 
 # --- MODELOS DE ANEXOS ---
 
 class AnexoSolicitacao(models.Model):
     solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE, related_name='anexos')
-    arquivo = models.FileField(upload_to='solicitacoes_anexos/')
+    arquivo = models.FileField(upload_to='solicitacoes_anexos/', validators=[validar_arquivo])
     data_upload = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -165,7 +190,7 @@ class AnexoSolicitacao(models.Model):
 
 class AnexoResposta(models.Model):
     resposta = models.ForeignKey(Resposta, on_delete=models.CASCADE, related_name='anexos')
-    arquivo = models.FileField(upload_to='respostas_anexos/')
+    arquivo = models.FileField(upload_to='respostas_anexos/', validators=[validar_arquivo])
     data_upload = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
