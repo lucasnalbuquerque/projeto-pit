@@ -587,6 +587,15 @@
     }
 
     // FUNÇÕES DE PERSISTÊNCIA DOS DADOS DO FORMULÁRIO (LOCALSTORAGE)
+    // Atenção: dados clínicos sensíveis (diagnóstico, queixas, histórico, medicamentos,
+    // exames e dúvida clínica) NUNCA são salvos aqui, para evitar que fiquem expostos
+    // indefinidamente em computadores compartilhados. Apenas dados de identificação
+    // do solicitante e preferências de agendamento são persistidos.
+    const CAMPOS_SENSIVEIS = [
+        'diagnostico_princ', 'diagnostico_sec', 'queixas_especificas',
+        'historico_med', 'medicamentos', 'exames_recentes', 'duvida_clinica'
+    ];
+
     function salvarDadosFormulario() {
         const form = document.getElementById('form-solicitacao');
         if (!form) return;
@@ -594,8 +603,9 @@
         const dados = {};
 
         elements.forEach(el => {
-            // Ignora arquivos e token csrf do Django
+            // Ignora arquivos, token csrf do Django e campos clínicos sensíveis
             if (el.type === 'file' || el.name === 'csrfmiddlewaretoken') return;
+            if (CAMPOS_SENSIVEIS.includes(el.id) || CAMPOS_SENSIVEIS.includes(el.name)) return;
 
             if (el.type === 'checkbox') {
                 const chave = el.id || el.name;
@@ -623,6 +633,9 @@
             Object.keys(dados).forEach(chave => {
                 if (chave.startsWith('radio_')) {
                     const name = chave.replace('radio_', '');
+                    // Se o horário salvo não existir mais na lista atual (ex: foi ocupado
+                    // por outra solicitação), o seletor simplesmente não encontra nada e
+                    // nenhum radio é marcado — não há risco de selecionar um horário inválido.
                     const radio = document.querySelector(`input[type="radio"][name="${name}"][value="${dados[chave]}"]`);
                     if (radio) {
                         radio.checked = true;
@@ -778,14 +791,12 @@
     function marcarSelecao(radio) {
         document.querySelectorAll('.horario-chip').forEach(chip => chip.classList.remove('selecionado'));
         radio.parentElement.classList.add('selecionado');
-        salvarDadosFormulario(); // Salva alteração de horário imediatamente
+        salvarDadosFormulario();
     }
 
     function verificarSexoBiologico() {
-        // Mantém a lógica nativa do formulário caso precise interceptar mudanças de gênero.
     }
 
-    // CORREÇÃO PARA MULTI-ANEXOS NO DJANGO backend
     let arquivosArray = [];
     
     function adicionarArquivos() {
@@ -809,13 +820,11 @@
             lista.innerHTML += `<div>${arq.name} <span onclick="removerArquivo(${index})">Remover</span></div>`;
         });
 
-        // Sincroniza em tempo real a lista virtual com o input oculto via DataTransfer API
         const dataTransfer = new DataTransfer();
         arquivosArray.forEach(file => dataTransfer.items.add(file));
         document.getElementById('arquivos_finais').files = dataTransfer.files;
     }
 
-    // Sincroniza cookies CSRF e garante consistência final no envio nativo multipart/form-data
     document.getElementById('form-solicitacao').addEventListener('submit', function(e) {
         if (typeof validarEmailEmTempoReal === 'function') {
             const emailValido = validarEmailEmTempoReal();
@@ -854,16 +863,12 @@
             csrfInput.value = csrfToken;
         }
 
-        // Garante a última atualização da lista de anexos no input real no momento do clique de envio
         const dataTransfer = new DataTransfer();
         arquivosArray.forEach(file => dataTransfer.items.add(file));
         document.getElementById('arquivos_finais').files = dataTransfer.files;
         
-        // Limpa o localStorage ao enviar com sucesso para evitar repetição do formulário antigo
         localStorage.removeItem('form_solicitacao_dados');
-        
-        // O formulário agora segue o fluxo nativo padrão do navegador, processando
-        // corretamente redirecionamentos e mensagens de validação vindos de views.py.
+
     });
 
     // INICIALIZAÇÃO DE EVENTOS E RESTAURAÇÃO (ON LOAD)

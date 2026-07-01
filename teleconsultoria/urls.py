@@ -1,10 +1,13 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
+from django.views.generic import RedirectView  # adicionar este import
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('', RedirectView.as_view(pattern_name='nova_solicitacao'), name='home'),  # adicionar esta linha
+
     # --- TELA DE LOGIN E LOGOUT NATIVOS ---
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),

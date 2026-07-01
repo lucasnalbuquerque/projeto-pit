@@ -117,6 +117,10 @@
         
         <p>Clique no botão abaixo para gerar um <strong>novo link de acesso</strong>. Ele será enviado imediatamente para o seu whatsapp cadastrado.</p>
 
+        {% if erro %}
+            <p style="color: #dc3545; font-weight: bold;">{{ erro }}</p>
+        {% endif %}
+
         <form action="{% url 'renovar_acesso' link_obj.token %}" method="POST">
             {% csrf_token %}
             <button type="submit" class="btn-renovar">

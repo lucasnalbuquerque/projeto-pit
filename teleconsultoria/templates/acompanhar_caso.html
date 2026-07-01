@@ -274,6 +274,26 @@
         body.dark-mode .btn-entrar-teams { background: var(--agendado-tx); color: var(--white); box-shadow: none; }
         body.dark-mode .btn-entrar-teams:hover { background: #5a62cf; }
 
+        .btn-copiar-teams {
+            background: transparent;
+            color: #464eb8;
+            border: 2px solid #464eb8;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-copiar-teams:hover { background: rgba(70, 78, 184, 0.08); transform: translateY(-2px); }
+        .btn-copiar-teams:active { transform: translateY(0); }
+        body.dark-mode .btn-copiar-teams { color: var(--agendado-tx); border-color: var(--agendado-tx); }
+        body.dark-mode .btn-copiar-teams:hover { background: rgba(192, 132, 252, 0.1); }
+
         .aguardando-link { color: var(--ink-500); font-style: italic; background: var(--white); padding: 12px 20px; border-radius: 10px; font-size: 0.88rem; border: 1px dashed var(--line); font-weight: 500; }
 
         .btn-toggle {
@@ -406,9 +426,14 @@
             </div>
             
             {% if sol.link_teams %}
-                <a href="{{ sol.link_teams }}" target="_blank" class="btn-entrar-teams">
-                    ENTRAR NA CHAMADA AGORA
-                </a>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                    <a href="{{ sol.link_teams }}" target="_blank" class="btn-entrar-teams">
+                        ENTRAR NA CHAMADA AGORA
+                    </a>
+                    <button type="button" class="btn-copiar-teams" onclick="copiarLinkTeams('{{ sol.link_teams }}', this)">
+                        📋 Copiar link
+                    </button>
+                </div>
             {% else %}
                 <div class="aguardando-link">
                     O médico está gerando o link de acesso...
@@ -570,9 +595,6 @@
     }
 
     let segundosRestantes = parseInt("{{ segundos_restantes|default:0 }}");
-    if (segundosRestantes <= 0) {
-        segundosRestantes = 7200; 
-    }
 
     function atualizarContador() {
         const banner = document.getElementById("banner-expiracao");
@@ -598,6 +620,25 @@
 
         document.getElementById("contador").innerHTML = display;
         segundosRestantes--;
+    }
+
+    function copiarLinkTeams(link, btn) {
+        navigator.clipboard.writeText(link).then(function() {
+            const textoOriginal = btn.innerHTML;
+            btn.innerHTML = "✅ Copiado!";
+            setTimeout(function() { btn.innerHTML = textoOriginal; }, 2000);
+        }).catch(function() {
+            // Fallback para navegadores sem suporte ao clipboard API
+            const input = document.createElement('input');
+            input.value = link;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            const textoOriginal = btn.innerHTML;
+            btn.innerHTML = "✅ Copiado!";
+            setTimeout(function() { btn.innerHTML = textoOriginal; }, 2000);
+        });
     }
 
     window.addEventListener('DOMContentLoaded', () => {

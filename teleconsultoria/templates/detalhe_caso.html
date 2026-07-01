@@ -329,7 +329,10 @@
             {% if sol.link_teams %}
                 <div class="teams-white-card">
                     <p style="color: var(--hulw-green-dark); font-weight: 600; margin-bottom: 10px;">✅ Link registrado:</p>
-                    <a href="{{ sol.link_teams }}" target="_blank" class="btn-teams">📹 Entrar na Reunião (Teams)</a>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                        <a href="{{ sol.link_teams }}" target="_blank" class="btn-teams">Entrar na Reunião</a>
+                        <a href="{% url 'agendar_sincrona' sol.id %}" class="btn-secondary">Alterar Link</a>
+                    </div>
                 </div>
             {% else %}
                 <div class="alert-agendamento">
@@ -364,7 +367,6 @@
                         <p>
                             {% if sol.sexo_pac == 'M' %}Masculino
                             {% elif sol.sexo_pac == 'F' %}Feminino
-                            {% elif sol.sexo_pac == 'NB' %}Não Binário
                             {% elif sol.sexo_pac == 'O' %}Outro
                             {% else %}Não informado{% endif %}
                         </p>

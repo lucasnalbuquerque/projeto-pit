@@ -464,20 +464,35 @@
             btn.innerHTML = "🌙 Modo Escuro";
         }
 
-        // --- Lógica de Persistência do Texto ---
+        // --- Lógica de Persistência do Texto (com expiração automática) ---
         const textarea = document.getElementById('textarea-resposta');
         // Usa o id da solicitação obtido via Django no template (se disponível) para criar uma chave única
         const storageKey = "resposta_caso_{{ sol.id|default:'generico' }}";
-        
-        // Restaura o texto se houver dados salvos no localStorage
-        const textoSalvo = localStorage.getItem(storageKey);
-        if (textoSalvo) {
-            textarea.value = textoSalvo;
+        const VALIDADE_RASCUNHO_MS = 2 * 60 * 60 * 1000; // 2 horas
+
+        // Restaura o texto apenas se houver dados salvos e ainda dentro da validade
+        const rascunhoSalvo = localStorage.getItem(storageKey);
+        if (rascunhoSalvo) {
+            try {
+                const { texto, salvoEm } = JSON.parse(rascunhoSalvo);
+                if (texto && salvoEm && (Date.now() - salvoEm) < VALIDADE_RASCUNHO_MS) {
+                    textarea.value = texto;
+                } else {
+                    // Rascunho expirado: remove para não acumular dados clínicos antigos
+                    localStorage.removeItem(storageKey);
+                }
+            } catch (e) {
+                // Formato inválido/antigo: descarta com segurança
+                localStorage.removeItem(storageKey);
+            }
         }
 
-        // Escuta as alterações e salva automaticamente no localStorage
+        // Escuta as alterações e salva automaticamente no localStorage, junto do timestamp
         textarea.addEventListener('input', function() {
-            localStorage.setItem(storageKey, textarea.value);
+            localStorage.setItem(storageKey, JSON.stringify({
+                texto: textarea.value,
+                salvoEm: Date.now()
+            }));
         });
 
         // Limpa o rascunho ao enviar o formulário com sucesso

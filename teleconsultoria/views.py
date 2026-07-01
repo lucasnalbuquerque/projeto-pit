@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.cache import never_cache
 from .models import Solicitacao, Resposta, Profissional, Medica, AnexoSolicitacao, AnexoResposta, LinkAcesso, HorarioFixoDisponivel
 from datetime import datetime, timedelta, date
 from django.db import transaction
@@ -95,7 +96,22 @@ def exportar_reativamento_csv(solicitacao, novo_token):
 def is_medica(user):
     return user.is_authenticated and user.is_staff
 
+# Reforço no backend da mesma regra aplicada no front-end (nova_solicitacao.html):
+# e-mails de provedores públicos não são aceitos como e-mail profissional.
+PROVEDORES_PUBLICOS = [
+    'gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com',
+    'yahoo.com.br', 'uol.com.br', 'bol.com.br', 'icloud.com',
+    'live.com', 'ig.com.br', 'terra.com.br'
+]
+
+def email_e_profissional(email):
+    if not email or '@' not in email:
+        return False
+    dominio = email.split('@')[-1].strip().lower()
+    return dominio not in PROVEDORES_PUBLICOS
+
 # view: nova solicitação (Pública, qualquer um pode acessar)
+@never_cache
 def nova_solicitacao(request):
     if request.method == 'POST':
         cpf_solicitante = request.POST.get('cpf')
@@ -113,6 +129,12 @@ def nova_solicitacao(request):
         if not cpf_solicitante or not text_solicitante:
             return render(request, 'nova_solicitacao.html', {
                 'erro': 'CPF e Nome Completo são obrigatórios para identificar o profissional.',
+                'horarios_disponiveis': gerar_lista_disponibilidade()
+            })
+
+        if not email_e_profissional(email_solicitante):
+            return render(request, 'nova_solicitacao.html', {
+                'erro': 'Por favor, insira um e-mail institucional/profissional (não são aceitos e-mails de provedores públicos como Gmail, Hotmail, etc.).',
                 'horarios_disponiveis': gerar_lista_disponibilidade()
             })
 
@@ -238,6 +260,7 @@ def fila_medica(request):
 
 @login_required(login_url='login')
 @user_passes_test(is_medica, login_url='login')
+@never_cache
 def detalhe_caso(request, sol_id):
     solicitacao = get_object_or_404(Solicitacao, id=sol_id)
     if solicitacao.status == 'PENDENTE':
@@ -347,6 +370,7 @@ def cancelar_solicitacao(request, sol_id):
 
 # --- VIEWS PÚBLICAS (Acesso pelo solicitante) ---
 
+@never_cache
 def acompanhar_caso(request, token):
     link = get_object_or_404(LinkAcesso, token=token)
     agora = timezone.now()
@@ -371,15 +395,21 @@ def acompanhar_caso(request, token):
         'segundos_restantes': segundos_restantes  
     })
 
-@login_required(login_url='login')
-@user_passes_test(is_medica, login_url='login')
 def renovar_acesso(request, token):
     if request.method != 'POST':
         return redirect('fila_medica')
 
     link_antigo = get_object_or_404(LinkAcesso, token=token)
     solicitacao = link_antigo.solicitacao
-    
+
+    # Evita reenvios repetidos em sequência: exige intervalo mínimo de 2 minutos
+    intervalo_minimo = timedelta(minutes=2)
+    if timezone.now() - link_antigo.data_criacao < intervalo_minimo:
+        return render(request, 'link_expirado.html', {
+            'link_obj': link_antigo,
+            'erro': 'Um link já foi gerado recentemente. Aguarde alguns minutos antes de solicitar novamente.'
+        })
+
     novo_token = str(uuid.uuid4())
     link_antigo.token = novo_token
     link_antigo.data_criacao = timezone.now()
