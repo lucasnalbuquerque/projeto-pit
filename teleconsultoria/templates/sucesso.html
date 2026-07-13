@@ -39,6 +39,7 @@
             --ink-300: #475569;
             --ink-100: #1e293b;
             --hulw-green-100: #103227;
+            --hulw-green-50:  #06241b;
             --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
         }
 
@@ -128,8 +129,9 @@
 
         .secao-link {
             text-align: left;
-            background-color: var(--ink-100);
+            background-color: var(--hulw-green-50);
             border: 1px solid var(--border-color);
+            border-left: 4px solid var(--hulw-green-600);
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 30px;
@@ -138,14 +140,17 @@
         .secao-link h2 {
             font-size: 1rem;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             color: var(--ink-900);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .secao-link p {
             font-size: 0.875rem;
-            color: var(--ink-500);
-            line-height: 1.5;
+            color: var(--ink-700);
+            line-height: 1.55;
             margin-bottom: 12px;
         }
 
@@ -196,9 +201,15 @@
         </div>
 
         <div class="secao-link">
-            <h2>Importância do Link de Acesso</h2>
+            <h2>🔒 Link de Acesso Seguro e Exclusivo</h2>
             <p>
-                Como este é um canal público que preserva o sigilo dos dados do paciente, <strong>não enviamos e-mails abertos com informações médicas</strong>. Salve o endereço abaixo nos seus favoritos ou copie-o para um local seguro: ele é o seu único meio exclusivo para acompanhar o andamento, verificar alterações de status e visualizar a resposta oficial.
+                Para garantir o sigilo absoluto dos prontuários e a estrita conformidade com a LGPD, <strong>nenhuma informação médica ou parecer clínico detalhado será enviado diretamente por e-mail aberto</strong>.
+            </p>
+            <p>
+                O endereço gerado abaixo funciona como a sua chave de segurança única. <strong>Recomendamos salvar este link</strong> para monitorar o andamento da triagem a qualquer momento.
+            </p>
+            <p>
+                Não se preocupe: para sua comodidade, <strong>este mesmo link de acesso seguro será reenviado para o seu e-mail cadastrado assim que a médica responder o parecer</strong>, funcionando como uma notificação direta de que a sua resposta final está disponível para visualização.
             </p>
             <div class="box-token">
                 {{ request.scheme }}://{{ request.get_host }}/acompanhar/{{ token }}/
@@ -209,7 +220,7 @@
     </div>
 
 <script>
-    // Função para alternar o tema com persistência local
+    // Função para alternar o tema com frequência e persistência local
     function toggleTheme() {
         const body = document.body;
         const btn = document.getElementById('themeBtn');

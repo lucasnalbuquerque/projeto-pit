@@ -20,9 +20,9 @@
             --bg:      #f8fafc;
             --white:   #ffffff;
 
-            --whatsapp-green: #25d366;
+            --whatsapp-green: #137a4d;
             --whatsapp-bg: #e8f9ee;
-            --whatsapp-tx: #075e54;
+            --whatsapp-tx: #0b3d2e;
 
             --shadow-md: 0 4px 6px -1px rgba(11, 61, 46, 0.05), 0 2px 4px -2px rgba(11, 61, 46, 0.05);
             --shadow-lg: 0 10px 25px -5px rgba(11, 61, 46, 0.1), 0 8px 10px -6px rgba(11, 61, 46, 0.1);
@@ -80,12 +80,11 @@
             box-shadow: var(--shadow-lg);
         }
 
-        /* Ícone animado sutil do WhatsApp */
         .icon-wrapper {
             width: 72px;
             height: 72px;
             background: var(--whatsapp-bg);
-            color: var(--whatsapp-green);
+            color: var(--hulw-green-100);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -94,9 +93,9 @@
         }
         
         .icon-wrapper svg {
-            width: 40px;
-            height: 40px;
-            fill: currentColor;
+            width: 36px;
+            height: 36px;
+            fill: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .card-notificacao h1 {
@@ -113,19 +112,17 @@
             margin: 0 0 24px 0;
         }
 
-        /* Alerta de instrução interno */
         .aviso-whatsapp {
             background: var(--whatsapp-bg);
             color: var(--whatsapp-tx);
             padding: 14px 18px;
             border-radius: 12px;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-weight: 600;
             margin-bottom: 32px;
-            border: 1px solid rgba(37, 211, 102, 0.15);
+            border: 1px solid rgba(19, 122, 77, 0.15);
         }
 
-        /* Botão estilizado para fechar ou voltar */
         .btn-entendido {
             background: var(--hulw-green-100);
             color: #ffffff;
@@ -173,30 +170,29 @@
 
 <div class="card-notificacao">
     <div class="icon-wrapper">
-        <svg viewBox="0 0 24 24">
-            <path d="M12.004 2C6.48 2 2 6.48 2 12.004c0 1.848.502 3.578 1.378 5.067L2 22l5.097-1.337A9.932 9.932 0 0 0 12.004 22c5.523 0 10-4.477 10-10S17.527 2 12.004 2zm5.722 13.06c-.244.686-1.22 1.253-1.684 1.314-.464.06-1.047.092-2.923-.647-2.39-.942-3.916-3.37-4.037-3.53-.12-.163-.996-1.32-.996-2.52 0-1.2.624-1.792.846-2.034.22-.243.483-.304.644-.304.162 0 .324.002.464.008.146.006.342-.056.536.408.2.48.684 1.666.744 1.788.06.12.102.262.02.426-.08.163-.122.264-.244.407-.12.14-.254.314-.364.422-.12.12-.245.252-.104.494.14.24.624 1.03 1.338 1.664.92.818 1.696 1.07 1.94 1.19.24.12.383.1.523-.06.14-.162.604-.703.766-.943.16-.242.322-.202.544-.12.22.08 1.4.66 1.64.78.24.12.4.18.46.284.06.106.06.61-.184 1.297z"/>
+        <!-- Ícone atualizado para E-mail (Envelope) -->
+        <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
         </svg>
     </div>
 
     <h1>Tudo pronto!</h1>
-    <p>Um novo link de acesso seguro e renovado foi gerado e enviado para o seu WhatsApp cadastrado.</p>
+    <p>Um novo link de acesso seguro e renovado foi gerado com sucesso.</p>
 
     <div class="aviso-whatsapp">
-        Verifique suas mensagens no whatsapp para acessar o painel.
+        Será enviado para seu email.
     </div>
 
-    <!-- botão ainda sem regra de negócio (ex: fechar aba, voltar pro início, etc) -->
     <button class="btn-entendido" onclick="window.close();">
         Entendido, fechar esta página
     </button>
 
     <div class="footer-info">
-        Teleconsultoria HULW · Link válido por mais 24 horas.
+        Teleconsultoria HULW · Link válido por mais 10 dias.
     </div>
 </div>
 
 <script>
-    // Sincroniza o tema escuro automaticamente com a escolha salva no painel principal
     window.addEventListener('DOMContentLoaded', () => {
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'dark') {

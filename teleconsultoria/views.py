@@ -376,9 +376,9 @@ def acompanhar_caso(request, token):
     agora = timezone.now()
     
     if link.data_criacao > (link.solicitacao.data_sol + timedelta(minutes=1)):
-        horas_validade = 24
-    else:
         horas_validade = 240
+    else:
+        horas_validade = 720
             
     data_limite_estimada = link.data_criacao + timedelta(hours=horas_validade)
     
