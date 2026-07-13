@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.cache import never_cache
+from django.core.mail import send_mail
 from .models import Solicitacao, Resposta, Profissional, Medica, AnexoSolicitacao, AnexoResposta, LinkAcesso, HorarioFixoDisponivel
 from datetime import datetime, timedelta, date
 from django.db import transaction
@@ -10,14 +11,48 @@ import logging
 import uuid 
 import os
 import pandas as pd
+import threading  # Importado para processamento assíncrono em segundo plano
 
 logger = logging.getLogger(__name__)
 
+
+# --- LÓGICA DE ALERTA INTERNO POR E-MAIL (ASSÍNCRONA COM THREADS) ---
+def _disparar_email_background(assunto, mensagem, destinatario):
+    """
+    Função auxiliar executada exclusivamente em background pela Thread.
+    Mantém o fail_silently=False para que qualquer erro de SMTP apareça no console sem travar o usuário.
+    """
+    try:
+        send_mail(
+            subject=f"[HULW Alerta] {assunto}",
+            message=mensagem,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[destinatario],
+            fail_silently=False,
+        )
+    except Exception as e:
+        logger.error(f"Falha ao enviar e-mail de alerta interno em background: {e}")
+
+def enviar_alerta_desenvolvedor(assunto, mensagem):
+    """
+    Inicia uma nova Thread para enviar o e-mail de monitoramento sem bloquear a requisição HTTP principal.
+    """
+    destinatario = getattr(settings, 'DEVELOPER_EMAIL', None)
+    if destinatario:
+        # Cria e inicia a thread para rodar em paralelo ao ciclo de visualização do Django
+        thread_email = threading.Thread(
+            target=_disparar_email_background,
+            args=(assunto, mensagem, destinatario)
+        )
+        thread_email.start()
+
+
 # --- LÓGICA DE NOTIFICAÇÃO (WHATSAPP VIA CSV) ---
 def exportar_para_whatsapp_csv(solicitacao):
-
     caminho_csv = os.path.join(settings.BASE_DIR, 'log_notificacoes.csv')
-    link_obj = LinkAcesso.objects.filter(solicitacao=solicitacao).first()
+    
+    # Ordena por '-id' para sempre capturar o token mais recente gerado para o caso
+    link_obj = LinkAcesso.objects.filter(solicitacao=solicitacao).order_by('-id').first()
     token = link_obj.token if link_obj else "token-nao-gerado"
     
     link_completo = f"{settings.SITE_URL}/acompanhar/{token}/"
@@ -291,6 +326,15 @@ def agendar_sincrona(request, sol_id):
         solicitacao.link_teams = link
         solicitacao.status = 'AGENDADO'
         solicitacao.save()
+        
+        try:
+            enviar_alerta_desenvolvedor(
+                assunto=f"Link de Atendimento Adicionado - Caso #{solicitacao.id}",
+                mensagem=f"A médica adicionou o link de acesso para o atendimento síncrono do caso #{solicitacao.id}."
+            )
+        except Exception as e:
+            logger.error(f"Erro ao disparar e-mail de link síncrono para o caso #{solicitacao.id}: {e}")
+            
         return redirect('detalhe_caso', sol_id=solicitacao.id)
     return render(request, 'agendar_sincrona.html', {'sol': solicitacao})
 
@@ -321,8 +365,12 @@ def responder_solicitacao(request, sol_id):
             
             try:
                 exportar_para_whatsapp_csv(solicitacao)
+                enviar_alerta_desenvolvedor(
+                    assunto=f"Caso #{solicitacao.id} Respondido",
+                    mensagem=f"Uma resposta foi inserida para o caso #{solicitacao.id} no sistema."
+                )
             except Exception as e:
-                logger.error(f"Erro ao exportar log WhatsApp para caso #{solicitacao.id}: {e}")
+                logger.error(f"Erro ao exportar log WhatsApp ou notificar caso #{solicitacao.id}: {e}")
             
         return redirect('fila_medica')
     return render(request, 'responder.html', {'sol': solicitacao})
@@ -361,6 +409,10 @@ def cancelar_solicitacao(request, sol_id):
         
         try:
             exportar_cancelamento_csv(solicitacao, justificativa)
+            enviar_alerta_desenvolvedor(
+                assunto=f"Caso #{solicitacao.id} Cancelado",
+                mensagem=f"O caso #{solicitacao.id} foi marcado como cancelado no painel administrativo."
+            )
         except Exception as e:
             logger.error(f"Erro ao exportar log cancelamento para caso #{solicitacao.id}: {e}")
             
@@ -402,21 +454,31 @@ def renovar_acesso(request, token):
     link_antigo = get_object_or_404(LinkAcesso, token=token)
     solicitacao = link_antigo.solicitacao
 
-    # Evita reenvios repetidos em sequência: exige intervalo mínimo de 2 minutos
+    # Evita reenvios repetidos em sequência buscando pelo registro mais atualizado do caso
+    ultimo_link = LinkAcesso.objects.filter(solicitacao=solicitacao).order_by('-id').first()
+
     intervalo_minimo = timedelta(minutes=2)
-    if timezone.now() - link_antigo.data_criacao < intervalo_minimo:
+    if ultimo_link and timezone.now() - ultimo_link.data_criacao < intervalo_minimo:
         return render(request, 'link_expirado.html', {
             'link_obj': link_antigo,
             'erro': 'Um link já foi gerado recentemente. Aguarde alguns minutos antes de solicitar novamente.'
         })
 
+    # CRIAÇÃO DO NOVO LINK: Mantém o token antigo intacto e seguro no banco para exibir a tela de expirado,
+    # e gera um novo registro limpo no banco que disparará a regra de 10 dias.
     novo_token = str(uuid.uuid4())
-    link_antigo.token = novo_token
-    link_antigo.data_criacao = timezone.now()
-    link_antigo.save()
+    LinkAcesso.objects.create(
+        solicitacao=solicitacao,
+        token=novo_token,
+        data_criacao=timezone.now()
+    )
     
     try:
         exportar_para_whatsapp_csv(solicitacao)
+        enviar_alerta_desenvolvedor(
+            assunto=f"Link Reativado - Caso #{solicitacao.id}",
+            mensagem=f"Foi solicitada uma reativação/renovação de acesso para o caso #{solicitacao.id}."
+        )
     except Exception as e:
         logger.error(f"Erro ao renovar via WhatsApp para caso #{solicitacao.id}: {e}")
 
