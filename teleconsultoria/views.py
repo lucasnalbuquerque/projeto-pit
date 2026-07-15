@@ -43,7 +43,7 @@ def enviar_alerta_desenvolvedor(assunto, mensagem):
         thread_email.start()
 
 
-# --- LÓGICA DE NOTIFICAÇÃO (WHATSAPP VIA CSV) ---
+# LÓGICA DE NOTIFICAÇÃO (WHATSAPP VIA CSV)
 def exportar_para_whatsapp_csv(solicitacao):
     caminho_csv = os.path.join(settings.BASE_DIR, 'log_notificacoes.csv')
     
