@@ -464,7 +464,7 @@
             btn.innerHTML = "🌙 Modo Escuro";
         }
 
-        // --- Lógica de Persistência do Texto (com expiração automática) ---
+        // Lógica de Persistência do Texto (com expiração automática)
         const textarea = document.getElementById('textarea-resposta');
         // Usa o id da solicitação obtido via Django no template (se disponível) para criar uma chave única
         const storageKey = "resposta_caso_{{ sol.id|default:'generico' }}";
