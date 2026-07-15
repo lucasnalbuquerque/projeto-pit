@@ -31,7 +31,7 @@ class DiaSemana(models.IntegerChoices):
     SABADO = 5, 'Sábado'
     DOMINGO = 6, 'Domingo'
 
-# --- MODELS DE CONFIGURAÇÃO ---
+# MODELS DE CONFIGURAÇÃO
 
 class HorarioFixoDisponivel(models.Model):
     dia_semana = models.IntegerField(choices=DiaSemana.choices)
@@ -48,7 +48,7 @@ class HorarioFixoDisponivel(models.Model):
         status = "Ativo" if self.ativo else "Inativo"
         return f"{self.get_dia_semana_display()} às {self.horario.strftime('%H:%M')} - {status}"
 
-# --- MODELS DE PERFIL ---
+# MODELS DE PERFIL
 
 class Profissional(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -73,7 +73,7 @@ class Medica(models.Model):
     def __str__(self):
         return f"Dra. {self.nome_completo} - {self.especialidade}"
 
-# --- MODELO CENTRAL ---
+# MODELO CENTRAL
 
 class Solicitacao(models.Model):
     profissional = models.ForeignKey(Profissional, on_delete=models.CASCADE, related_name='solicitacoes')
@@ -137,7 +137,7 @@ class Solicitacao(models.Model):
     def __str__(self):
         return f"Solicitação #{self.id} - {self.profissional.user.last_name if self.profissional.user else self.profissional.nome_completo}"
 
-# --- MODELO DE RESPOSTA ---
+# MODELO DE RESPOSTA
 
 class Resposta(models.Model):
     solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE, related_name='respostas')
@@ -161,7 +161,7 @@ class Resposta(models.Model):
     def __str__(self):
         return f"Resposta de {self.medica} para Solicitacao #{self.solicitacao.id}"
 
-# --- EXTENSÃO PARA VALIDAÇÃO DE ANEXOS ---
+# EXTENSÃO PARA VALIDAÇÃO DE ANEXOS
 
 EXTENSOES_PERMITIDAS = ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx']
 TAMANHO_MAXIMO_MB = 50
@@ -178,7 +178,7 @@ def validar_arquivo(arquivo):
             f"Arquivo muito grande. Tamanho máximo permitido: {TAMANHO_MAXIMO_MB}MB."
         )
 
-# --- MODELOS DE ANEXOS ---
+# MODELOS DE ANEXOS
 
 class AnexoSolicitacao(models.Model):
     solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE, related_name='anexos')
@@ -196,7 +196,7 @@ class AnexoResposta(models.Model):
     def __str__(self):
         return f"Anexo da Resposta #{self.id}"
 
-# --- MODELO DE LINK MÁGICO ---
+# MODELO DE LINK MÁGICO
 
 class LinkAcesso(models.Model):
     solicitacao = models.OneToOneField(Solicitacao, on_delete=models.CASCADE, related_name='link_magico')

@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* PALETA: MODO CLARO (Mantida estável) */
             --hulw-green-900: #0b3d2e;
             --hulw-green-700: #15724f;
             --hulw-green-600: #1a8a5f;
@@ -31,12 +30,10 @@
             --shadow-lg: 0 14px 40px rgba(11,61,46,.12);
             --radius: 14px;
 
-            /* Cores para erro de validação do e-mail */
             --error-color: #e74c3c;
             --error-bg: #fdf2f2;
         }
 
-        /* CORREÇÃO DA PALETA: MODO ESCURO INSTITUCIONAL (Sem tons azulados/fluorescentes) */
         body.dark-mode {
             --hulw-green-900: #e6f5ee;
             --hulw-green-700: #34d399;
@@ -85,7 +82,6 @@
 
         .container { max-width: 960px; margin: 0 auto; }
 
-        /* ===== HEADER ===== */
         .hulw-header {
             background: linear-gradient(135deg, var(--hulw-green-700), var(--hulw-green-500));
             color: #fff;
@@ -111,7 +107,6 @@
             pointer-events: none;
         }
 
-        /* BOTÃO TEMA */
         .theme-toggle {
             position: absolute;
             top: 20px;
@@ -635,7 +630,7 @@
                     const name = chave.replace('radio_', '');
                     // Se o horário salvo não existir mais na lista atual (ex: foi ocupado
                     // por outra solicitação), o seletor simplesmente não encontra nada e
-                    // nenhum radio é marcado — não há risco de selecionar um horário inválido.
+                    // nenhum radio é marcado, não há risco de selecionar um horário inválido.
                     const radio = document.querySelector(`input[type="radio"][name="${name}"][value="${dados[chave]}"]`);
                     if (radio) {
                         radio.checked = true;

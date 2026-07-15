@@ -100,7 +100,7 @@ SITE_URL = 'http://127.0.0.1:8000'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'fila_medica'
 
-# --- CONFIGURAÇÃO DE ENVIO DE E-MAIL (SMTP) ---
+# CONFIGURAÇÃO DE ENVIO DE E-MAIL (SMTP)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
@@ -109,5 +109,5 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')          # O e-mail que vai dispa
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Senha de app gerada no provedor
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
 
-# E-mail pessoal que receberá os logs e alertas de monitoramento da teleconsultoria
+# E-mail que receberá os logs e alertas de monitoramento da teleconsultoria
 DEVELOPER_EMAIL = os.getenv('DEVELOPER_EMAIL')

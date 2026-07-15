@@ -11,17 +11,13 @@ import logging
 import uuid 
 import os
 import pandas as pd
-import threading  # Importado para processamento assíncrono em segundo plano
+import threading
 
 logger = logging.getLogger(__name__)
 
 
-# --- LÓGICA DE ALERTA INTERNO POR E-MAIL (ASSÍNCRONA COM THREADS) ---
+# LÓGICA DE ALERTA INTERNO POR E-MAIL (ASSÍNCRONA COM THREADS)
 def _disparar_email_background(assunto, mensagem, destinatario):
-    """
-    Função auxiliar executada exclusivamente em background pela Thread.
-    Mantém o fail_silently=False para que qualquer erro de SMTP apareça no console sem travar o usuário.
-    """
     try:
         send_mail(
             subject=f"[HULW Alerta] {assunto}",
@@ -76,7 +72,7 @@ def exportar_para_whatsapp_csv(solicitacao):
     df_final.to_csv(caminho_csv, index=False, encoding='utf-8-sig')
 
 
-# --- NOVA LÓGICA DE CANCELAMENTO (CSV) ---
+# LÓGICA DE CANCELAMENTO (CSV)
 def exportar_cancelamento_csv(solicitacao, justificativa):
     caminho_csv = os.path.join(settings.BASE_DIR, 'log_cancelamentos.csv')
     
@@ -102,7 +98,7 @@ def exportar_cancelamento_csv(solicitacao, justificativa):
     df_final.to_csv(caminho_csv, index=False, encoding='utf-8-sig')
 
 
-# --- NOVA LÓGICA DE REATIVAMENTO (CSV) ---
+# LÓGICA DE REATIVAMENTO (CSV)
 def exportar_reativamento_csv(solicitacao, novo_token):
     caminho_csv = os.path.join(settings.BASE_DIR, 'log_reativamentos.csv')
     link_completo = f"{settings.SITE_URL}/acompanhar/{novo_token}/"
@@ -127,7 +123,7 @@ def exportar_reativamento_csv(solicitacao, novo_token):
     df_final.to_csv(caminho_csv, index=False, encoding='utf-8-sig')
 
 
-# --- FUNÇÃO DE VERIFICAÇÃO DE ACESSO ---
+# FUNÇÃO DE VERIFICAÇÃO DE ACESSO
 def is_medica(user):
     return user.is_authenticated and user.is_staff
 
@@ -145,7 +141,7 @@ def email_e_profissional(email):
     dominio = email.split('@')[-1].strip().lower()
     return dominio not in PROVEDORES_PUBLICOS
 
-# view: nova solicitação (Pública, qualquer um pode acessar)
+# view: nova solicitação (Pública)
 @never_cache
 def nova_solicitacao(request):
     if request.method == 'POST':
@@ -285,7 +281,7 @@ def gerar_lista_disponibilidade():
     return horarios_livres
 
 
-# --- VIEWS RESTRITAS APENAS PARA A MÉDICA ---
+# VIEWS RESTRITAS APENAS PARA A MÉDICA
 
 @login_required(login_url='login')
 @user_passes_test(is_medica, login_url='login')
@@ -420,7 +416,7 @@ def cancelar_solicitacao(request, sol_id):
     return render(request, 'cancelar_caso.html', {'sol': solicitacao})
 
 
-# --- VIEWS PÚBLICAS (Acesso pelo solicitante) ---
+# VIEWS PÚBLICAS (Acesso pelo solicitante)
 
 @never_cache
 def acompanhar_caso(request, token):
