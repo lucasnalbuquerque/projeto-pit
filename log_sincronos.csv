@@ -1,0 +1,3 @@
+﻿data_e_hora,nome_solicitante,link_acesso,email,status_envio
+27/07/2026 08:30,teste_nome,https://youtube.com,teste@email.com,PENDENTE
+27/07/2026 08:30,teste_nome,http://127.0.0.1:8000/acompanhar/46461f41-75ed-4354-b0ff-b03051c7a636/,teste@email.com,PENDENTE

@@ -1,8 +1,10 @@
-﻿data_resposta,nome_solicitante,whatsapp,link_acesso,status_envio
-10/06/2026 13:13,teste_nome,(11) 11111-1111,http://127.0.0.1:8000/acompanhar/c4a9202d-284a-4f8c-982b-59427e373811/,PENDENTE
-13/07/2026 13:25,teste_nome,(11) 11111-1111,http://127.0.0.1:8000/acompanhar/74c74878-7fd1-4d0b-85e0-902d1fc5f930/,PENDENTE
-13/07/2026 13:42,teste_nome,(11) 11111-1111,http://127.0.0.1:8000/acompanhar/97e713bc-a60e-483d-a6b2-8e0559620d51/,PENDENTE
-13/07/2026 13:44,teste_nome,(11) 11111-1111,http://127.0.0.1:8000/acompanhar/a5cce408-ed48-4808-ba66-2e26ffa9fe81/,PENDENTE
-13/07/2026 13:45,teste_nome,(11) 11111-1111,http://127.0.0.1:8000/acompanhar/282ec514-344f-4739-b11c-e891e11ad9ca/,PENDENTE
-13/07/2026 13:46,teste_nome,(11) 11111-1111,http://127.0.0.1:8000/acompanhar/73061cab-e67f-4b19-b364-f65c561192a6/,PENDENTE
-13/07/2026 13:49,teste_nome,(11) 11111-1111,http://127.0.0.1:8000/acompanhar/a5cce408-ed48-4808-ba66-2e26ffa9fe81/,PENDENTE
+﻿data_resposta,nome_solicitante,whatsapp,link_acesso,status_envio,email
+10/06/2026 13:13,teste_nome,(11) 11111-1111,http://127.0.0.1:8000/acompanhar/c4a9202d-284a-4f8c-982b-59427e373811/,PENDENTE,
+13/07/2026 13:25,teste_nome,(11) 11111-1111,http://127.0.0.1:8000/acompanhar/74c74878-7fd1-4d0b-85e0-902d1fc5f930/,PENDENTE,
+13/07/2026 13:42,teste_nome,(11) 11111-1111,http://127.0.0.1:8000/acompanhar/97e713bc-a60e-483d-a6b2-8e0559620d51/,PENDENTE,
+13/07/2026 13:44,teste_nome,(11) 11111-1111,http://127.0.0.1:8000/acompanhar/a5cce408-ed48-4808-ba66-2e26ffa9fe81/,PENDENTE,
+13/07/2026 13:45,teste_nome,(11) 11111-1111,http://127.0.0.1:8000/acompanhar/282ec514-344f-4739-b11c-e891e11ad9ca/,PENDENTE,
+13/07/2026 13:46,teste_nome,(11) 11111-1111,http://127.0.0.1:8000/acompanhar/73061cab-e67f-4b19-b364-f65c561192a6/,PENDENTE,
+13/07/2026 13:49,teste_nome,(11) 11111-1111,http://127.0.0.1:8000/acompanhar/a5cce408-ed48-4808-ba66-2e26ffa9fe81/,PENDENTE,
+20/07/2026 11:48,LUCAS NOBREGA ALBUQUERQUE,(55) 83996-4354,http://127.0.0.1:8000/acompanhar/529ca72e-93fd-475c-882c-37dbb4a682ba/,PENDENTE,
+20/07/2026 11:59,LUCAS NOBREGA ALBUQUERQUE,,http://127.0.0.1:8000/acompanhar/529ca72e-93fd-475c-882c-37dbb4a682ba/,PENDENTE,lucasnobalb@wdas.com

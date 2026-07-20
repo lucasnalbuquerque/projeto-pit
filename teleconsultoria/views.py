@@ -43,7 +43,7 @@ def enviar_alerta_desenvolvedor(assunto, mensagem):
         thread_email.start()
 
 
-# LÓGICA DE NOTIFICAÇÃO (WHATSAPP VIA CSV)
+# LÓGICA DE NOTIFICAÇÃO (E-MAIL VIA CSV)
 def exportar_para_whatsapp_csv(solicitacao):
     caminho_csv = os.path.join(settings.BASE_DIR, 'log_notificacoes.csv')
     
@@ -56,7 +56,7 @@ def exportar_para_whatsapp_csv(solicitacao):
     novos_dados = {
         'data_resposta': [timezone.now().strftime('%d/%m/%Y %H:%M')],
         'nome_solicitante': [solicitacao.profissional.nome_completo],
-        'whatsapp': [solicitacao.profissional.telefone],
+        'email': [solicitacao.profissional.email],
         'link_acesso': [link_completo],
         'status_envio': ['PENDENTE']
     }
@@ -72,6 +72,42 @@ def exportar_para_whatsapp_csv(solicitacao):
     df_final.to_csv(caminho_csv, index=False, encoding='utf-8-sig')
 
 
+# LÓGICA DE TELECONSULTORIA SÍNCRONA (CSV)
+def exportar_sincrono_csv(solicitacao):
+    caminho_csv = os.path.join(settings.BASE_DIR, 'log_sincronos.csv')
+    
+    # Formata a data e hora agendadas para a teleconsultoria
+    data_hora_str = ""
+    if solicitacao.data_marcada and solicitacao.horario_marcado:
+        data_hora_str = f"{solicitacao.data_marcada.strftime('%d/%m/%Y')} {solicitacao.horario_marcado.strftime('%H:%M')}"
+    
+    # Captura o token de acesso para redirecionar para a página da resposta/acompanhamento do caso
+    link_obj = LinkAcesso.objects.filter(solicitacao=solicitacao).order_by('-id').first()
+    token = link_obj.token if link_obj else "token-nao-gerado"
+    link_resposta = f"{settings.SITE_URL}/acompanhar/{token}/"
+    
+    novos_dados = {
+        'data_e_hora': [data_hora_str],
+        'nome_solicitante': [solicitacao.profissional.nome_completo],
+        'link_acesso': [link_resposta],
+        'email': [solicitacao.profissional.email],
+        'status_envio': ['PENDENTE']
+    }
+    
+    df_novo = pd.DataFrame(novos_dados)
+    
+    if os.path.exists(caminho_csv):
+        try:
+            df_existente = pd.read_csv(caminho_csv)
+            df_final = pd.concat([df_existente, df_novo], ignore_index=True)
+        except Exception:
+            df_final = df_novo
+    else:
+        df_final = df_novo
+        
+    df_final.to_csv(caminho_csv, index=False, encoding='utf-8-sig')
+
+
 # LÓGICA DE CANCELAMENTO (CSV)
 def exportar_cancelamento_csv(solicitacao, justificativa):
     caminho_csv = os.path.join(settings.BASE_DIR, 'log_cancelamentos.csv')
@@ -79,7 +115,7 @@ def exportar_cancelamento_csv(solicitacao, justificativa):
     novos_dados = {
         'data_cancelamento': [timezone.now().strftime('%d/%m/%Y %H:%M')],
         'nome_solicitante': [solicitacao.profissional.nome_completo],
-        'whatsapp': [solicitacao.profissional.telefone],
+        'email': [solicitacao.profissional.email],
         'motivo_cancelamento': [justificativa],
         'status_envio': ['PENDENTE']
     }
@@ -105,7 +141,7 @@ def exportar_reativamento_csv(solicitacao, novo_token):
     
     novos_dados = {
         'data': [timezone.now().strftime('%d/%m/%Y %H:%M')],
-        'whatsapp': [solicitacao.profissional.telefone],
+        'email': [solicitacao.profissional.email],
         'novo_link': [link_completo]
     }
     
@@ -324,6 +360,7 @@ def agendar_sincrona(request, sol_id):
         solicitacao.save()
         
         try:
+            exportar_sincrono_csv(solicitacao)
             enviar_alerta_desenvolvedor(
                 assunto=f"Link de Atendimento Adicionado - Caso #{solicitacao.id}",
                 mensagem=f"A médica adicionou o link de acesso para o atendimento síncrono do caso #{solicitacao.id}."
@@ -484,5 +521,5 @@ def renovar_acesso(request, token):
         logger.error(f"Erro ao exportar log de reativamento para caso #{solicitacao.id}: {e}")
     
     return render(request, 'notificacao_enviada.html', {
-        'email': solicitacao.profissional.telefone if solicitacao.profissional else "Telefone não cadastrado"
+        'email': solicitacao.profissional.email if solicitacao.profissional else "E-mail não cadastrado"
     })
